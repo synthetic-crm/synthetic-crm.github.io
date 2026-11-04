@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261104-200054">
+<meta name="crm-versao" content="20261104-201442">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3704,9 +3704,8 @@ function mtCenas(){
       return { tipo:'colunas', unid:u, un:gxUnTxt(u, true), gapGrupo:6, legenda:[['já vendido', GX_COR.mais], ['falta vender', GX_COR.branco]],
         cols:restam.map(x=> ({ v:x.metaNova, cor:GX_COR.branco, feito:x.real || 0, rot:x.nome, val:x.metaNova, corVal: x.aberto ? GX_COR.mais : '#E8F3F7', valSub: x.aberto ? `vendido ${dtMoney(x.real || 0)} · ${dtMoney(P.porDia)}/dia útil` : 'meta do mês' })) }; }, go:mapa });
   // 4. de onde vem
-  const recup = op.reat.v/12;
-  c.push({ k:'De onde vem', cap:()=>({ t:'O dinheiro está dentro da carteira.', s:`Falta ${dtMoney(P.falta)} · reativar, cross-sell e upsell somam ${dtMoney(op.reat.v + op.mix.v + op.up.v)}` }), dur:12000,
-    fala:()=> `De onde vem esse dinheiro? Da própria carteira. ${fmtNum(op.reat.n)} clientes parados ou em risco compraram ${falaMoney(op.reat.v)} nos últimos doze meses. ${fmtNum(op.mix.n)} clientes deixaram de levar produtos que somavam ${falaMoney(op.mix.v)}. E ${fmtNum(op.up.n)} clientes estão comprando menos. Trazer de volta um em cada três clientes parados já rende cerca de ${falaMoney(recup)} por trimestre.`,
+  c.push({ k:'De onde vem', cap:()=>({ t:'O dinheiro está dentro da carteira.', s:`Falta ${dtMoney(P.falta)} · clientes parados ou em risco compraram ${dtMoney(op.reat.v)} em 12 meses (os grupos se sobrepõem; não somam)` }), dur:12000,
+    fala:()=> `De onde vem esse dinheiro? Da própria carteira. ${fmtNum(op.reat.n)} clientes parados ou em risco compraram ${falaMoney(op.reat.v)} nos últimos doze meses. ${fmtNum(op.mix.n)} clientes deixaram de levar produtos que somavam ${falaMoney(op.mix.v)}. E ${fmtNum(op.up.n)} clientes estão comprando menos. Quanto disso volta, a gente mede: a lista é congelada toda semana e comparada com quantos voltariam sozinhos.`,
     gx:()=>{ const u = gxNice((P.falta + op.reat.v + op.mix.v + op.up.v)/560, true), m = v=> Math.max(1, Math.round(v/u));
       const t = (tit, v, sub)=> `<b>${tit}</b>${kNum(v, 'money')}<small>${escapeHtml(sub)}</small>`;
       return { tipo:'grupos', un:gxUnTxt(u, true), gs:[
@@ -9204,7 +9203,7 @@ setInterval(versaoConfere, 2*60000);
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
   { id:'parados-faixas', dia:'2026-11-04', tela:'parados', titulo:'Parados: os mais fáceis de recuperar em destaque', txt:'O quadro principal separa quem parou há 91 a 180 dias (mais fácil de trazer de volta) de quem parou há mais tempo.' },
-  { id:'cliente-detalhe', dia:'2026-11-04', tela:'parados', titulo:'Clique no cliente parado para ver por que ele parou', txt:'Abre as compras mês a mês, os produtos que ele comprava e quando comprou cada um pela última vez, os últimos pedidos (vendedor, tabela e prazo) e o que foi registrado no CRM. ‹ › passa para o próximo da lista.' },
+  { id:'cliente-detalhe', dia:'2026-11-04', tela:'parados', titulo:'Clique no cliente parado para ver o que ele comprava e quando parou', txt:'Abre as compras mês a mês, os produtos que ele comprava e quando comprou cada um pela última vez, os últimos pedidos (vendedor, tabela e prazo) e o que foi registrado no CRM. ‹ › passa para o próximo da lista.' },
   { id:'parados', dia:'2026-11-03', tela:'parados', titulo:'Clientes parados há mais de 90 dias', txt:'Nova tela com quem comprava e parou, por vendedor, com o que cada cliente comprou em 12 meses. A cada semana ela destaca quem acabou de entrar na lista. Sugestão da equipe.' },
   { id:'antes', dia:'2026-11-03', tela:'tabmedia', titulo:'Tab. média e Prazo comparam com o período anterior', txt:'Nova coluna "Antes" com a seta: verde quando melhorou, vermelho quando piorou. Não precisa mais trocar o filtro para comparar.' },
   { id:'vend-nav', dia:'2026-11-03', tela:'tabmedia', titulo:'Detalhe do vendedor: ‹ Anterior e Próximo ›', txt:'Dentro do detalhe, passe de um vendedor para o outro pelos botões ou pelas setas do teclado. O topo mostra a posição dele no ranking.' },
@@ -9276,6 +9275,8 @@ function usoTrocaTela(){
   document.dispatchEvent(new CustomEvent('crm-tela', { detail:{ tela:nova } }));
 }
 new MutationObserver(()=> usoTrocaTela()).observe(document.querySelector('.view-container'), { subtree:true, attributes:true, attributeFilter:['class'] });
+// linha clicada: o texto da 1ª célula só fora das janelas (lá é vendedor ou produto); dentro de detalhe vira rótulo genérico
+function usoLinhaRot(tr, c){ return tr.dataset.usoLinha || (tr.closest('#dlg') ? 'linha de detalhe' : (c ? c.innerText : '')); }
 // janela onde foi o clique: rótulo fixo (data-uso-janela) ou o título; detalhe de cliente nunca grava o nome
 function usoJanela(el){
   const jan = el.closest('#dlg'); if(!jan) return {};
@@ -9297,12 +9298,12 @@ document.addEventListener('click', ev=>{
   if(!rep){
     USO.cliques = USO.cliques.filter(c=> agora - c.t < 1000 && Math.hypot(c.x - ev.clientX, c.y - ev.clientY) <= 30);
     USO.cliques.push({ t:agora, x:ev.clientX, y:ev.clientY });
-    if(USO.cliques.length >= 3){ USO.cliques = []; uso('raiva', alvoEl ? usoRotulo(alvoEl) : ev.target.tagName.toLowerCase(), { x:ev.clientX, y:ev.clientY }); usoDuvida('travou'); }
+    if(USO.cliques.length >= 3){ USO.cliques = []; uso('raiva', alvoEl ? (alvoEl.tagName === 'TR' || alvoEl.classList.contains('ca-row') ? 'linha: ' + usoLinhaRot(alvoEl, alvoEl.querySelector('td')) : usoRotulo(alvoEl)) : ev.target.tagName.toLowerCase(), { x:ev.clientX, y:ev.clientY }); usoDuvida('travou'); }
   }
   if(!alvoEl) return;
   if(alvoEl.tagName === 'TR' || alvoEl.classList.contains('ca-row')){
     if(ev.target.closest('button, a, input, select')) return;            // o clique no botão da linha já é registrado
-    const c = alvoEl.querySelector('td'), rot = alvoEl.dataset.usoLinha || (c ? c.innerText : '');   // data-uso-linha: linha de pessoa (cliente) vira um rótulo genérico
+    const c = alvoEl.querySelector('td'), rot = usoLinhaRot(alvoEl, c);   // data-uso-linha ou linha dentro de janela: rótulo genérico (pode ser nome de cliente)
     uso('clique', 'linha: ' + rot.replace(/\s+/g, ' ').trim().slice(0, 80), Object.assign({ elemento:'linha' }, usoJanela(alvoEl))); return;
   }
   const r = usoRotulo(alvoEl); if(!r) return;
@@ -10610,7 +10611,7 @@ function ctExportar(filtros){
 async function renderResumo(){
   const host = document.getElementById('rs'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Montando o resumo…</div>';
-  const d = x=> x.toISOString().slice(0, 10), h = new Date();
+  const d = diaLocal, h = new Date();
   const iniMes = d(new Date(h.getFullYear(), h.getMonth(), 1)), hoje = d(h);
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
@@ -10650,7 +10651,9 @@ async function renderResumo(){
     <div class="cm-resumo">Resumo de ${h.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
       ${kpi('tabmedia', 'Vendido no mês', fmtMoney(vMes), varMes == null ? 'até hoje' : `<span class="rs-var ${varMes >= 0 ? 'up' : 'down'}">${pct(varMes)}</span> contra o mesmo período do mês passado`)}
-      ${kpi('tabmedia', 'Tabela média do mês', fmtTm(tmMes), 'meta 2,3 · quanto maior, mais perto da Tabela 5', tmMes != null && tmMes < 2.3 ? 'alerta' : 'rs-kpi-ok')}
+      ${(()=>{ const of = soma(A, 'valor_tabela_crm') / (soma(A, 'valor_com_tabela') || 1);   // 04/11: a tabela antiga do Fácil123 puxa a média para cima
+        return of < .95 ? kpi('tabmedia', 'Tabela média do mês (provisória)', fmtTm(tmMes), `meta 2,3 · ${Math.round(100 - of * 100)}% das vendas ainda pela tabela antiga do Fácil123, que puxa a média para cima`, '')
+          : kpi('tabmedia', 'Tabela média do mês', fmtTm(tmMes), 'meta 2,3 · quanto maior, mais perto da Tabela 5', tmMes != null && tmMes < 2.3 ? 'alerta' : 'rs-kpi-ok'); })()}
       ${kpi('prazo', 'Prazo médio (90 dias)', pzMed == null ? '—' : Math.round(pzMed) + ' dias', `meta 60 dias · vale para ${Math.round(100 * soma(P, 'valor_com_prazo') / (soma(P, 'valor') || 1))}% das vendas, as com boleto identificado`, pzMed != null && pzMed > 60 ? 'alerta' : 'rs-kpi-ok')}
       ${kpi('tabelas', 'Vendas com tabela lançada', Math.round(cob * 100) + '%', `nos últimos 90 dias · ${semTab} produtos vendendo sem tabela`, cob < .9 ? 'alerta' : '')}
       ${veCom ? kpi('comissoes', 'Comissão do ciclo', cmR(comTot), escapeHtml(ciRot)) : ''}
@@ -10712,14 +10715,14 @@ function renderSobre(){
     ['Cada um vê o que precisa.', 'O acesso é liberado por pessoa e por perfil. Custos e margens ficam com quem decide.'],
     ['Os dados ficam na Synthetic.', 'O sistema e os dados ficam nas contas da empresa. Ninguém fica refém de ninguém.']];
   const perfis = [
-    ['CEO', 'Visão do negócio inteiro: indicadores, margem, preço e equipe.'],
-    ['Gerente de vendas', 'Time comercial: metas, tabela média, prazo e carteira de cada vendedor.'],
+    ['CEO', 'Visão do negócio inteiro: vendas, preço, prazo, comissão e clientes parados.'],
+    ['Gerente de vendas', 'Time comercial: tabela média, prazo e clientes parados de cada vendedor.'],
     ['Analista', 'Prepara e confere os números, acompanha as regras de preço.'],
     ['Especialista', 'A própria carteira: tabela média, prazo e clientes parados (visitas em construção).']];
   host.innerHTML = `
     <section class="sb-hero">
       <div class="sb-kick">Torre de Controle - Synthetic</div>
-      <h1>Ver o negócio inteiro numa tela, decidir com número e agir no mesmo dia.</h1>
+      <h1>Ver o negócio inteiro numa tela, decidir com número e saber onde agir.</h1>
       <p>Esta é a torre de controle da Synthetic. Ela lê o que a empresa já registra no Fácil123, junta o que estava espalhado em planilhas e cria o que faltava, para quem vende e para quem decide.</p>
       <div class="sb-frase">Não queremos ensinar a roda a girar. Queremos que ela gire mais rápido.</div>
     </section>
@@ -10741,7 +10744,7 @@ function renderSobre(){
       <div class="sb-seta" aria-hidden="true">→</div>
       <div class="sb-passo"><small>3 · MOSTRA</small><b>Cada perfil</b><span>Cada pessoa vê os números que dependem dela, no computador e no celular.</span></div>
       <div class="sb-seta" aria-hidden="true">→</div>
-      <div class="sb-passo"><small>4 · AGE</small><b>Decisão e rotina</b><span>Reunião de resultado, conversa com o vendedor, ajuste de preço, visita ao cliente.</span></div>
+      <div class="sb-passo"><small>4 · AGE</small><b>Decisão e rotina</b><span>Reunião de resultado, conversa com o vendedor, ajuste de preço, ligação para o cliente que parou.</span></div>
     </div>
 
     <h2>O que estamos construindo primeiro</h2>
