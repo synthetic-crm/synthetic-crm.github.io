@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-202539">
+<meta name="crm-versao" content="20261105-202701">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11149,7 +11149,7 @@ async function esAcompanha(box, host, nome){
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
 }
 
-// ---------- ROTEIRIZAÇÃO (05/11/2026; mapa por CEP ligado no mesmo dia, autorizado pelo Luiz) ----------
+// ---------- ROTEIRIZAÇÃO (05/11/2026; mapa por CEP ligado no mesmo dia) ----------
 // Roteiro da semana: os clientes de uma fonte (plano do Especialista, parados, em risco, carteira) agrupados por cidade e bairro e
 // distribuídos de segunda a sexta, sem misturar cidades num dia quando dá. Área: em quantas cidades cada vendedor atende (espalhado ou concentrado).
 const RO = { aba:'roteiro', sid:null, nome:'', fonte:'parados', semana:null, porDia:8, rows:null, de:'', area:null, geoDe:'', map:null, mun:null };
