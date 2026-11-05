@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-181021">
+<meta name="crm-versao" content="20261105-181922">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -55,6 +55,13 @@
   .tb-tab td{ padding:6px 8px; border-bottom:1px solid var(--border-soft); white-space:nowrap;}
   .tb-tab td.n, .tb-tab th.n{ text-align:right; font-variant-numeric:tabular-nums;}
   .tb-tab td.prod{ white-space:normal; min-width:220px;}
+  /* notebook (05/11/2026, reunião: o cliente arrastava a tabela para o lado): até 1600 px o texto quebra linha e só número e data ficam numa linha */
+  @media (max-width:1600px){
+    .tb-tab th{ white-space:normal; line-height:1.25;}
+    .tb-tab td{ white-space:normal; padding:5px 6px;}
+    .tb-tab td.n, .tb-tab th.n{ white-space:nowrap;}
+    .tb-tab td.prod{ min-width:150px;}
+  }
   .tb-tab tr.edit{ cursor:pointer;} .tb-tab tr.edit:hover td{ background:var(--brand-soft);}
   .tb-tab td.vazio{ color:var(--ink-faint);}
   .tb-chip{ font-size:11.5px; font-weight:600; padding:3px 8px; border-radius:999px; white-space:nowrap;}
@@ -8894,7 +8901,7 @@ async function renderEquipe(){
   if(!ehGestao()){ host.innerHTML = '<div class="op-more">Esta área é só para gerente e master.</div>'; return; }
   host.innerHTML = '<div class="op-more">Carregando acessos…</div>';
   try{ await eqCarregar(); }catch(e){ host.innerHTML = `<div class="op-more">Não consegui carregar os acessos. ${escapeHtml(errAmigavel(e))}</div>`; return; }
-  const abas = [['usuarios','Usuários'],['convites','Convites'],['equipes','Equipes'],['log','Registro de segurança']];
+  const abas = [['usuarios','Usuários'],['convites','Convites'],['equipes','Equipes'],['tipos','Vendedores internos'],['log','Registro de segurança']];
   host.innerHTML = `<div class="pg-head"><h2>Acessos</h2><span class="sub">Quem entra no CRM, com qual perfil e quais carteiras enxerga. As permissões são garantidas pelo banco de dados.</span></div>
     <div class="pn-bar"><div class="pn-tabs" role="tablist" aria-label="Acessos">${abas.map(([k, t])=>`<button type="button" role="tab" class="${EQ.aba===k?'on':''}" aria-selected="${EQ.aba===k}" data-eqaba="${k}">${t}</button>`).join('')}</div>
     <span style="flex:1"></span>${perfilEfetivo()==='admin' ? '<button type="button" class="om-save" id="eq-link">🔗 Link de acesso da equipe</button> ' : ''}<button type="button" class="om-cancel" id="eq-convidar">+ Convite individual</button></div>
@@ -8909,7 +8916,26 @@ async function renderEquipe(){
     if(error){ b.disabled = false; showToast(errAmigavel(error)); return; } showToast('Pedido recusado.'); renderEquipe(); }));
   eqBadgePedidos();
   const corpo = host.querySelector('#eq-corpo');
-  ({ usuarios:eqUsuarios, convites:eqConvites, equipes:eqEquipes, log:eqLog })[EQ.aba](corpo);
+  ({ usuarios:eqUsuarios, convites:eqConvites, equipes:eqEquipes, tipos:eqTipos, log:eqLog })[EQ.aba](corpo);
+}
+// vendedor interno ("as meninas", vendas internas) ou externo (05/11/2026): o Fácil123 não diz; marcado aqui, filtra a Tab. média e o Prazo
+async function eqTipos(corpo){
+  corpo.innerHTML = '<div class="op-more">Buscando os vendedores…</div>';
+  const fim = new Date().toISOString().slice(0, 10), ini = new Date(Date.now() - 180 * 864e5).toISOString().slice(0, 10);
+  const [{ data, error }] = await Promise.all([sb.rpc('crm_tabela_media', { p_ini:ini, p_fim:fim }), vtCarrega(true)]);
+  if(error){ corpo.innerHTML = `<div class="op-more">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  const L = (data || []).slice().sort((a, b)=> nomeBonito(a.vendedor).localeCompare(nomeBonito(b.vendedor), 'pt-BR'));
+  const pode = ['admin', 'master', 'gerente'].includes(perfilEfetivo());
+  const n = t=> L.filter(r=> (VT_MAPA.get(r.seller_id) || '') === t).length;
+  corpo.innerHTML = `<div class="tb-rodape" style="margin:8px 0">Marque quem é da equipe <b>interna</b> (vendas internas) e quem é <b>externo</b>. A Tab. média e o Prazo passam a ter o filtro "Internos / Externos", e a exportação por cliente leva o tipo. Hoje: ${n('interno')} internos, ${n('externo')} externos, ${n('')} sem marcação.${pode ? '' : ' Só Administrador, CEO e Gerente de vendas podem mudar.'}</div>
+    <div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Vendeu em 6 meses</th><th class="n">Clientes</th><th>Tipo</th></tr></thead><tbody>
+    ${L.map(r=> `<tr><td class="prod">${escapeHtml(nomeBonito(r.vendedor))}</td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.clientes}</td>
+      <td><select data-vt="${r.seller_id}" ${pode ? '' : 'disabled'}><option value="">—</option><option value="externo" ${VT_MAPA.get(r.seller_id) === 'externo' ? 'selected' : ''}>Externo</option><option value="interno" ${VT_MAPA.get(r.seller_id) === 'interno' ? 'selected' : ''}>Interno</option></select></td></tr>`).join('') || '<tr><td colspan="4" class="vazio">Nenhum vendedor com venda em 6 meses.</td></tr>'}</tbody></table></div>`;
+  corpo.querySelectorAll('[data-vt]').forEach(s=> s.addEventListener('change', async ()=>{
+    s.disabled = true; const { error: er } = await sb.rpc('crm_vendedor_tipo_salvar', { p_seller:Number(s.dataset.vt), p_tipo:s.value }); s.disabled = false;
+    if(er){ showToast(errAmigavel(er)); return; }
+    if(s.value) VT_MAPA.set(Number(s.dataset.vt), s.value); else VT_MAPA.delete(Number(s.dataset.vt));
+    showToast('Salvo.'); uso('clique', 'acessos: tipo de vendedor', { tipo:s.value }); }));
 }
 function eqUsuarios(corpo){
   const linhas = EQ.usuarios.map(u=>`<tr class="${u.ativo?'':'eq-off'}"><td><b>${escapeHtml(u.nome||'')}</b><div class="eq-mini">${escapeHtml(u.email)}</div></td>
@@ -9213,6 +9239,8 @@ setInterval(versaoConfere, 2*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
+  { id:'desconto', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
   { id:'promo-bonificacao', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
   { id:'promo-vendas', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
   { id:'whatsapp', dia:'2026-11-05', tela:'parados', titulo:'Mensagem pronta no WhatsApp: oferta e cobrança', txt:'No detalhe do cliente, "Mandar oferta" monta a mensagem com o que ele comprava e a promoção ativa; o financeiro tem "Cobrar" com os boletos em atraso. Você revisa e manda pelo seu WhatsApp.' },
@@ -9938,7 +9966,28 @@ async function tbImportar(){
 // ---------- TABELA MÉDIA POR VENDEDOR E POR GERÊNCIA (prioridade 2 do CEO, 27/10/2026) ----------
 // Posição do preço vendido entre as tabelas, ponderada pelo valor (crm_tabela_media). Meta 2,3; limite sem pedir: Tabela 1 −7% (0,93).
 // Gerência = equipe do vendedor em Acessos. O especialista vê só a própria carteira (o banco filtra).
-const TM = { per:'mes', META:2.3 };
+const TM = { per:'mes', META:2.3, tipo:'' };
+// vendedor interno ou externo (05/11/2026): marcado em Acessos › Vendedores internos; filtra a Tab. média e o Prazo
+let VT_MAPA = null;
+async function vtCarrega(forcar){
+  if(VT_MAPA && !forcar) return VT_MAPA;
+  const { data } = await sb.from('crm_vendedor_tipo').select('seller_id,tipo');
+  VT_MAPA = new Map((data || []).map(r=> [r.seller_id, r.tipo])); return VT_MAPA;
+}
+const vtFiltra = (rows, f)=> !f ? rows : rows.filter(r=> (f === '?' ? !VT_MAPA.get(r.seller_id) : VT_MAPA.get(r.seller_id) === f));
+const vtSelect = (id, val)=> `<select id="${id}" aria-label="Tipo de vendedor" title="Internos e externos são marcados em Acessos › Vendedores internos">${[['', 'Todos os vendedores'], ['externo', 'Externos'], ['interno', 'Internos'], ['?', 'Sem marcação']].map(([k, t])=> `<option value="${k}" ${val === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+// exporta tabela média e prazo médio de cada vendedor em cada cliente (pedido do CEO: "separado por cliente")
+async function vtExporta(ini, fim, tipo, btn){
+  if(btn) btn.disabled = true;
+  const { data, error } = await sb.rpc('crm_export_vendedor_cliente', { p_ini:ini, p_fim:fim });
+  if(btn) btn.disabled = false;
+  if(error){ showToast(errAmigavel(error)); return; }
+  const L = vtFiltra(data || [], tipo), n = v=> v == null ? '' : String(v).replace('.', ',');
+  uso('clique', 'Exportar vendedor × cliente', { linhas:L.length });
+  csvDownload([['Vendedor', 'Tipo', 'Cliente', 'Cidade', 'UF', 'Pedidos', 'Vendido', 'Tabela média', 'Vendido com tabela', 'Prazo médio (dias)', 'Vendido com prazo conhecido']]
+    .concat(L.map(r=> [nomeBonito(r.vendedor), r.tipo || '', r.cliente, r.cidade, r.uf, r.pedidos, n(r.valor), n(r.tabela_media), n(r.valor_com_tabela), n(r.prazo_medio), n(r.valor_com_prazo)])),
+    'tabela-media-e-prazo-por-cliente-' + ini + '-a-' + fim + '.csv');
+}
 const tmFmt = v=> v == null ? '—' : Number(v).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
 const tmPct = (a, b)=> b ? Math.round(100 * (a || 0) / b) + '%' : '—';
 const diaLocal = x=> `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
@@ -9970,9 +10019,9 @@ async function renderTabMedia(){
   const host = document.getElementById('tm'); if(!host) return;
   const [ini, fim, rot] = tmPeriodo(), [aIni, aFim, aRot] = tmAnterior(TM.per);
   host.innerHTML = '<div class="tb-rodape">Calculando a tabela média…</div>';
-  const [{ data, error }, ant] = await Promise.all([sb.rpc('crm_tabela_media', { p_ini:ini, p_fim:fim }), sb.rpc('crm_tabela_media', { p_ini:aIni, p_fim:aFim })]);
+  const [{ data, error }, ant] = await Promise.all([sb.rpc('crm_tabela_media', { p_ini:ini, p_fim:fim }), sb.rpc('crm_tabela_media', { p_ini:aIni, p_fim:aFim }), vtCarrega()]);
   if(error){ host.innerHTML = `<div class="tb-aviso">Não consegui calcular: ${escapeHtml(errAmigavel(error))}</div>`; return; }
-  const L = data || [], soma = k=> L.reduce((s, r)=> s + Number(r[k] || 0), 0);
+  const L = vtFiltra(data || [], TM.tipo), soma = k=> L.reduce((s, r)=> s + Number(r[k] || 0), 0);
   const tot = soma('valor'), comTab = soma('valor_com_tabela'), crm = soma('valor_tabela_crm'), abaixo = soma('valor_abaixo_limite');
   const media = comTab ? L.reduce((s, r)=> s + Number(r.valor_com_tabela || 0) * Number(r.tabela_media || 0), 0) / comTab : null;
   const provisorio = !tot || crm / tot < .8;
@@ -10011,12 +10060,16 @@ async function renderTabMedia(){
       : `<div class="tb-aviso"><b>Quase completo.</b> ${tmPct(crm, tot)} do que foi vendido já tem as tabelas 1 a 5 lançadas. O resto (por exemplo, embalagens de 5 e 20 litros que não estão na tabela atual) usa a tabela antiga do Fácil123. Lance esses produtos na tela Tabelas para fechar a conta.</div>`) : ''}
     <div class="tb-bar">
       <select id="tm-per"><option value="mes" ${TM.per === 'mes' ? 'selected' : ''}>Mês atual</option><option value="ant" ${TM.per === 'ant' ? 'selected' : ''}>Mês passado</option><option value="90" ${TM.per === '90' ? 'selected' : ''}>Últimos 90 dias</option></select>
+      ${vtSelect('tm-tipo', TM.tipo)}
       <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver a média por gerência.</span>' : ''}
+      <button class="om-cancel" id="tm-exp" title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Tabela média</th><th>contra a meta</th><th class="n" title="Tabela média no ${escapeHtml(aRot)} e a variação: verde = subiu (melhor), vermelho = caiu">Antes</th><th class="n">Com tabela</th><th class="n">Abaixo do limite</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="9" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os produtos, os clientes e as vendas abaixo do limite que explicam a tabela média dele. Tabela média = em que tabela o preço foi vendido, pesando pelo valor: Tabela 2 = 2; entre a 2 e a 3, fração; Tabela 1 com 7% de desconto = 0,93. "Com tabela" = parte das vendas de produtos que têm tabela; o resto não entra na média.</div>`;
   host.querySelector('#tm-per').addEventListener('change', e=>{ TM.per = e.target.value; renderTabMedia(); });
+  host.querySelector('#tm-tipo').addEventListener('change', e=>{ TM.tipo = e.target.value; renderTabMedia(); });
+  host.querySelector('#tm-exp').addEventListener('click', e=> vtExporta(ini, fim, TM.tipo, e.target));
   host.querySelectorAll('tr.vd-lin').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.sid), ini, fim, rot, 'tm', nav)));
 }
 
@@ -10307,10 +10360,80 @@ const FI_FAIXAS = [['4 a 30 dias', 4, 30], ['31 a 90 dias', 31, 90], ['91 a 180 
 const fiMi = v=>{ v = Number(v) || 0; return v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits:1 }) + ' mi' : Math.round(v / 1e3).toLocaleString('pt-BR') + ' mil'; };
 async function renderFinanceiro(){
   const fora = document.getElementById('fi'); if(!fora) return;
-  fora.innerHTML = `<div class="cm-abas"><button class="cm-aba ${FI.aba === 'inad' ? 'on' : ''}" data-fiaba="inad">Inadimplência e baixas</button><button class="cm-aba ${FI.aba === 'rating' ? 'on' : ''}" data-fiaba="rating">Nota de pagamento dos clientes</button><button class="cm-aba ${FI.aba === 'rel' ? 'on' : ''}" data-fiaba="rel">Relatórios</button></div><div id="fi-in"></div>`;
+  fora.innerHTML = `<div class="cm-abas"><button class="cm-aba ${FI.aba === 'inad' ? 'on' : ''}" data-fiaba="inad">Inadimplência e baixas</button><button class="cm-aba ${FI.aba === 'rating' ? 'on' : ''}" data-fiaba="rating">Nota de pagamento dos clientes</button><button class="cm-aba ${FI.aba === 'desc' ? 'on' : ''}" data-fiaba="desc">Desconto de duplicatas</button><button class="cm-aba ${FI.aba === 'rel' ? 'on' : ''}" data-fiaba="rel">Relatórios</button></div><div id="fi-in"></div>`;
   fora.querySelectorAll('[data-fiaba]').forEach(b=> b.addEventListener('click', ()=>{ FI.aba = b.dataset.fiaba; uso('clique', 'financeiro: aba ' + FI.aba); renderFinanceiro(); }));
   const host = document.getElementById('fi-in');
-  return FI.aba === 'rating' ? fiRating(host) : FI.aba === 'rel' ? fiRelatorios(host) : fiInadimplencia(host);
+  return FI.aba === 'rating' ? fiRating(host) : FI.aba === 'rel' ? fiRelatorios(host) : FI.aba === 'desc' ? fiDesconto(host) : fiInadimplencia(host);
+}
+// ---- Desconto de duplicatas (05/11/2026, reunião 01:06:30): o financeiro separa aqui os boletos a vencer que vão ser descontados no banco,
+// no lugar da planilha que monta para o CEO. Nada muda no Fácil123 (mexer no boleto lá dá problema com o banco); a Torre só registra a separação.
+const FD = { rows:null, f:'livre', emp:'', ate:'60', nota:'', q:'', sel:new Set() };
+const FD_ST = { livre:'A vencer, não separados', separado:'Separados', enviado:'Enviados para aprovação', descontado:'Descontados', desistiu:'Desistiu' };
+async function fiDesconto(host){
+  if(!FD.rows){
+    host.innerHTML = '<div class="tb-rodape">Buscando os boletos a vencer…</div>';
+    const { data, error } = await sb.rpc('crm_desconto_lista');
+    if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+    FD.rows = data || [];
+  }
+  const R = FD.rows, k = r=> r.empresa + '|' + r.parcela_id, hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+  const lim = FD.ate ? new Date(Date.now() + Number(FD.ate) * 864e5).toISOString().slice(0, 10) : null, q = FD.q.trim().toLowerCase();
+  const st = r=> r.status || 'livre', empresas = [...new Set(R.map(r=> r.empresa))].sort();
+  const L = R.filter(r=> st(r) === FD.f && (!FD.emp || r.empresa === FD.emp) && (FD.f !== 'livre' || !lim || r.vence <= lim)
+    && (!FD.nota || (r.nota != null && r.nota >= Number(FD.nota))) && (!q || [r.cliente, r.cnpj, r.vendedor].join(' ').toLowerCase().includes(q)));
+  const soma = rs=> rs.reduce((t, r)=> t + Number(r.valor || 0), 0), sep = R.filter(r=> r.status === 'separado');
+  const porEmp = rs=> empresas.map(e=> { const x = rs.filter(r=> r.empresa === e); return x.length ? `${e} ${fmtMoney(soma(x))} (${x.length})` : ''; }).filter(Boolean).join(' · ');
+  const selRows = L.filter(r=> FD.sel.has(k(r))), MAX = 500;
+  host.innerHTML = `
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>A vencer, não separados</small><b>${fmtMoney(soma(R.filter(r=> !r.status)))}</b><span>${fmtNum(R.filter(r=> !r.status).length)} boletos em aberto que ainda não venceram</span></div>
+      <div class="tb-kpi ${sep.length ? 'alerta' : ''}"><small>Separados para descontar</small><b>${fmtMoney(soma(sep))}</b><span>${sep.length ? porEmp(sep) : 'nenhum boleto separado ainda'}</span></div>
+      <div class="tb-kpi"><small>Descontados</small><b>${fmtMoney(soma(R.filter(r=> r.status === 'descontado')))}</b><span>${fmtNum(R.filter(r=> r.status === 'descontado').length)} boletos marcados como descontados</span></div>
+    </div>
+    <div class="cm-chips" style="margin:0 0 8px">${Object.entries(FD_ST).map(([s, t])=> `<button class="cm-chip ${FD.f === s ? 'on' : ''}" data-fdf="${s}">${t} (${R.filter(r=> st(r) === s).length})</button>`).join('')}</div>
+    <div class="tb-bar">
+      <select id="fd-emp" aria-label="Empresa"><option value="">Todas as empresas</option>${empresas.map(e=> `<option ${FD.emp === e ? 'selected' : ''}>${escapeHtml(e)}</option>`).join('')}</select>
+      ${FD.f === 'livre' ? `<select id="fd-ate" aria-label="Vencimento"><option value="30" ${FD.ate === '30' ? 'selected' : ''}>Vencem em até 30 dias</option><option value="60" ${FD.ate === '60' ? 'selected' : ''}>Em até 60 dias</option><option value="90" ${FD.ate === '90' ? 'selected' : ''}>Em até 90 dias</option><option value="" ${!FD.ate ? 'selected' : ''}>Todos</option></select>` : ''}
+      <select id="fd-nota" aria-label="Nota de pagamento" title="O banco aceita melhor o título de quem paga em dia"><option value="">Qualquer nota</option><option value="8" ${FD.nota === '8' ? 'selected' : ''}>Nota 8 a 10 (paga em dia)</option><option value="6" ${FD.nota === '6' ? 'selected' : ''}>Nota 6 ou mais</option></select>
+      <input id="fd-q" class="ca-inp" placeholder="Buscar cliente, CNPJ ou vendedor" value="${escapeHtml(FD.q)}" style="min-width:180px">
+      <span class="tb-esp"></span>
+      ${FD.f === 'livre' ? `<button class="om-save" data-fdm="separado" ${selRows.length ? '' : 'disabled'}>Separar para desconto (${selRows.length})</button>`
+        : FD.f === 'separado' ? `<button class="om-save" id="fd-copia">Copiar lote para aprovação</button><button class="om-cancel" data-fdm="enviado" ${selRows.length ? '' : 'disabled'}>Marcar como enviados (${selRows.length})</button><button class="om-cancel" data-fdm="" ${selRows.length ? '' : 'disabled'}>Tirar da lista</button>`
+        : FD.f === 'enviado' ? `<button class="om-save" data-fdm="descontado" ${selRows.length ? '' : 'disabled'}>Descontados (${selRows.length})</button><button class="om-cancel" data-fdm="desistiu" ${selRows.length ? '' : 'disabled'}>Desistiu</button>`
+        : `<button class="om-cancel" data-fdm="" ${selRows.length ? '' : 'disabled'}>Voltar para a lista (${selRows.length})</button>`}
+      <button class="om-cancel" id="fd-csv">Exportar</button>
+    </div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="ck"><input type="checkbox" id="fd-all" title="Marcar todos os da lista"></th><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Emitida</th><th class="n">Vence</th><th class="n">Valor</th><th class="n">Nota pgto.</th>${FD.f !== 'livre' ? '<th>Separado por</th>' : ''}</tr></thead>
+    <tbody>${L.slice(0, MAX).map(r=> `<tr><td class="ck"><input type="checkbox" data-fdk="${escapeHtml(k(r))}" ${FD.sel.has(k(r)) ? 'checked' : ''}></td><td class="prod">${escapeHtml(r.cliente || r.cnpj || '')}</td><td>${escapeHtml(nomeBonito(r.vendedor || ''))}</td><td>${escapeHtml(r.empresa)}</td>
+      <td class="n">${fmtDate(r.emitida)}</td><td class="n ${r.vence < hoje ? 'cm-pend' : ''}">${fmtDate(r.vence)}</td><td class="n">${fmtMoneyC(r.valor)}</td><td class="n">${r.nota != null ? `<span class="rt rt-${r.nota >= 8 ? 'A' : r.nota >= 6 ? 'B' : r.nota >= 4 ? 'C' : 'D'}">${r.nota}</span>` : '<span class="vazio">—</span>'}</td>
+      ${FD.f !== 'livre' ? `<td><small>${escapeHtml((r.marcado_por || '').split('@')[0])}${r.marcado_em ? ' · ' + new Date(r.marcado_em).toLocaleDateString('pt-BR') : ''}</small></td>` : ''}</tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum boleto com esses filtros.</td></tr>'}</tbody></table></div>
+    <div class="tb-rodape">${fmtNum(L.length)} boletos · ${fmtMoney(soma(L))}${L.length > MAX ? ` · mostrando ${MAX}` : ''}${selRows.length ? ` · <b>${selRows.length} marcados, ${fmtMoney(soma(selRows))}</b>` : ''}. Boletos em aberto das empresas que faturam, lidos do Fácil123. Separar aqui não muda nada no Fácil123 nem no banco: é a lista para combinar o desconto. Depois de descontado no banco, marque como descontado. Se o desconto não sair, marque "Desistiu" (os boletos continuam valendo normalmente).</div>`;
+  const re = ()=> fiDesconto(host);
+  host.querySelectorAll('[data-fdf]').forEach(b=> b.addEventListener('click', ()=>{ FD.f = b.dataset.fdf; FD.sel = new Set(); re(); }));
+  host.querySelector('#fd-emp').addEventListener('change', e=>{ FD.emp = e.target.value; re(); });
+  host.querySelector('#fd-ate')?.addEventListener('change', e=>{ FD.ate = e.target.value; re(); });
+  host.querySelector('#fd-nota').addEventListener('change', e=>{ FD.nota = e.target.value; re(); });
+  let tq; host.querySelector('#fd-q').addEventListener('input', e=>{ clearTimeout(tq); tq = setTimeout(()=>{ FD.q = e.target.value; re(); const i = document.getElementById('fd-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 350); });
+  host.querySelectorAll('[data-fdk]').forEach(c=> c.addEventListener('change', ()=>{ if(c.checked) FD.sel.add(c.dataset.fdk); else FD.sel.delete(c.dataset.fdk); re(); }));
+  host.querySelector('#fd-all').addEventListener('change', e=>{ L.slice(0, MAX).forEach(r=> e.target.checked ? FD.sel.add(k(r)) : FD.sel.delete(k(r))); re(); });
+  host.querySelectorAll('[data-fdm]').forEach(b=> b.addEventListener('click', async ()=>{
+    const itens = selRows.map(r=> ({ empresa:r.empresa, parcela_id:r.parcela_id })); if(!itens.length) return;
+    b.disabled = true; const { error } = await sb.rpc('crm_desconto_marcar', { p_itens:itens, p_status:b.dataset.fdm }); b.disabled = false;
+    if(error){ showToast(errAmigavel(error)); return; }
+    uso('clique', 'desconto: ' + (b.dataset.fdm || 'tirou'), { boletos:itens.length });
+    showToast(`${itens.length} boleto${itens.length === 1 ? '' : 's'} ${b.dataset.fdm ? 'marcados como ' + (FD_ST[b.dataset.fdm] || b.dataset.fdm).toLowerCase() : 'voltaram para a lista'}.`);
+    FD.rows = null; FD.sel = new Set(); re(); }));
+  host.querySelector('#fd-copia')?.addEventListener('click', async ()=>{
+    const venc = sep.map(r=> r.vence).sort();
+    const txt = `*Lote para desconto de duplicatas* (${fmtDate(hoje)})\n${empresas.map(e=> { const x = sep.filter(r=> r.empresa === e); return x.length ? `• ${e}: ${fmtMoneyC(soma(x))} em ${x.length} boleto${x.length === 1 ? '' : 's'}` : ''; }).filter(Boolean).join('\n')}\nTotal: ${fmtMoneyC(soma(sep))}${venc.length ? `, vencimentos de ${fmtDate(venc[0])} a ${fmtDate(venc[venc.length - 1])}` : ''}.\nPosso seguir com o desconto?`;
+    try{ await navigator.clipboard.writeText(txt); showToast('Lote copiado: cole no WhatsApp.'); }catch(_){ prompt('Copie o lote:', txt); }
+    uso('clique', 'desconto: copiou lote', { boletos:sep.length });
+  });
+  host.querySelector('#fd-csv').addEventListener('click', ()=>{
+    csvDownload([['Situação', 'Empresa', 'Cliente', 'CNPJ/CPF', 'Vendedor', 'Emitida', 'Vencimento', 'Valor', 'Nota de pagamento', 'Separado por', 'Separado em']]
+      .concat(L.map(r=> [FD_ST[st(r)] || st(r), r.empresa, r.cliente, r.cnpj, nomeBonito(r.vendedor || ''), fmtDate(r.emitida), fmtDate(r.vence), Number(r.valor || 0).toFixed(2).replace('.', ','), r.nota ?? '', r.marcado_por || '', r.marcado_em ? new Date(r.marcado_em).toLocaleDateString('pt-BR') : ''])),
+      'desconto-duplicatas-' + hoje + '.csv');
+  });
 }
 // ---- Relatórios (05/11/2026, reunião: "você vai criar um setor de relatórios também?") ----
 // Clientes com endereço: para montar a rota do vendedor (o Fácil123 só dá nome, razão social e última compra). Ordenado por UF, cidade e bairro.
@@ -10737,14 +10860,14 @@ async function esAcompanha(box, host, nome){
 // ---------- PRAZO MÉDIO POR VENDEDOR E POR GERÊNCIA (prioridade 3 do CEO, 27/10/2026) ----------
 // Dias entre a emissão e o vencimento das parcelas, pesando pelo valor (crm_prazo_medio). Meta citada pelo CEO: 60 dias.
 // O Fácil123 só tem parcelas em ~6% das notas: a tela mostra a cobertura e o número só vale onde ela é alta (importação depois).
-const PZ = { per:'90', META:60 };
+const PZ = { per:'90', META:60, tipo:'' };
 async function renderPrazo(){
   const host = document.getElementById('pz'); if(!host) return;
   const [ini, fim, rot] = tmPeriodo(PZ.per), [aIni, aFim, aRot] = tmAnterior(PZ.per);
   host.innerHTML = '<div class="tb-rodape">Calculando o prazo médio…</div>';
-  const [{ data, error }, ant] = await Promise.all([sb.rpc('crm_prazo_medio', { p_ini:ini, p_fim:fim }), sb.rpc('crm_prazo_medio', { p_ini:aIni, p_fim:aFim })]);
+  const [{ data, error }, ant] = await Promise.all([sb.rpc('crm_prazo_medio', { p_ini:ini, p_fim:fim }), sb.rpc('crm_prazo_medio', { p_ini:aIni, p_fim:aFim }), vtCarrega()]);
   if(error){ host.innerHTML = `<div class="tb-aviso">Não consegui calcular: ${escapeHtml(errAmigavel(error))}</div>`; return; }
-  const L = data || [], soma = k=> L.reduce((s, r)=> s + Number(r[k] || 0), 0);
+  const L = vtFiltra(data || [], PZ.tipo), soma = k=> L.reduce((s, r)=> s + Number(r[k] || 0), 0);
   const tot = soma('valor'), comPz = soma('valor_com_prazo'), acima = soma('valor_acima_meta');
   const media = comPz ? L.reduce((s, r)=> s + Number(r.valor_com_prazo || 0) * Number(r.prazo_medio || 0), 0) / comPz : null;
   const cob = tot ? comPz / tot : 0;
@@ -10781,12 +10904,16 @@ async function renderPrazo(){
     ${cob < .8 ? `<div class="tb-aviso"><b>Número parcial.</b> Só ${tmPct(comPz, tot)} do que foi vendido no período já tem o boleto ligado ao pedido. O prazo médio abaixo vale para essa parte.</div>` : ''}
     <div class="tb-bar">
       <select id="pz-per"><option value="mes" ${PZ.per === 'mes' ? 'selected' : ''}>Mês atual</option><option value="ant" ${PZ.per === 'ant' ? 'selected' : ''}>Mês passado</option><option value="90" ${PZ.per === '90' ? 'selected' : ''}>Últimos 90 dias</option></select>
+      ${vtSelect('pz-tipo', PZ.tipo)}
       <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver o prazo por gerência.</span>' : ''}
+      <button class="om-cancel" id="pz-exp" title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Prazo médio</th><th>contra a meta</th><th class="n" title="Prazo médio no ${escapeHtml(aRot)} e a variação: verde = caiu (melhor), vermelho = subiu">Antes</th><th class="n">Com prazo conhecido</th><th class="n">Acima de ${PZ.META} dias</th><th class="n">Notas com prazo</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="8" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os pedidos com prazo acima de ${PZ.META} dias. Prazo de uma venda = dias entre a emissão da nota e o vencimento de cada parcela, pesando pelo valor. Os boletos vêm das empresas que faturam (AMG, Asia, Blendbase, Canada e Korea), ligados ao pedido da Synthetic pelo cliente, pelo valor e pela data; a leitura é atualizada a cada 2 horas. Vendedor com cobertura baixa (em cinza) tem prazo pouco representativo.</div>`;
   host.querySelector('#pz-per').addEventListener('change', e=>{ PZ.per = e.target.value; renderPrazo(); });
+  host.querySelector('#pz-tipo').addEventListener('change', e=>{ PZ.tipo = e.target.value; renderPrazo(); });
+  host.querySelector('#pz-exp').addEventListener('click', e=> vtExporta(ini, fim, PZ.tipo, e.target));
   host.querySelectorAll('tr.vd-lin').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.sid), ini, fim, rot, 'pz', nav)));
 }
 
