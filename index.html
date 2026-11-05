@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-202701">
+<meta name="crm-versao" content="20261105-204608">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,6 +80,13 @@
   .rt-A{ background:#DCF2E4; color:#1F6B3A;} .rt-B{ background:#E6F0F7; color:#2D5B78;} .rt-C{ background:var(--amber-soft); color:var(--amber-ink);} .rt-D{ background:#F9DADA; color:#9B2323;} .rt-N{ background:var(--border-soft); color:var(--ink-soft);}
   .fi-graf{ width:100%; height:220px; display:block; margin:4px 0 2px;}   /* altura fixa: no monitor de 25" o gráfico empurrava a lista para fora da tela */ .fi-graf text{ font-size:11px; fill:var(--ink-faint);} .fi-graf .v{ fill:var(--ink-soft); font-weight:700;}
   .fi-leg{ display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12px; color:var(--ink-soft); margin:2px 0 10px;} .fi-leg i{ display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px;}
+  /* o que só o Administrador vê (entrega ainda não liberada para o time, ou tela só dele): borda roxa tracejada e 🔒 */
+  .so-voce{ outline:2px dashed #9333ea !important; outline-offset:-3px;}
+  #rail .so-voce{ position:relative;} #rail .so-voce::after{ content:'🔒'; position:absolute; top:3px; right:5px; font-size:10px; line-height:1;}
+  .cm-aba.so-voce::after, .om-cancel.so-voce::after, .cm-chip.so-voce::after{ content:' 🔒 ' attr(data-sv); font-size:11px; font-weight:600; color:#7e22ce;}
+  .en-dia{ margin:16px 0 6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;} .en-dia b{ font-size:16px;}
+  .en-sit{ display:inline-block; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:600;}
+  .en-sit.ok{ background:#dcfce7; color:#166534;} .en-sit.ag{ background:#f3e8ff; color:#7e22ce;} .en-sit.es{ background:#fef3c7; color:#92400e;}
   .ro-mapa{ height:clamp(280px, 46vh, 640px); border-radius:10px; border:1px solid var(--line, #e3e7ee); margin:12px 0 4px; background:#e9edf2; z-index:0;}
   .ro-pin{ width:24px; height:24px; border-radius:50%; color:#fff; font:700 12px/24px Barlow, sans-serif; text-align:center; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
   .ro-pin.aprox{ opacity:.6; border-style:dashed;}
@@ -499,6 +506,7 @@
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="vendedores" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
+    <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sugestoes" title="Sugestões: ideias, problemas e dúvidas sobre o sistema, e o que foi feito com cada uma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg><span>Sugestões</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-atender" data-view="atender" title="Atender um cliente: inteligência, abordagem, conversa e proposta, passo a passo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><span>Atender</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn active" data-view="hoje" title="Hoje: quem ligar agora, em ordem de prioridade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg><span>Hoje</span></button>
@@ -527,6 +535,7 @@
     <div id="view-especialista" class="view"><div class="tb" id="es"></div></div>
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
+    <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
     <div id="view-ajustes" class="view"><div class="pg">
       <div class="pg-head"><h2>Ajustes</h2><span class="sub">Ferramentas de administração do CRM. Só o Master vê este menu.</span></div>
       <div class="aj-grade">
@@ -791,6 +800,7 @@
     <div id="view-sugestoes" class="view">
       <div class="pg" style="max-width:none">
         <div class="pg-head"><h2>💡 Sugestões de melhoria</h2><span class="sub">Ideias, problemas e pedidos para o sistema. Tudo fica registrado no histórico.</span></div>
+        <div class="tb-aviso" style="margin:0 0 10px">📅 <b>Como funcionam as entregas:</b> As melhorias do sistema saem <b>toda sexta-feira, até o fim do dia</b>. O que é <b>urgente</b> (algo não funciona e impede usar o sistema) é resolvido em <b>até 48 horas</b>: marque "Urgente" ao enviar.</div>
         <div class="es-box">
           <div class="sg-row" style="margin-bottom:8px"><span class="ql" style="margin:0">Registrando como</span><b id="sg-who" title="Nome do seu usuário no CRM"></b></div>
           <textarea id="sg-text" rows="4" placeholder="Escreva livremente, ou clique em 🎤 e narre a sua ideia. Dá para colar um print (Ctrl+V) ou arrastar arquivos para cá."></textarea>
@@ -798,7 +808,7 @@
           <div class="sg-row" style="margin-top:8px">
             <button id="sg-mic" class="om-cancel">🎤 Gravar / ditar</button><button id="sg-attach" class="om-cancel">📎 Anexar print / PDF / áudio / vídeo</button><input type="file" id="sg-file" multiple accept="image/*,.pdf,audio/*,video/*,.doc,.docx,.xls,.xlsx,.txt" hidden><span id="sg-mic-st" style="font-size:12px;color:var(--red)"></span>
             <select id="sg-tipo"></select><select id="sg-tela"></select>
-            <select id="sg-prio"><option value="normal">Prioridade normal</option><option value="alta">Prioridade alta</option><option value="baixa">Prioridade baixa</option></select>
+            <select id="sg-prio" aria-label="Urgência"><option value="normal">Melhoria: entra na entrega de sexta</option><option value="urgente">Urgente: algo não funciona e impede o uso (até 48 h)</option></select>
             <span style="flex:1"></span><button id="sg-send" class="om-save">Enviar sugestão</button>
           </div>
           <audio id="sg-audio-prev" controls hidden style="margin-top:8px;width:100%"></audio>
@@ -1992,6 +2002,7 @@ async function boot(){
   document.getElementById('app').classList.add('active');
   document.getElementById('who-email').textContent = window._userEmail;
   try{ const { data } = await sb.rpc('meu_perfil'); window._perfil = data || { role:'vendedor' }; }catch(e){ window._perfil = { role:'vendedor' }; }
+  await libCarrega();
   aplicarPerfil();
   if(ehGestao()) mtPctCarrega();
   usoLiga(); acompMonta();
@@ -3969,6 +3980,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'financeiro') renderFinanceiro();
     if(v === 'especialista') renderEspecialista();
     if(v === 'rota') renderRota();
+    if(v === 'entregas') renderEntregas();
     if(v === 'plano27'){ const h = document.getElementById('p27'); if(h) fiPlanejamento(h); }
     if(v === 'operacao') renderOperacao();
     if(v === 'hoje') renderHoje();
@@ -4043,9 +4055,55 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin,master,gerente,analista', especialista:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin,master,gerente,analista', especialista:'admin', entregas:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+// ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
+// Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
+// no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
+const LIB_CHAVES = ['fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
+const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
+const libLivre = k=> libAdmin() || !LIB.pend.has(k);
+const libSoVoce = k=> libAdmin() && LIB.pend.has(k);
+const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) + '/' + d.slice(5, 7) : 'sem data'; };
+const svC = k=> libSoVoce(k) ? ' so-voce' : '';
+const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
+const LIB_VIEW = { operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
+const SO_ADMIN_VIEW = { especialista:1, entregas:1 };
+const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
+async function libCarrega(){
+  try{ const { data, error } = await sb.rpc('crm_liberacoes_pendentes'); if(error) throw error; LIB.pend = libPend(data); }
+  catch(_){ LIB.pend = new Set(LIB_CHAVES); }
+  if(window._perfil && window._perfil.role === 'admin'){
+    try{ const { data } = await sb.rpc('crm_liberacoes_lista'); LIB.lista = data || []; LIB.datas = Object.fromEntries(LIB.lista.map(l=> [l.chave, l.libera_em])); }catch(_){}
+  }
+}
+// rótulo da borda de uma tela do menu: "só você" (tela do Administrador) ou a data em que sai para o time; null = o time já vê
+function libViewRot(v){
+  if(!libAdmin()) return null;
+  if(SO_ADMIN_VIEW[v]) return 'só você';
+  const ks = LIB_VIEW[v]; if(!ks || ks.some(k=> !LIB.pend.has(k))) return null;
+  const ds = ks.map(k=> LIB.datas[k]).filter(Boolean).sort(); return ds.length ? 'sai ' + ds[0].slice(8, 10) + '/' + ds[0].slice(5, 7) : 'sem data';
+}
+function libMarcaEl(el, rot){
+  if(!el) return; el.classList.toggle('so-voce', !!rot);
+  if(rot){ el.dataset.sv = rot; el.dataset.svTitulo = '1'; el.title = (el.title || '').replace(/^Só você vê[^·]*· /, '');
+    el.title = `Só você vê (${rot === 'só você' ? 'tela do Administrador' : rot + ' para o time'}) · ` + el.title; }
+  else if(el.dataset.svTitulo){ delete el.dataset.sv; delete el.dataset.svTitulo; el.title = (el.title || '').replace(/^Só você vê[^·]*· /, ''); }
+}
+function libMarcaRail(){
+  document.querySelectorAll('#rail .nav-btn').forEach(b=> libMarcaEl(b, b.hidden ? null : libViewRot(b.dataset.view)));
+  document.querySelectorAll('#rail [data-grp]').forEach(gb=>{ const L = grpLivres(gb.dataset.grp);
+    libMarcaEl(gb, L.length && L.every(([v])=> libViewRot(v)) ? 'só você' : null); });
+}
+// no dia da liberação, quem está com a aba aberta vê a faixa de versão nova (nunca recarrega sozinho)
+async function libConfere(){
+  if(!window._perfil || libAdmin() || document.getElementById('nova-versao')) return;
+  try{ const { data, error } = await sb.rpc('crm_liberacoes_pendentes'); if(error) return; const agora = libPend(data);
+    if([...LIB.pend].some(k=> !agora.has(k))) versaoFaixa(); }catch(_){}
+}
 let VE_COMISSOES = false;   // pessoa liberada pelo e-mail em crm_comissao_acesso (ex.: o comercial); o banco confere de novo em cada consulta
 function menuLiberado(view, p){
+  if(LIB_VIEW[view] && !LIB_VIEW[view].some(libLivre)) return false;   // entrega ainda não liberada para o time
   if(!MENU_ZERADO) return true;
   if(view === 'comissoes' && VE_COMISSOES && !(window._perfil && perfilEfetivo() !== window._perfil.role)) return true;
   const quem = MENU_ATIVO[view]; return !!quem && (quem === '*' || quem.split(',').includes(p));
@@ -4058,7 +4116,7 @@ const NAV_GRUPOS = {
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões'], ['especialista', 'Especialista comercial']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
-  padrao:['sobre', 'g:vendas', 'g:clientes', 'g:vendedores', 'g:produtos', 'financeiro', 'sugestoes'],
+  padrao:['sobre', 'g:vendas', 'g:clientes', 'g:vendedores', 'g:produtos', 'financeiro', 'entregas', 'sugestoes'],
   analista:['sobre', 'financeiro', 'g:vendas', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'],
   vendedor:['sobre', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'] };
 const GRP_ULT = {};   // última aba usada em cada grupo
@@ -4082,7 +4140,7 @@ function grpMarca(v){
   const L = grpLivres(g);
   if(!bar){ bar = document.createElement('div'); bar.className = 'grp-abas cm-abas'; el.prepend(bar); }
   bar.hidden = L.length < 2;
-  bar.innerHTML = L.map(([k, t])=> `<button class="cm-aba ${k === v ? 'on' : ''}" data-grpv="${k}">${t}</button>`).join('');
+  bar.innerHTML = L.map(([k, t])=>{ const r = libViewRot(k); return `<button class="cm-aba ${k === v ? 'on' : ''}${r ? ' so-voce' : ''}" data-grpv="${k}"${r ? ` data-sv="${r}"` : ''}>${t}</button>`; }).join('');
   bar.querySelectorAll('[data-grpv]').forEach(b=> b.addEventListener('click', ()=>{ const nb = document.querySelector(`#rail .nav-btn[data-view="${b.dataset.grpv}"]`); if(nb) nb.click(); }));
   const h = document.getElementById('hdr-title'); if(h) h.textContent = NAV_GRUPOS[g].t + ' · ' + ((L.find(x=> x[0] === v) || [])[1] || '');
 }
@@ -4105,6 +4163,7 @@ function aplicarPerfil(){
   document.querySelectorAll('#rail .nav-btn').forEach(el=>{ if(!menuLiberado(el.dataset.view, p)) el.hidden = true; });
   if(MENU_ZERADO){ const sy = document.getElementById('btn-sync'); if(sy) sy.hidden = true; }
   grpAtualizaRail();
+  libMarcaRail();
   // Acessos sai do menu lateral e fica no topo, ao lado do Backup (só o Administrador)
   let ac = document.getElementById('hdr-acessos');
   const eqb = document.querySelector('#rail .nav-btn[data-view="equipe"]');
@@ -8526,7 +8585,7 @@ function sgDraw(){
   document.getElementById('sg-list').innerHTML = rows.length ? rows.map(r=>{
     const st = sgLabel(r.status); const hist = r.historico||[];
     return `<div class="sg-card" data-id="${r.id}">
-      <div class="sg-top"><b>${escapeHtml(r.autor||'—')}</b><span class="sg-meta">${fmtDateTime(r.created_at)}</span><span class="tagx">${escapeHtml(SG_TIPOS[r.tipo]||r.tipo||'')}</span>${r.tela?`<span class="tagx">${escapeHtml(r.tela)}</span>`:''}${r.prioridade==='alta'?'<span class="tagx bad">Prioridade alta</span>':''}${(r.resposta||'').startsWith('🔴')?'<span class="tagx bad">💬 Aguardando retorno</span>':''}${r.origem==='voz'?'<span class="tagx">🎤 por voz</span>':''}<span style="flex:1"></span><span class="sg-status" style="background:${st[2]}">${st[1]}</span></div>
+      <div class="sg-top"><b>${escapeHtml(r.autor||'—')}</b><span class="sg-meta">${fmtDateTime(r.created_at)}</span><span class="tagx">${escapeHtml(SG_TIPOS[r.tipo]||r.tipo||'')}</span>${r.tela?`<span class="tagx">${escapeHtml(r.tela)}</span>`:''}${r.prioridade==='urgente'?'<span class="tagx bad">Urgente · até 48 h</span>':r.prioridade==='alta'?'<span class="tagx bad">Prioridade alta</span>':''}${(r.resposta||'').startsWith('🔴')?'<span class="tagx bad">💬 Aguardando retorno</span>':''}${r.origem==='voz'?'<span class="tagx">🎤 por voz</span>':''}<span style="flex:1"></span><span class="sg-status" style="background:${st[2]}">${st[1]}</span></div>
       <div class="sg-text">${escapeHtml(r.texto).replace(/\n/g,'<br>')}</div>
       ${(r.anexos&&r.anexos.length)?`<div class="sg-atts">${r.anexos.map(a=>/^image\//.test(a.mime||'')?`<a href="#" data-att="${escapeHtml(a.path)}" title="${escapeHtml(a.nome||'')}"><img class="sg-thumb" data-thumb="${escapeHtml(a.path)}" alt="${escapeHtml(a.nome||'print')}"></a>`:`<a href="#" class="sg-file" data-att="${escapeHtml(a.path)}">${sgIco(a.mime)} ${escapeHtml(a.nome||'arquivo')}</a>`).join('')}</div>`:''}
       ${r.audio_path?`<div class="sg-audio"><a href="#" data-act="audio">▶ ouvir o áudio original</a></div>`:''}
@@ -8675,7 +8734,7 @@ document.getElementById('sg-send').addEventListener('click', async ()=>{
       prioridade:document.getElementById('sg-prio').value, audio_path, status:'nova', historico:[{em:new Date().toISOString(), por:autor, de:'nova', para:'nova', nota:'Sugestão registrada'}] });
     if(error) throw error;
     ta.value = ''; SG.files = []; sgRenderFiles(); SG.audioBlob = null; SG.voz = false; const p = document.getElementById('sg-audio-prev'); p.hidden = true; p.removeAttribute('src');
-    showToast('Sugestão registrada — obrigado!'); renderSugestoes();
+    showToast(document.getElementById('sg-prio').value === 'urgente' ? 'Registrada como urgente: resolvemos em até 48 horas.' : 'Sugestão registrada, obrigado! As melhorias saem às sextas.'); renderSugestoes();
   }catch(e){ showToast('Erro: '+errMsg(e)); }
   btn.disabled = false; btn.textContent = 'Enviar sugestão';
 });
@@ -9306,32 +9365,37 @@ async function versaoConfere(){
     const r = await fetch(location.pathname + '?v=' + Date.now(), { cache:'no-store' }); if(!r.ok) return;
     const m = (await r.text()).match(/<meta name="crm-versao" content="([^"]+)"/);
     if(!m || m[1] === VERSAO_ATUAL) return;
-    const f = document.createElement('div'); f.id = 'nova-versao'; f.setAttribute('role', 'status');
-    f.innerHTML = '<span>Saiu uma versão nova do sistema. Salve o que estiver fazendo e clique em Atualizar.</span><button type="button">Atualizar</button>';
-    f.querySelector('button').addEventListener('click', ()=> window.location.reload());
-    document.body.prepend(f);
+    versaoFaixa();
   }catch(e){}
 }
+function versaoFaixa(){
+  if(document.getElementById('nova-versao')) return;
+  const f = document.createElement('div'); f.id = 'nova-versao'; f.setAttribute('role', 'status');
+  f.innerHTML = '<span>Saiu uma versão nova do sistema, com melhorias. Salve o que estiver fazendo e clique em Atualizar.</span><button type="button">Atualizar</button>';
+  f.querySelector('button').addEventListener('click', ()=> window.location.reload());
+  document.body.prepend(f);
+}
 setInterval(versaoConfere, 2*60000);
+setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
-  { id:'rotas-mapa', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
+  { id:'rotas-mapa', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
   { id:'menu-7', dia:'2026-11-05', tela:'resumo', titulo:'Menu com 7 portas', txt:'Vendas agora tem a aba Planejamento 2027; Rotas virou aba de Clientes. A tela Vendas ficou com os 4 números que importam (mês, projeção, ano e em atraso), o ranking logo abaixo e o que pede atenção na venda.' },
-  { id:'rotas', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
+  { id:'rotas', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
   { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção, o ano, o gráfico mês a mês e o ranking dos vendedores (com "copiar para o grupo"). Clientes junta a Carteira e os Parados; Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. Acessos foi para o topo.' },
-  { id:'cliente-unico', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
-  { id:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
-  { id:'desconto', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
-  { id:'promo-bonificacao', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
-  { id:'promo-vendas', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
+  { id:'cliente-unico', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
+  { id:'export-cliente', lib:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
+  { id:'desconto', lib:'fin-desc', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
+  { id:'promo-bonificacao', lib:'promo-bonif', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
+  { id:'promo-vendas', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
   { id:'whatsapp', dia:'2026-11-05', tela:'parados', titulo:'Mensagem pronta no WhatsApp: oferta e cobrança', txt:'No detalhe do cliente, "Mandar oferta" monta a mensagem com o que ele comprava e a promoção ativa; o financeiro tem "Cobrar" com os boletos em atraso. Você revisa e manda pelo seu WhatsApp.' },
   { id:'rede', dia:'2026-11-05', tela:'parados', titulo:'Parados: "rede compra"', txt:'Marca o cliente que parou nesta loja, mas outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias.' },
-  { id:'devedor-cnpj', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
-  { id:'relatorios', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
-  { id:'financeiro', dia:'2026-11-05', tela:'financeiro', titulo:'Novo módulo Financeiro: inadimplência e baixas', txt:'Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado. Lista por cliente para acompanhar a cobrança, sem a planilha puxada do Fácil.' },
-  { id:'rating', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
-  { id:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
+  { id:'devedor-cnpj', lib:'nota', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
+  { id:'relatorios', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
+  { id:'financeiro', lib:'fin-inad', dia:'2026-11-05', tela:'financeiro', titulo:'Novo módulo Financeiro: inadimplência e baixas', txt:'Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado. Lista por cliente para acompanhar a cobrança, sem a planilha puxada do Fácil.' },
+  { id:'rating', lib:'nota', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
+  { id:'carteira', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
   { id:'parados-faixas', dia:'2026-11-04', tela:'parados', titulo:'Parados: os mais fáceis de recuperar em destaque', txt:'O quadro principal separa quem parou há 91 a 180 dias (mais fácil de trazer de volta) de quem parou há mais tempo.' },
   { id:'cliente-detalhe', dia:'2026-11-04', tela:'parados', titulo:'Clique no cliente parado para ver o que ele comprava e quando parou', txt:'Abre as compras mês a mês, os produtos que ele comprava e quando comprou cada um pela última vez, os últimos pedidos (vendedor, tabela e prazo) e o que foi registrado no CRM. ‹ › passa para o próximo da lista.' },
   { id:'parados', dia:'2026-11-03', tela:'parados', titulo:'Clientes parados há mais de 90 dias', txt:'Nova tela com quem comprava e parou, por vendedor, com o que cada cliente comprou em 12 meses. A cada semana ela destaca quem acabou de entrar na lista. Sugestão da equipe.' },
@@ -9386,11 +9450,11 @@ function novidadesMostra(){
   const em = window._userEmail || '', chave = 'torre_novidades_vistas:' + em;
   let vistas = null, antiga = null; try{ vistas = JSON.parse(localStorage.getItem(chave) || 'null'); antiga = localStorage.getItem('torre_novidades_vista:' + em); }catch(_){}
   if(!Array.isArray(vistas)) vistas = antiga ? NOVIDADES.filter(n=> n.dia < antiga).map(n=> n.id) : null;
-  const marca = ()=>{ try{ localStorage.setItem(chave, JSON.stringify(NOVIDADES.map(n=> n.id))); }catch(_){} };
+  const marca = ()=>{ try{ localStorage.setItem(chave, JSON.stringify([...new Set((vistas || []).concat(NOVIDADES.filter(n=> !n.lib || libLivre(n.lib)).map(n=> n.id)))])); }catch(_){} };   // o que ainda não saiu fica para aparecer no dia
   if(!vistas && !(window._perfil && window._perfil.ja_entrou)) return marca();          // primeira vez: a Apresentação já cobre
   const desde = new Date(Date.now() - 10 * 864e5).toISOString().slice(0, 10);           // sem registro neste navegador: últimos 10 dias
   const vis = v=>{ const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b && !b.hidden ? b : null; };
-  const L = NOVIDADES.filter(n=> (vistas ? !vistas.includes(n.id) : n.dia > desde) && vis(n.tela)).slice(0, 5);
+  const L = NOVIDADES.filter(n=> (vistas ? !vistas.includes(n.id) : n.dia > desde) && vis(n.tela) && (!n.lib || libLivre(n.lib))).slice(0, 5);
   if(!L.length) return marca();
   const dlg = document.getElementById('dlg'); if(dlg && dlg.style.display === 'flex') return;   // outra janela aberta: mostra na próxima entrada
   const box = dlgOpen(`<div class="om-title"><div><h3>Novidades na Torre de Controle</h3><div class="om-sub">O que mudou desde a sua última visita.</div></div><button data-close>✕</button></div>
@@ -9400,12 +9464,12 @@ function novidadesMostra(){
   box.querySelector('#nv-ok').addEventListener('click', dlgClose);
   box.querySelectorAll('[data-nv]').forEach(b=> b.addEventListener('click', ()=>{ const n = L[Number(b.dataset.nv)]; dlgClose(); vis(n.tela)?.click(); }));
 }
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible') versaoConfere(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible'){ versaoConfere(); libConfere(); } });
 
 // ---------- PEÇA 2 · REGISTRO DE USO (onde o usuário tem dúvida) ----------
 // Grava só: tela aberta, rótulo do que foi clicado, 1ª célula da linha clicada, filtro escolhido, mensagens do sistema e erros.
 // NUNCA o que é digitado nos campos. O app só insere em uso_eventos; ninguém lê pelo app.
-const TELAS_NOME = { hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
+const TELAS_NOME = { entregas:'Entregas', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
   indicadores:'Painel', comercial:'Painel · metas', vendedores:'Painel · vendedores', regioes:'Painel · regiões', margens:'Painel · margens',
   concorrentes:'Painel · concorrentes', estoque:'Painel · estoque', mapa:'Estratégia', equipe:'Acessos', ajustes:'Ajustes',
   conhecimento:'Base de conhecimento', sugestoes:'Sugestões', parados:'Clientes parados', ata:'Ata do projeto', reunioes:'Conversas registradas' };
@@ -9508,7 +9572,7 @@ function usoLiga(){ if(USO.on) return; USO.on = true; USO.desde = Date.now(); US
 // ---------- PEÇA 3 · ACOMPANHANTE (balão que conversa com o usuário) ----------
 const acompTestador = ()=> !!(window._perfil && window._perfil.role === 'admin');            // quem testa o sistema (Administrador): sem balões automáticos (o 💬 continua)
 const ACOMP_RESPONSAVEL = 'a equipe da Capacity Case';
-const ACOMP_TIPOS = [['melhoria','Ideia de melhoria'], ['problema','Algo não funciona'], ['duvida','Dúvida']];
+const ACOMP_TIPOS = [['melhoria','Ideia de melhoria'], ['problema','Algo não funciona'], ['urgente','Urgente: impede o uso'], ['duvida','Dúvida']];
 const ACOMP_PERGUNTAS = {
   travou:'Parece que algo não respondeu como você esperava. O que você queria que acontecesse?',
   recusa:'O sistema não aceitou. A mensagem ficou clara? Se não, conta o que você estava tentando fazer.',
@@ -9680,12 +9744,12 @@ async function acompEnvia(ev){
       anexos.push({ path: await docsUpload(f, 'sugestoes'), nome:f.name, mime:f.type, tamanho:f.size, print:true }); }
     if(ACOMP.voz.audioBlob){ const f = new File([ACOMP.voz.audioBlob], 'balao-' + Date.now() + '.webm', { type:ACOMP.voz.audioBlob.type || 'audio/webm' }); audio_path = await docsUpload(f, 'sugestoes'); }
     const autor = curUserName();
-    const { error } = await sb.from('crm_sugestoes').insert({ autor, texto: texto || '(ver áudio)', anexos, origem: ACOMP.voz.voz || audio_path ? 'voz' : 'texto', tipo:ACOMP.tipo,
-      tela:usoNomeTela(USO.tela), prioridade:'normal', audio_path, status:'nova', historico:[{ em:new Date().toISOString(), por:autor, de:'nova', para:'nova', nota:'Enviada pelo balão' }],
+    const { error } = await sb.from('crm_sugestoes').insert({ autor, texto: texto || '(ver áudio)', anexos, origem: ACOMP.voz.voz || audio_path ? 'voz' : 'texto', tipo:ACOMP.tipo === 'urgente' ? 'problema' : ACOMP.tipo,
+      tela:usoNomeTela(USO.tela), prioridade:ACOMP.tipo === 'urgente' ? 'urgente' : 'normal', audio_path, status:'nova', historico:[{ em:new Date().toISOString(), por:autor, de:'nova', para:'nova', nota:'Enviada pelo balão' }],
       contexto:{ via:'balao', motivo:ACOMP.motivo, pergunta:ACOMP.pergunta, rota:usoRota(USO.tela), view:USO.tela, largura:innerWidth, ultimos:USO.ultimos.slice(-20) } });
     if(error) throw error;
     clearTimeout(ACOMP.timer); uso('balao', ACOMP.motivo, { evento:'fechou', resposta:'enviou' }); ACOMP.aberto = 'feito';
-    c.innerHTML = `<p class="ac-texto ac-ok">Anotado! ${escapeHtml(ACOMP_RESPONSAVEL.charAt(0).toUpperCase() + ACOMP_RESPONSAVEL.slice(1))} já recebeu. 🙌</p>`;
+    c.innerHTML = `<p class="ac-texto ac-ok">Anotado! ${escapeHtml(ACOMP_RESPONSAVEL.charAt(0).toUpperCase() + ACOMP_RESPONSAVEL.slice(1))} já recebeu. ${ACOMP.tipo === 'urgente' ? 'Como é urgente, resolvemos em até 48 horas.' : 'As melhorias saem às sextas.'} 🙌</p>`;
     setTimeout(()=>{ if(ACOMP.aberto === 'feito'){ ACOMP.aberto = null; c.hidden = true; c.innerHTML = ''; } }, 3500);
     usoEnvia();
   }catch(e){ b.disabled = false; b.textContent = 'Enviar'; c.querySelector('#ac-mic-st').textContent = 'Não consegui enviar agora. Tente de novo.'; console.warn(e); }
@@ -10059,7 +10123,7 @@ async function vtCarrega(forcar){
   VT_MAPA = new Map((data || []).map(r=> [r.seller_id, r.tipo])); return VT_MAPA;
 }
 const vtFiltra = (rows, f)=> !f ? rows : rows.filter(r=> (f === '?' ? !VT_MAPA.get(r.seller_id) : VT_MAPA.get(r.seller_id) === f));
-const vtSelect = (id, val)=> `<select id="${id}" aria-label="Tipo de vendedor" title="Internos e externos são marcados em Acessos › Vendedores internos">${[['', 'Todos os vendedores'], ['externo', 'Externos'], ['interno', 'Internos'], ['?', 'Sem marcação']].map(([k, t])=> `<option value="${k}" ${val === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+const vtSelect = (id, val)=> !libLivre('internos') ? '' : `<select class="${svC('internos')}" id="${id}" aria-label="Tipo de vendedor" title="Internos e externos são marcados em Acessos › Vendedores internos">${[['', 'Todos os vendedores'], ['externo', 'Externos'], ['interno', 'Internos'], ['?', 'Sem marcação']].map(([k, t])=> `<option value="${k}" ${val === k ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
 // exporta tabela média e prazo médio de cada vendedor em cada cliente (pedido do CEO: "separado por cliente")
 async function vtExporta(ini, fim, tipo, btn){
   if(btn) btn.disabled = true;
@@ -10146,14 +10210,14 @@ async function renderTabMedia(){
       <select id="tm-per"><option value="mes" ${TM.per === 'mes' ? 'selected' : ''}>Mês atual</option><option value="ant" ${TM.per === 'ant' ? 'selected' : ''}>Mês passado</option><option value="90" ${TM.per === '90' ? 'selected' : ''}>Últimos 90 dias</option></select>
       ${vtSelect('tm-tipo', TM.tipo)}
       <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver a média por gerência.</span>' : ''}
-      <button class="om-cancel" id="tm-exp" title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>
+      ${libLivre('export-cliente') ? `<button class="om-cancel${svC('export-cliente')}" id="tm-exp"${svD('export-cliente')} title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>` : ''}
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Tabela média</th><th>contra a meta</th><th class="n" title="Tabela média no ${escapeHtml(aRot)} e a variação: verde = subiu (melhor), vermelho = caiu">Antes</th><th class="n">Com tabela</th><th class="n">Abaixo do limite</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="9" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os produtos, os clientes e as vendas abaixo do limite que explicam a tabela média dele. Tabela média = em que tabela o preço foi vendido, pesando pelo valor: Tabela 2 = 2; entre a 2 e a 3, fração; Tabela 1 com 7% de desconto = 0,93. "Com tabela" = parte das vendas de produtos que têm tabela; o resto não entra na média.</div>`;
   host.querySelector('#tm-per').addEventListener('change', e=>{ TM.per = e.target.value; renderTabMedia(); });
-  host.querySelector('#tm-tipo').addEventListener('change', e=>{ TM.tipo = e.target.value; renderTabMedia(); });
-  host.querySelector('#tm-exp').addEventListener('click', e=> vtExporta(ini, fim, TM.tipo, e.target));
+  host.querySelector('#tm-tipo')?.addEventListener('change', e=>{ TM.tipo = e.target.value; renderTabMedia(); });
+  host.querySelector('#tm-exp')?.addEventListener('click', e=> vtExporta(ini, fim, TM.tipo, e.target));
   host.querySelectorAll('tr.vd-lin').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.sid), ini, fim, rot, 'tm', nav)));
 }
 
@@ -10231,6 +10295,7 @@ async function pdRedeCarrega(){
   PD_REDE = new Map((data || []).map(r=> [r.pessoa_id, r])); return PD_REDE;
 }
 async function rtCarrega(){
+  if(!libLivre('nota')) throw new Error('A nota de pagamento ainda não foi liberada.');
   if(RT_MAPA) return RT_MAPA;
   const { data, error } = await sb.rpc('crm_rating_clientes');
   if(error) throw error;
@@ -10284,9 +10349,9 @@ async function renderParados(){
     : `
     ${devendo.length && PDS.pg !== 'ok' ? (()=>{ const lig = devendo.filter(r=> !(Number(rt(r).vencido) > 0)).length;
       return `<div class="tb-aviso"><b>${fmtNum(devendo.length - lig)} destes clientes têm boleto em atraso</b> (${fmtMoney(devendo.reduce((t, r)=> t + Number(rt(r).vencido || 0), 0))})${lig ? ` e <b>${fmtNum(lig)} parecem ser do mesmo dono de quem deve</b> (mesmo CNPJ raiz, telefone, e-mail ou endereço)` : ''}. Antes de ligar para vender, combine com o financeiro. Para tirá-los da lista, use o filtro de pagamento.</div>`; })() : ''}
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th><th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th><th>Telefone</th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th>${RT_MAPA ? '<th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th>' : ''}<th>Telefone</th></tr></thead>
     <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou${PD_REDE.get(r.pessoa_id).valor_90d != null ? ' ' + escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d)) : ''} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
-      <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td><td class="n">${RT_MAPA ? rtSelo(rt(r)) : ''}</td><td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
+      <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td>${RT_MAPA ? `<td class="n">${rtSelo(rt(r))}</td>` : ''}<td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
     <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</details></div>`;
   const re = ()=> renderParados();
   host.querySelectorAll('[data-prso]').forEach(k=> k.addEventListener('click', ()=>{ PDS.so = PDS.so === k.dataset.prso ? '' : k.dataset.prso; re(); }));
@@ -10386,7 +10451,7 @@ async function clDetalhe(pid, nav){
       + (dados.rede ? `<div class="tb-aviso" style="background:var(--surface-2)"><b>Parou nesta loja, mas a rede ainda compra:</b> ${dados.rede.lojas} outra${dados.rede.lojas > 1 ? 's lojas' : ' loja'} com a mesma raiz de CNPJ comprou${dados.rede.valor_90d != null ? ' ' + fmtMoney(dados.rede.valor_90d) : ''} nos últimos 90 dias (a última em ${fmtDate(dados.rede.ultima_compra)}${dados.rede.exemplo ? ', ' + escapeHtml(dados.rede.exemplo) : ''}). Pode ser que a compra só tenha mudado de CNPJ.</div>` : '')
       + `<div class="cl-acoes" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="om-cancel" id="cl-ficha" title="Ficha do cliente: registrar ligação ou visita, próxima ação, funil, propostas e histórico">📝 Registrar contato · ficha completa</button><button class="om-save" id="cl-oferta" title="Mensagem pronta com o que ele comprava e a promoção ativa, para mandar pelo seu WhatsApp">📲 Mandar oferta no WhatsApp</button>${atr.length && ehGestao() ? '<button class="om-cancel" id="cl-cobrar" title="Mensagem pronta com os boletos em atraso, para o financeiro mandar pelo WhatsApp">💬 Cobrar no WhatsApp</button>' : ''}</div>`
       + `<div class="cl-fatos">
-        <span>Nota de pagamento ${R ? rtSelo(R) + ' <b>' + escapeHtml(R.motivo || '') + '</b>' : '<b>sem boletos nas empresas que faturam</b>'}</span>
+        ${libLivre('nota') ? `<span class="${svC('nota')}">Nota de pagamento ${R ? rtSelo(R) + ' <b>' + escapeHtml(R.motivo || '') + '</b>' : '<b>sem boletos nas empresas que faturam</b>'}</span>` : ''}
         <span>Parado há <b>${c.dias_sem_comprar != null ? fmtNum(c.dias_sem_comprar) + ' dias' : '—'}</b></span>
         <span>Última compra <b>${dt(c.ultima_compra)}</b></span>
         ${c.ciclo_medio_dias ? `<span>Comprava a cada <b>${fmtNum(c.ciclo_medio_dias)} dias</b></span>` : ''}
@@ -10428,7 +10493,7 @@ async function clDetalhe(pid, nav){
     catch(e){ error = e; }
     if(meu !== seq || corpo.dataset.cl !== marca || !corpo.isConnected) return;
     if(error || !data){ corpo.innerHTML = `<div class="tb-aviso">${escapeHtml(error ? errAmigavel(error) : 'Não encontrei os dados deste cliente.')}</div>`; return; }
-    dados = { ...data, rt:(!rr.error && rr.data && rr.data[0]) || null, bol:(!bb.error && bb.data) || [], mud:(mm && !mm.error && mm.data) || [], rede:PD_REDE && PD_REDE.get(id) }; const c = data.cliente || {};
+    dados = { ...data, rt:(libLivre('nota') && !rr.error && rr.data && rr.data[0]) || null, bol:(!bb.error && bb.data) || [], mud:(mm && !mm.error && mm.data) || [], rede:PD_REDE && PD_REDE.get(id) }; const c = data.cliente || {};
     // "rede compra" é uma consulta pesada: o detalhe abre sem esperar e o aviso entra quando ela chega
     if(!PD_REDE) pdRedeCarrega().then(m=>{ if(meu === seq && corpo.isConnected && m && m.get(id)){ dados.rede = m.get(id); pinta(); } }).catch(()=>{});
     box.querySelector('#cl-nome').textContent = c.nome || 'Cliente';
@@ -10456,7 +10521,10 @@ const FI_FAIXAS = [['4 a 30 dias', 4, 30], ['31 a 90 dias', 31, 90], ['91 a 180 
 const fiMi = v=>{ v = Number(v) || 0; return v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits:1 }) + ' mi' : Math.round(v / 1e3).toLocaleString('pt-BR') + ' mil'; };
 async function renderFinanceiro(){
   const fora = document.getElementById('fi'); if(!fora) return;
-  fora.innerHTML = `<div class="cm-abas"><button class="cm-aba ${FI.aba === 'inad' ? 'on' : ''}" data-fiaba="inad">Inadimplência e baixas</button><button class="cm-aba ${FI.aba === 'rating' ? 'on' : ''}" data-fiaba="rating">Nota de pagamento dos clientes</button><button class="cm-aba ${FI.aba === 'desc' ? 'on' : ''}" data-fiaba="desc">Desconto de duplicatas</button><button class="cm-aba ${FI.aba === 'rel' ? 'on' : ''}" data-fiaba="rel">Relatórios</button></div><div id="fi-in"></div>`;
+  const ABAS = [['inad', 'Inadimplência e baixas', 'fin-inad'], ['rating', 'Nota de pagamento dos clientes', 'nota'], ['desc', 'Desconto de duplicatas', 'fin-desc'], ['rel', 'Relatórios', 'fin-rel']].filter(a=> libLivre(a[2]));
+  if(!ABAS.length){ fora.innerHTML = '<div class="tb-aviso">Esta tela ainda não foi liberada.</div>'; return; }
+  if(!ABAS.some(a=> a[0] === FI.aba)) FI.aba = ABAS[0][0];
+  fora.innerHTML = `<div class="cm-abas">${ABAS.map(([k, t, l])=> `<button class="cm-aba ${FI.aba === k ? 'on' : ''}${svC(l)}" data-fiaba="${k}"${svD(l)}>${t}</button>`).join('')}</div><div id="fi-in"></div>`;
   fora.querySelectorAll('[data-fiaba]').forEach(b=> b.addEventListener('click', ()=>{ FI.aba = b.dataset.fiaba; uso('clique', 'financeiro: aba ' + FI.aba); renderFinanceiro(); }));
   const host = document.getElementById('fi-in');
   return FI.aba === 'rating' ? fiRating(host) : FI.aba === 'rel' ? fiRelatorios(host) : FI.aba === 'desc' ? fiDesconto(host) : FI.aba === 'plan' ? fiPlanejamento(host) : fiInadimplencia(host);
@@ -10819,12 +10887,12 @@ async function fiInadimplencia(host){
       <input id="fi-q" class="ca-inp" placeholder="Buscar cliente ou CNPJ" value="${escapeHtml(FI.q)}" style="min-width:180px">
       <span class="tb-esp"></span><button class="om-cancel" id="fi-csv" title="Baixar a lista para acompanhar a cobrança">Exportar</button>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th><th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th><th></th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th>${RT_MAPA ? '<th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th>' : ''}<th></th></tr></thead>
     <tbody>${mostra.map(r=>{ const d = diasDe(r.mais_antigo), x = RT_MAPA && r.pessoa_id && RT_MAPA.get(r.pessoa_id);
       return `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" ${r.pessoa_id ? `data-pid="${r.pessoa_id}" data-uso-linha="cliente financeiro" title="Ver compras e boletos de ${escapeHtml(r.cliente || 'o cliente')}"` : 'title="Cliente sem cadastro no CRM com este CNPJ"'}>
       <td class="prod">${escapeHtml(r.cliente || r.cnpj)}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.empresas || '')}</td>
       <td class="n">${Number(r.em_atraso) ? '<b>' + fmtMoney(r.em_atraso) + '</b>' : '—'}</td><td class="n">${r.boletos_atraso || '—'}</td><td class="n ${d > 30 ? 'cm-pend' : ''}">${d != null ? d + ' dias' : '—'}</td>
-      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td><td class="n">${x ? rtSelo(x) : ''}</td><td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
+      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td>${RT_MAPA ? `<td class="n">${x ? rtSelo(x) : ''}</td>` : ''}<td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</details></div>`;
   const re = ()=> fiInadimplencia(host);
   host.querySelectorAll('[data-fifx]').forEach(b=> b.addEventListener('click', ()=>{ FI.faixa = FI.faixa === b.dataset.fifx ? '' : b.dataset.fifx; if(FI.faixa) FI.mostra = 'atraso'; re(); }));
@@ -11149,6 +11217,59 @@ async function esAcompanha(box, host, nome){
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
 }
 
+// ---------- ENTREGAS (05/11/2026): o calendário das melhorias, só para o Administrador ----------
+// Regra do negócio: o time recebe uma entrega por semana, na sexta (chega na segunda com novidade). A quinta é a reunião com o time:
+// valida o que entra na sexta e mostra ao vivo o que mexe em regra. O que depende de quem ainda não entra fica sem data.
+const EN_SEM = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const enDia = d=> { const x = new Date(d + 'T12:00:00'); return `${EN_SEM[x.getDay()]}, ${d.slice(8, 10)}/${d.slice(5, 7)}`; };
+function enProxSextas(n){ const r = [], x = new Date(); x.setHours(12, 0, 0, 0); while(r.length < n){ if(x.getDay() === 5) r.push(diaLocal(x)); x.setDate(x.getDate() + 1); } return r; }
+async function renderEntregas(){
+  const host = document.getElementById('en'); if(!host) return;
+  host.innerHTML = '<div class="tb-rodape">Carregando o calendário…</div>';
+  const { data, error } = await sb.rpc('crm_liberacoes_lista');
+  if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  const L = data || [], hoje = diaLocal(new Date());
+  LIB.lista = L; LIB.datas = Object.fromEntries(L.map(l=> [l.chave, l.libera_em]));
+  const saiu = L.filter(l=> l.libera_em && l.libera_em <= hoje), vem = L.filter(l=> l.libera_em && l.libera_em > hoje), espera = L.filter(l=> !l.libera_em);
+  const datas = [...new Set(vem.map(l=> l.libera_em))].sort(), sextas = enProxSextas(8);
+  const btnNome = v=> { const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b ? (b.querySelector('span') || b).textContent : v; };
+  const linha = l=> `<tr data-en="${escapeHtml(l.chave)}"><td class="prod"><b>${escapeHtml(l.titulo)}</b><br><small class="vazio">${escapeHtml(l.descricao || '')}</small></td>
+      <td>${escapeHtml(l.pedido_por || '')}</td>
+      <td>${l.onde ? `<a href="#" data-enver="${escapeHtml(l.onde)}">${escapeHtml(btnNome(l.onde))} ›</a>` : ''}</td>
+      <td>${!l.libera_em ? `<span class="en-sit es">aguardando</span><br><small>${escapeHtml(l.condicao || '')}</small>` : l.libera_em <= hoje ? `<span class="en-sit ok">✅ o time já vê</span><br><small>desde ${escapeHtml(enDia(l.libera_em))}</small>` : `<span class="en-sit ag">🔒 só você · ${escapeHtml(enDia(l.libera_em))}</span>`}</td>
+      <td><select data-endata="${escapeHtml(l.chave)}" aria-label="Quando sai"><option value="">Sem data (aguardando)</option>
+        ${[...new Set([hoje, ...sextas, l.libera_em].filter(Boolean))].sort().map(d=> `<option value="${d}" ${d === l.libera_em ? 'selected' : ''}>${d === hoje ? 'Hoje · ' : ''}${enDia(d)}</option>`).join('')}</select></td></tr>`;
+  const tabela = rs=> `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Entrega</th><th>Quem pediu</th><th>Onde fica</th><th>Situação</th><th>Quando sai</th></tr></thead><tbody>${rs.map(linha).join('')}</tbody></table></div>`;
+  const recado = d=> { const it = vem.filter(l=> l.libera_em === d);
+    return `Pessoal, saiu hoje na Torre de Controle:\n` + it.map(l=> `• ${l.titulo}${l.pedido_por ? ' (pedido: ' + l.pedido_por + ')' : ''}`).join('\n') + `\n\nNa segunda, ao entrar, aparece o quadro de Novidades; se a faixa "Saiu uma versão nova" aparecer, é só clicar em Atualizar. Dúvida ou ideia: o balão 💬 no canto da tela. Na quinta olhamos juntos como foi.`; };
+  host.innerHTML = `
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Próxima entrega</small><b>${datas[0] ? escapeHtml(enDia(datas[0])) : '—'}</b><span>${datas[0] ? vem.filter(l=> l.libera_em === datas[0]).length + ' melhoria(s)' : 'nada agendado'}</span></div>
+      <div class="tb-kpi"><small>Agendadas</small><b>${vem.length}</b><span>em ${datas.length} sexta(s)</span></div>
+      <div class="tb-kpi"><small>Aguardando</small><b>${espera.length}</b><span>dependem de acesso ou de dado da Synthetic</span></div>
+      <div class="tb-kpi"><small>O time já vê</small><b>${saiu.length}</b><span>liberadas pelo calendário</span></div>
+    </div>
+    <div class="tb-aviso" style="background:var(--surface-2)"><b>Regra:</b> o time recebe uma entrega por semana, na sexta, e chega na segunda com novidade. Na reunião de quinta você valida o que sai na sexta e mostra ao vivo o que mexe em regra (prévia). Correção de erro sai na hora. No sistema, o que só você vê tem <span class="so-voce" style="padding:1px 6px" data-sv="">borda roxa tracejada</span> e 🔒.</div>
+    ${datas.map(d=> `<div class="en-dia"><b>${escapeHtml(enDia(d))}</b><span class="en-sit ag">${vem.filter(l=> l.libera_em === d).length} melhoria(s)</span><button class="om-cancel" data-enrec="${d}" title="Mensagem pronta para o grupo do time no dia da entrega">Copiar recado para o grupo</button></div>${tabela(vem.filter(l=> l.libera_em === d))}`).join('')}
+    ${espera.length ? `<div class="en-dia"><b>Aguardando</b><span class="en-sit es">sem data</span></div>${tabela(espera)}` : ''}
+    ${saiu.length ? `<div class="en-dia"><b>O time já vê</b></div>${tabela(saiu.slice().reverse())}` : ''}
+    <div class="en-dia"><b>Só você vê, sempre</b></div>
+    <div class="tb-rodape">Especialista comercial (Vendedores › Especialista) e esta tela de Entregas. Também aparecem com a borda roxa.</div>
+    <div class="tb-rodape">Mudou a data aqui, mudou no sistema: no dia, a entrega aparece sozinha para o time, entra no quadro de Novidades e quem estiver com a aba aberta vê a faixa para atualizar. Para conferir como o time enxerga, use "Ver como" em Ajustes.</div>`;
+  host.querySelectorAll('[data-enver]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); const b = document.querySelector(`#rail .nav-btn[data-view="${a.dataset.enver}"]`); if(b && !b.hidden) b.click(); }));
+  host.querySelectorAll('[data-endata]').forEach(sel=> sel.addEventListener('change', async ()=>{
+    const v = sel.value || null, l = L.find(x=> x.chave === sel.dataset.endata);
+    if(v === hoje && !confirm(`Soltar "${l.titulo}" para o time hoje?`)){ renderEntregas(); return; }
+    sel.disabled = true;
+    const { error: er } = await sb.rpc('crm_liberacao_data', { p_chave:sel.dataset.endata, p_data:v });
+    if(er){ showToast(errAmigavel(er)); sel.disabled = false; return; }
+    uso('clique', 'entregas: ' + sel.dataset.endata + ' → ' + (v || 'sem data'));
+    showToast(v ? `"${l.titulo}" sai ${v === hoje ? 'hoje' : 'na ' + enDia(v)}.` : `"${l.titulo}" ficou aguardando, sem data.`);
+    await libCarrega(); aplicarPerfil(); renderEntregas(); }));
+  host.querySelectorAll('[data-enrec]').forEach(b=> b.addEventListener('click', async ()=>{ const t = recado(b.dataset.enrec);
+    try{ await navigator.clipboard.writeText(t); showToast('Recado copiado: cole no grupo no dia da entrega.'); }catch(_){ prompt('Copie o recado:', t); } uso('clique', 'entregas: copiar recado'); }));
+}
+
 // ---------- ROTEIRIZAÇÃO (05/11/2026; mapa por CEP ligado no mesmo dia) ----------
 // Roteiro da semana: os clientes de uma fonte (plano do Especialista, parados, em risco, carteira) agrupados por cidade e bairro e
 // distribuídos de segunda a sexta, sem misturar cidades num dia quando dá. Área: em quantas cidades cada vendedor atende (espalhado ou concentrado).
@@ -11388,14 +11509,14 @@ async function renderPrazo(){
       <select id="pz-per"><option value="mes" ${PZ.per === 'mes' ? 'selected' : ''}>Mês atual</option><option value="ant" ${PZ.per === 'ant' ? 'selected' : ''}>Mês passado</option><option value="90" ${PZ.per === '90' ? 'selected' : ''}>Últimos 90 dias</option></select>
       ${vtSelect('pz-tipo', PZ.tipo)}
       <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver o prazo por gerência.</span>' : ''}
-      <button class="om-cancel" id="pz-exp" title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>
+      ${libLivre('export-cliente') ? `<button class="om-cancel${svC('export-cliente')}" id="pz-exp"${svD('export-cliente')} title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>` : ''}
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Prazo médio</th><th>contra a meta</th><th class="n" title="Prazo médio no ${escapeHtml(aRot)} e a variação: verde = caiu (melhor), vermelho = subiu">Antes</th><th class="n">Com prazo conhecido</th><th class="n">Acima de ${PZ.META} dias</th><th class="n">Notas com prazo</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="8" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os pedidos com prazo acima de ${PZ.META} dias. Prazo de uma venda = dias entre a emissão da nota e o vencimento de cada parcela, pesando pelo valor. Os boletos vêm das empresas que faturam (AMG, Asia, Blendbase, Canada e Korea), ligados ao pedido da Synthetic pelo cliente, pelo valor e pela data; a leitura é atualizada a cada 2 horas. Vendedor com cobertura baixa (em cinza) tem prazo pouco representativo.</div>`;
   host.querySelector('#pz-per').addEventListener('change', e=>{ PZ.per = e.target.value; renderPrazo(); });
-  host.querySelector('#pz-tipo').addEventListener('change', e=>{ PZ.tipo = e.target.value; renderPrazo(); });
-  host.querySelector('#pz-exp').addEventListener('click', e=> vtExporta(ini, fim, PZ.tipo, e.target));
+  host.querySelector('#pz-tipo')?.addEventListener('change', e=>{ PZ.tipo = e.target.value; renderPrazo(); });
+  host.querySelector('#pz-exp')?.addEventListener('click', e=> vtExporta(ini, fim, PZ.tipo, e.target));
   host.querySelectorAll('tr.vd-lin').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.sid), ini, fim, rot, 'pz', nav)));
 }
 
@@ -11700,7 +11821,7 @@ function ctPromoEditar(promoId, ids){
       <div class="cm-faixas"><label>Nome<input id="pr-nome" maxlength="80" placeholder="Ex.: Semana do ATF" value="${escapeHtml(pr ? pr.nome : '')}"></label>
         <label>Início<input id="pr-ini" type="date" value="${pr ? pr.inicio : hoje}"></label><label>Fim<input id="pr-fim" type="date" value="${pr ? pr.fim : ''}"></label>
         <label title="Deixe em branco para manter a regra normal de comissão de cada produto">Comissão na promoção (%)<input id="pr-com" inputmode="decimal" placeholder="regra normal" value="${pr && pr.comissao_pct != null ? cmP(pr.comissao_pct) : ''}"></label></div>
-      <div class="cm-chips" style="margin:10px 0 0" id="pr-tipo"><button type="button" class="cm-chip" data-prt="desconto" title="A promoção do CEO: preço promocional ou % de desconto">% Desconto</button><button type="button" class="cm-chip" data-prt="bonificacao" title="O preço de tabela fica igual e o cliente ganha produto (ex.: compra 12, ganha 2 litros). O custo da bonificação vai para marketing no DRE.">🎁 Bonificação em produto</button></div>
+      <div class="cm-chips" style="margin:10px 0 0" id="pr-tipo"><button type="button" class="cm-chip" data-prt="desconto" title="A promoção do CEO: preço promocional ou % de desconto">% Desconto</button>${libLivre('promo-bonif') || tipo === 'bonificacao' ? `<button type="button" class="cm-chip${svC('promo-bonif')}" data-prt="bonificacao"${svD('promo-bonif')} title="O preço de tabela fica igual e o cliente ganha produto (ex.: compra 12, ganha 2 litros). O custo da bonificação vai para marketing no DRE.">🎁 Bonificação em produto</button>` : ''}</div>
       <div class="tb-rodape" id="pr-tipo-txt" style="margin:4px 0 0"></div>
       <div class="tb-passo" style="margin:10px 0"><span id="pr-todos-box"></span>
         <span style="margin-left:12px">Incluir produto: <input id="pr-busca" list="pr-lista" placeholder="código ou nome" style="width:220px"><datalist id="pr-lista">${CAT.rows.slice(0, 2000).map(r=> `<option value="${escapeHtml(r.codigo + ' · ' + r.produto)}">`).join('')}</datalist></span></div>
@@ -11897,7 +12018,7 @@ async function renderResumo(){
       ${proj != null ? kpi('rank', 'Projeção do mês', fmtMoney(proj), `no ritmo de ${String(uPass).replace('.', ',')} de ${uMes} dias úteis${mesAntSerie ? ` · mês passado fechou em ${fmtMoney(mesAntSerie)}` : ''}`, mesAntSerie && proj < mesAntSerie ? 'alerta' : 'rs-kpi-ok') : ''}
       ${kpi('rank', 'Vendido no ano', fmtMoney(ytd), ytdAnt && h.getMonth() > 0 ? `<span class="rs-var ${ytdF >= ytdAnt ? 'up' : 'down'}">${pct(ytdF / ytdAnt - 1)}</span> de janeiro a ${['', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro'][h.getMonth()]} contra ${ano - 1}` : `desde janeiro de ${ano}`)}
       ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r ? kpi('rank', 'Especialista comercial', fmtMoney(r.total), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.total > 0 ? 'rs-kpi-ok' : '') : ''; })()}
-      ${F ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
+      ${F && libLivre('fin-inad') ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
     <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">Ranking dos vendedores no mês</h3><span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
     <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">Vendido no mês</th><th class="n">Tabela média</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
@@ -11957,7 +12078,7 @@ function renderSobre(){
   const rotina = [
     ['Todo dia', 'Cada pessoa abre a própria tela e vê os números que dependem dela, no computador ou no celular.'],
     ['Toda semana', 'A reunião de resultado usa os números daqui: o que saiu do esperado, por quê e quem faz o quê.'],
-    ['No caminho', 'A Capacity Case acompanha o uso, ouve as sugestões do balão 💬 e ajusta a torre junto com o time.']];
+    ['No caminho', 'A Capacity Case acompanha o uso, ouve as sugestões do balão 💬 e ajusta a torre junto com o time. As melhorias saem toda sexta-feira, até o fim do dia; o que é urgente (algo não funciona e impede o uso) é resolvido em até 48 horas.']];
   const princ = [
     ['Não é bala de prata.', 'A Synthetic já sabe vender. A Torre não ensina a roda a girar: faz ela girar mais rápido.'],
     ['Um dado, uma fonte.', 'O que existe no Fácil123 vem de lá, lido a cada 30 minutos. O que ainda não existe é lançado uma vez, aqui. Ninguém digita duas vezes.'],
