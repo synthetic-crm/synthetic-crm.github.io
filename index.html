@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-175337">
+<meta name="crm-versao" content="20261105-181021">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -468,6 +468,7 @@
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="parados" title="Clientes parados: quem comprava e está há mais de 90 dias sem comprar, por vendedor (lista da semana)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21v-1a7 7 0 0 1 11-5.7"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v2l1.2 1.2"></path></svg><span>Parados</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="comissoes" title="Comissões: quanto cada vendedor ganha no ciclo, item a item, pela regra de desconto de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg><span>Comissões</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
+    <button data-perfis="master" class="nav-btn" data-view="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sugestoes" title="Sugestões: ideias, problemas e dúvidas sobre o sistema, e o que foi feito com cada uma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg><span>Sugestões</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-atender" data-view="atender" title="Atender um cliente: inteligência, abordagem, conversa e proposta, passo a passo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><span>Atender</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn active" data-view="hoje" title="Hoje: quem ligar agora, em ordem de prioridade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg><span>Hoje</span></button>
@@ -493,6 +494,7 @@
     <div id="view-parados" class="view"><div class="tb" id="pr"></div></div>
     <div id="view-comissoes" class="view"><div class="tb" id="cm"></div></div>
     <div id="view-financeiro" class="view"><div class="tb" id="fi"></div></div>
+    <div id="view-especialista" class="view"><div class="tb" id="es"></div></div>
     <div id="view-ajustes" class="view"><div class="pg">
       <div class="pg-head"><h2>Ajustes</h2><span class="sub">Ferramentas de administração do CRM. Só o Master vê este menu.</span></div>
       <div class="aj-grade">
@@ -3932,6 +3934,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'parados') renderParados();
     if(v === 'comissoes') renderComissoes();
     if(v === 'financeiro') renderFinanceiro();
+    if(v === 'especialista') renderEspecialista();
     if(v === 'operacao') renderOperacao();
     if(v === 'hoje') renderHoje();
     if(v === 'atender') renderAtender();
@@ -4005,7 +4008,7 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', especialista:'admin', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 let VE_COMISSOES = false;   // pessoa liberada pelo e-mail em crm_comissao_acesso (ex.: o comercial); o banco confere de novo em cada consulta
 function menuLiberado(view, p){
   if(!MENU_ZERADO) return true;
@@ -9210,6 +9213,10 @@ setInterval(versaoConfere, 2*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'promo-bonificacao', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
+  { id:'promo-vendas', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
+  { id:'whatsapp', dia:'2026-11-05', tela:'parados', titulo:'Mensagem pronta no WhatsApp: oferta e cobrança', txt:'No detalhe do cliente, "Mandar oferta" monta a mensagem com o que ele comprava e a promoção ativa; o financeiro tem "Cobrar" com os boletos em atraso. Você revisa e manda pelo seu WhatsApp.' },
+  { id:'rede', dia:'2026-11-05', tela:'parados', titulo:'Parados: "rede compra"', txt:'Marca o cliente que parou nesta loja, mas outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias.' },
   { id:'devedor-cnpj', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
   { id:'relatorios', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
   { id:'financeiro', dia:'2026-11-05', tela:'financeiro', titulo:'Novo módulo Financeiro: inadimplência e baixas', txt:'Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado. Lista por cliente para acompanhar a cobrança, sem a planilha puxada do Fácil.' },
@@ -10078,6 +10085,13 @@ const PDS = { rows:null, faixa:'91-365', vend:'', q:'', so:'', aba:'clientes', p
 // nota de 0 a 10 (pedido da reunião de 05/11); a letra é só a faixa da nota, usada nas cores e nos filtros
 const RT_NOME = { A:'nota 8 a 10 · paga em dia', B:'nota 6 e 7 · atrasa pouco', C:'nota 4 e 5 · atenção', D:'nota 0 a 3 · em atraso, não vender a prazo', N:'sem nota · pouco histórico de boletos' };
 let RT_MAPA = null;
+// parados de rede: outra loja com a mesma raiz de CNPJ comprou nos últimos 90 dias (pessoa_id → { lojas, ultima_compra, valor_90d, exemplo })
+let PD_REDE = null;
+async function pdRedeCarrega(){
+  if(PD_REDE) return PD_REDE;
+  const { data, error } = await sb.rpc('crm_parados_rede');
+  PD_REDE = new Map(error ? [] : (data || []).map(r=> [r.pessoa_id, r])); return PD_REDE;
+}
 async function rtCarrega(){
   if(RT_MAPA) return RT_MAPA;
   const { data, error } = await sb.rpc('crm_rating_clientes');
@@ -10091,7 +10105,7 @@ async function renderParados(){
   if(!PDS.rows){
     host.innerHTML = '<div class="tb-rodape">Buscando os clientes parados…</div>';
     try{ [PDS.rows] = await Promise.all([opFetchAll('v_crm_mapa', 'pessoa_id,nome,cidade,uf,telefone,vendedor,seller_id,situacao,fat_12m,pedidos_12m,valor_mensal,ultima_compra,dias_sem_comprar', ['pessoa_id'], q=> q.neq('situacao', 'lead').gte('dias_sem_comprar', 91)),
-                                     rtCarrega().catch(()=> null)]); }
+                                     rtCarrega().catch(()=> null), pdRedeCarrega().catch(()=> null)]); }
     catch(e){ host.innerHTML = `<div class="tb-aviso">Não consegui buscar: ${escapeHtml(errAmigavel(e))}</div>`; return; }
   }
   const rt = r=> RT_MAPA && RT_MAPA.get(r.pessoa_id), deve = r=> { const x = rt(r); return !!x && (Number(x.vencido) > 0 || x.ligado_forca >= 2); };
@@ -10133,9 +10147,9 @@ async function renderParados(){
     ${devendo.length && PDS.pg !== 'ok' ? (()=>{ const lig = devendo.filter(r=> !(Number(rt(r).vencido) > 0)).length;
       return `<div class="tb-aviso"><b>${fmtNum(devendo.length - lig)} destes clientes têm boleto em atraso</b> (${fmtMoney(devendo.reduce((t, r)=> t + Number(rt(r).vencido || 0), 0))})${lig ? ` e <b>${fmtNum(lig)} parecem ser do mesmo dono de quem deve</b> (mesmo CNPJ raiz, telefone, e-mail ou endereço)` : ''}. Antes de ligar para vender, combine com o financeiro. Para tirá-los da lista, use o filtro de pagamento.</div>`; })() : ''}
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th><th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th><th>Telefone</th></tr></thead>
-    <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
+    <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou ${escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d))} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
       <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td><td class="n">${RT_MAPA ? rtSelo(rt(r)) : ''}</td><td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
-    <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou. Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</div>`;
+    <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou. Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</div>`;
   const re = ()=> renderParados();
   host.querySelectorAll('[data-prso]').forEach(k=> k.addEventListener('click', ()=>{ PDS.so = PDS.so === k.dataset.prso ? '' : k.dataset.prso; re(); }));
   host.querySelectorAll('[data-praba]').forEach(b=> b.addEventListener('click', ()=>{ PDS.aba = b.dataset.praba; if(PDS.aba === 'vend') PDS.vend = ''; re(); }));
@@ -10153,6 +10167,53 @@ async function renderParados(){
         x ? (x.nota ?? 'sem histórico') : '', x ? Number(x.vencido || 0).toFixed(2).replace('.', ',') : '', x ? x.motivo : '']; })),
       'clientes-parados-' + new Date().toISOString().slice(0, 10) + '.csv');
   });
+}
+
+// ---------- WHATSAPP: COBRANÇA E OFERTA (05/11/2026, reunião: "manual primeiro, depois a gente automatiza") ----------
+// A mensagem sai pronta e editável; quem clica manda pelo próprio WhatsApp (envio em massa bloqueia o número). Nada é enviado sozinho.
+const waNumero = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.startsWith('55') && d.length >= 12 ? d : (d.length === 10 || d.length === 11) ? '55' + d : null; };
+const waPrimeiroNome = n=> String(n || '').trim().split(/\s+/)[0] || '';
+function waDialog(titulo, sub, fone, texto, aviso, evento){
+  const box = dlgOpen(`<div class="om-title"><div><h3>${escapeHtml(titulo)}</h3><div class="om-sub">${escapeHtml(sub)}</div></div><button data-close>✕</button></div>
+    <div class="dlg-body">${aviso ? `<div class="tb-aviso">${aviso}</div>` : ''}
+      <label style="display:block;font-size:13px;color:var(--ink-soft)">WhatsApp do cliente<input id="wa-fone" inputmode="tel" style="display:block;width:220px;margin-top:4px" value="${escapeHtml(fone || '')}" placeholder="(11) 99999-9999"></label>
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--ink-soft)">Mensagem (pode editar)<textarea id="wa-txt" rows="11" style="display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(texto)}</textarea></label></div>
+    <div class="om-err" id="wa-err"></div>
+    <div class="om-foot"><span style="flex:1"></span><button class="om-cancel" id="wa-copia">Copiar texto</button><button class="om-save" id="wa-abre">Abrir no WhatsApp</button></div>`, true);
+  box.querySelector('#wa-copia').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#wa-txt').value); showToast('Mensagem copiada.'); }catch(_){} uso('clique', evento + ': copiou'); });
+  box.querySelector('#wa-abre').addEventListener('click', ()=>{
+    const n = waNumero(box.querySelector('#wa-fone').value);
+    if(!n){ box.querySelector('#wa-err').textContent = 'Informe o WhatsApp com DDD.'; return; }
+    window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(box.querySelector('#wa-txt').value), '_blank', 'noopener');
+    uso('clique', evento + ': abriu WhatsApp');
+  });
+}
+async function waCobrar(pid){
+  const [{ data: pe }, { data: bol, error }] = await Promise.all([sb.from('crm_pessoas').select('nome,contato_nome,telefone').eq('id', pid).maybeSingle(), sb.rpc('crm_cliente_boletos', { p_pessoa:pid })]);
+  if(error){ showToast(errAmigavel(error)); return; }
+  const A = (bol || []).filter(b=> b.situacao === 'em atraso').sort((a, b)=> String(a.vence).localeCompare(String(b.vence)));
+  if(!A.length){ showToast('Este cliente não tem boleto em atraso.'); return; }
+  const tot = A.reduce((t, b)=> t + Number(b.valor || 0), 0), nome = waPrimeiroNome(pe && pe.contato_nome);
+  const txt = `Olá${nome ? ', ' + nome : ''}! Tudo bem? Aqui é do financeiro da Synthetic Lubrificantes.\n\nConsta em aberto no cadastro de ${pe ? pe.nome : 'vocês'}:\n${A.slice(0, 8).map(b=> `• ${fmtMoneyC(b.valor)}, vencido em ${fmtDate(String(b.vence).slice(0, 10))}`).join('\n')}${A.length > 8 ? `\n• e mais ${A.length - 8} boletos` : ''}\nTotal: ${fmtMoneyC(tot)}.\n\nPodemos te ajudar a regularizar? Se for melhor, combinamos um acordo. Se já pagou, desconsidere esta mensagem e, por favor, nos envie o comprovante. Obrigado!`;
+  waDialog('Cobrar no WhatsApp', `${A.length} boleto${A.length === 1 ? '' : 's'} em atraso · ${fmtMoneyC(tot)}`, pe && pe.telefone, txt, '', 'cobrança');
+  uso('clique', 'cobrança: abriu', { pessoa_id:pid });
+}
+let WA_PROMOS = null;
+async function waOferta(pid, dados){
+  const c = dados.cliente || {}, P = (dados.produtos || []).slice(0, 3), R = dados.rt;
+  if(!WA_PROMOS){ const { data } = await sb.rpc('crm_promocoes_lista'); WA_PROMOS = (data || []).filter(x=> x.situacao === 'ativa'); }
+  const cods = new Set(P.map(p=> String(p.code)));
+  // promoção ativa que tenha um produto que ele comprava; senão a primeira bonificação ativa; senão a primeira promoção ativa
+  const achou = WA_PROMOS.map(x=> ({ x, i:(x.itens || []).find(i=> cods.has(String(i.codigo))) })).find(o=> o.i) || (WA_PROMOS.find(x=> x.tipo === 'bonificacao') ? { x:WA_PROMOS.find(x=> x.tipo === 'bonificacao') } : WA_PROMOS[0] ? { x:WA_PROMOS[0] } : null);
+  const regra = (x, i)=> i ? (i.compra_qtd ? `a cada ${tbQtd(i.compra_qtd)} unidades de ${i.produto} você ganha ${tbQtd(i.bonus_qtd)}${i.bonus_produto && i.bonus_product_id !== i.product_id ? ' de ' + i.bonus_produto : ''}` : i.preco ? `${i.produto} está a R$ ${tbR(i.preco)}` : i.desconto ? `${i.produto} está com ${cmP(i.desconto)}% de desconto` : '') : '';
+  let linhaPromo = '';
+  if(achou){ const i = achou.i || (achou.x.itens || [])[0]; const r = regra(achou.x, i); if(r) linhaPromo = `\n\nAté ${fmtDate(achou.x.fim)} temos uma condição especial: ${r}.`; }
+  const nome = waPrimeiroNome(c.contato), eu = waPrimeiroNome(curUserName());
+  const prods = P.map(p=> p.name).filter(Boolean);
+  const txt = `Olá${nome ? ', ' + nome : ''}! Tudo bem? Aqui é ${eu ? 'o(a) ' + eu + ', ' : ''}da Synthetic Lubrificantes.\n\nFaz um tempinho que vocês não compram com a gente${prods.length ? ` o ${prods.slice(0, 2).join(' e o ')}` : ''} e eu queria saber como estão as coisas por aí.${linhaPromo}\n\nPosso te mandar um orçamento?`;
+  const aviso = R && (Number(R.vencido) > 0 || R.ligado_forca >= 2) ? `<b>Atenção:</b> ${escapeHtml(Number(R.vencido) > 0 ? 'este cliente tem boleto em atraso (' + R.motivo + ')' : 'este cliente parece ser do mesmo dono de quem deve')}. Combine com o financeiro antes de vender a prazo.` : '';
+  waDialog('Mandar oferta no WhatsApp', `${c.dias_sem_comprar != null ? 'Parado há ' + fmtNum(c.dias_sem_comprar) + ' dias · ' : ''}${prods.length ? 'comprava ' + prods.join(', ') : ''}`, c.telefone, txt, aviso, 'oferta');
+  uso('clique', 'oferta: abriu', { pessoa_id:pid });
 }
 
 // ---------- DETALHE DO CLIENTE (04/11/2026, pelo uso real: o CEO clicou duas vezes num cliente da tela Parados e nada abriu) ----------
@@ -10176,7 +10237,11 @@ async function clDetalhe(pid, nav){
     let h = (R && Number(R.vencido) > 0 ? `<div class="tb-aviso"><b>Cliente com boleto em atraso</b> (nota ${R.nota ?? '—'} de 10): ${escapeHtml(R.motivo)}. Antes de vender a prazo, combine com o financeiro.</div>` : '')
       + (R && R.bloqueado ? `<div class="tb-aviso"><b>No Fácil123, este cliente está com o limite de crédito em "Bloquear"</b>${R.limite_credito ? ' (limite de ' + fmtMoney(R.limite_credito) + ')' : ''}. Confirme com o financeiro antes de vender.</div>` : '')
       + (R && R.obs_restricao ? `<div class="tb-aviso"><b>Observação no cadastro do Fácil123:</b> ${escapeHtml(R.obs_restricao)}</div>` : '')
-      + (R && R.ligado_devedor ? `<div class="tb-aviso"><b>Pode ser o mesmo dono de quem está devendo${R.ligado_forca < 2 ? ' (só nome parecido: confira antes)' : ''}:</b> ${escapeHtml(R.ligado_devedor)}. Confirme com o financeiro antes de vender a prazo.</div>` : '') + `<div class="cl-fatos">
+      + (R && R.ligado_devedor ? `<div class="tb-aviso"><b>Pode ser o mesmo dono de quem está devendo${R.ligado_forca < 2 ? ' (só nome parecido: confira antes)' : ''}:</b> ${escapeHtml(R.ligado_devedor)}. Confirme com o financeiro antes de vender a prazo.</div>` : '')
+      + (dados.rede ? `<div class="tb-aviso" style="background:var(--surface-2)"><b>Parou nesta loja, mas a rede ainda compra:</b> ${dados.rede.lojas} outra${dados.rede.lojas > 1 ? 's lojas' : ' loja'} com a mesma raiz de CNPJ comprou ${fmtMoney(dados.rede.valor_90d)} nos últimos 90 dias (a última em ${fmtDate(dados.rede.ultima_compra)}${dados.rede.exemplo ? ', ' + escapeHtml(dados.rede.exemplo) : ''}). Pode ser que a compra só tenha mudado de CNPJ.</div>` : '')
+      + ((dados.mud || []).length ? `<div class="tb-aviso"><b>O endereço do cadastro mudou${dados.mud.length > 1 ? ' ' + dados.mud.length + ' vezes' : ''}:</b> ${dados.mud.slice(0, 2).map(m=> `em ${fmtDate(String(m.em).slice(0, 10))}, de "${escapeHtml(m.antes || '—')}" para "${escapeHtml(m.depois || '—')}"`).join('; ')}.</div>` : '')
+      + `<div class="cl-acoes" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="om-save" id="cl-oferta" title="Mensagem pronta com o que ele comprava e a promoção ativa, para mandar pelo seu WhatsApp">📲 Mandar oferta no WhatsApp</button>${atr.length && ehGestao() ? '<button class="om-cancel" id="cl-cobrar" title="Mensagem pronta com os boletos em atraso, para o financeiro mandar pelo WhatsApp">💬 Cobrar no WhatsApp</button>' : ''}</div>`
+      + `<div class="cl-fatos">
         <span>Nota de pagamento ${R ? rtSelo(R) + ' <b>' + escapeHtml(R.motivo || '') + '</b>' : '<b>sem boletos nas empresas que faturam</b>'}</span>
         <span>Parado há <b>${c.dias_sem_comprar != null ? fmtNum(c.dias_sem_comprar) + ' dias' : '—'}</b></span>
         <span>Última compra <b>${dt(c.ultima_compra)}</b></span>
@@ -10202,6 +10267,8 @@ async function clDetalhe(pid, nav){
     h += `<div class="tb-rodape">Vendas da Synthetic pela mesma regra das outras telas. "Tab." usa a tabela de preços de hoje: pedidos antigos podem aparecer mais baixos se a tabela subiu depois.</div>`;
     corpo.innerHTML = h;
     corpo.querySelectorAll('[data-cla]').forEach(b=> b.addEventListener('click', ()=>{ aba = b.dataset.cla; pinta(); }));
+    corpo.querySelector('#cl-oferta')?.addEventListener('click', ()=> waOferta(atual, dados));
+    corpo.querySelector('#cl-cobrar')?.addEventListener('click', ()=> waCobrar(atual));
   };
   const carrega = async id=>{
     atual = id; const meu = ++seq, i = nav ? nav.ids.indexOf(id) : -1;
@@ -10210,10 +10277,11 @@ async function clDetalhe(pid, nav){
     box.querySelector('#cl-nome').textContent = (nav && nav.nomes[id]) || 'Carregando…';
     box.querySelector('#cl-sub').textContent = varios ? `${i + 1}º de ${nav.ids.length} da lista` : '';
     corpo.innerHTML = '<div class="tb-rodape">Buscando as compras…</div>';
-    const [{ data, error }, rr, bb] = await Promise.all([sb.rpc('crm_cliente_detalhe', { p_pessoa:id }), sb.rpc('crm_rating_clientes', { p_pessoa:id }), sb.rpc('crm_cliente_boletos', { p_pessoa:id })]);
+    const [{ data, error }, rr, bb, mm] = await Promise.all([sb.rpc('crm_cliente_detalhe', { p_pessoa:id }), sb.rpc('crm_rating_clientes', { p_pessoa:id }), sb.rpc('crm_cliente_boletos', { p_pessoa:id }),
+      ehGestao() ? sb.rpc('crm_cliente_mudancas', { p_pessoa:id }) : Promise.resolve({ data:[] }), PD_REDE ? Promise.resolve() : pdRedeCarrega()]);
     if(meu !== seq || corpo.dataset.cl !== marca) return;
     if(error){ corpo.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
-    dados = { ...data, rt:(!rr.error && rr.data && rr.data[0]) || null, bol:(!bb.error && bb.data) || [] }; const c = data.cliente || {};
+    dados = { ...data, rt:(!rr.error && rr.data && rr.data[0]) || null, bol:(!bb.error && bb.data) || [], mud:(mm && !mm.error && mm.data) || [], rede:PD_REDE && PD_REDE.get(id) }; const c = data.cliente || {};
     box.querySelector('#cl-nome').textContent = c.nome || 'Cliente';
     box.querySelector('#cl-sub').textContent = [c.razao_social && c.razao_social !== c.nome ? c.razao_social : '', [c.cidade, c.uf].filter(Boolean).join('/'), c.vendedor ? 'vendedor ' + nomeBonito(c.vendedor) : '', varios ? `${i + 1}º de ${nav.ids.length} da lista` : ''].filter(Boolean).join(' · ');
     pinta(); uso('clique', 'cliente: aberto', { pessoa_id:id });
@@ -10247,12 +10315,67 @@ async function renderFinanceiro(){
 // ---- Relatórios (05/11/2026, reunião: "você vai criar um setor de relatórios também?") ----
 // Clientes com endereço: para montar a rota do vendedor (o Fácil123 só dá nome, razão social e última compra). Ordenado por UF, cidade e bairro.
 // Clientes novos por vendedor: primeira venda do cliente no período, creditada a quem fez essa venda (transferência não conta; cadastro sem venda não conta).
-const FR = { rel:'ender', ender:null, vend:'', uf:'', cidade:'', sit:'', q:'', per:'ant', novos:null, novosDe:'', nvend:'' };
+const FR = { rel:'ender', ender:null, vend:'', uf:'', cidade:'', sit:'', q:'', per:'ant', novos:null, novosDe:'', nvend:'', promos:null, pid:null, pdia:'', pv:null, pvDe:'' };
+// Vendas de uma promoção (pedido do comercial: no fim do dia, quem vendeu a promoção, para quem e quanto). "Hoje" monta o fechamento do dia para copiar no grupo.
+async function frPromo(host, chips, liga, nomeV){
+  if(!FR.promos){
+    host.innerHTML = chips + '<div class="tb-rodape">Buscando as promoções…</div>'; liga();
+    const { data, error } = await sb.rpc('crm_promocoes_lista');
+    if(error){ host.innerHTML = chips + `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; liga(); return; }
+    FR.promos = (data || []).filter(x=> x.situacao === 'ativa' || x.situacao === 'encerrada');
+    if(!FR.pid && FR.promos.length) FR.pid = FR.promos[0].id;
+  }
+  if(!FR.promos.length){ host.innerHTML = chips + '<div class="tb-aviso">Nenhuma promoção ativa ou encerrada ainda. Elas são cadastradas em Catálogo › Promoções.</div>'; liga(); return; }
+  const P = FR.promos.find(x=> x.id === FR.pid) || FR.promos[0], hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+  const chave = P.id + '|' + FR.pdia;
+  if(!FR.pv || FR.pvDe !== chave){
+    host.innerHTML = chips + '<div class="tb-rodape">Somando as vendas da promoção…</div>'; liga();
+    const { data, error } = await sb.rpc('crm_promocao_vendas', { p_id:P.id, p_dia:FR.pdia || null });
+    if(error){ host.innerHTML = chips + `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; liga(); return; }
+    FR.pv = data; FR.pvDe = chave;
+  }
+  const D = FR.pv, V = D.vendedores || [], I = D.itens || [], bon = D.tipo === 'bonificacao';
+  const tot = k=> V.reduce((t, r)=> t + Number(r[k] || 0), 0);
+  const periodo = FR.pdia ? 'em ' + fmtDate(FR.pdia) : `de ${fmtDate(P.inicio)} a ${fmtDate(P.fim)}`;
+  host.innerHTML = chips + `
+    <div class="tb-bar">
+      <select id="fp-p" aria-label="Promoção">${FR.promos.map(x=> `<option value="${x.id}" ${x.id === P.id ? 'selected' : ''}>${escapeHtml(x.nome)} · ${x.situacao}${x.tipo === 'bonificacao' ? ' · bonificação' : ''}</option>`).join('')}</select>
+      <div class="cm-chips" style="margin:0"><button class="cm-chip ${!FR.pdia ? 'on' : ''}" data-fpd="">Toda a promoção</button>${P.situacao === 'ativa' ? `<button class="cm-chip ${FR.pdia === hoje ? 'on' : ''}" data-fpd="${hoje}">Hoje</button>` : ''}</div>
+      <span class="tb-esp"></span><button class="om-save" id="fp-copia" title="Copiar o fechamento para colar no WhatsApp">Copiar fechamento</button><button class="om-cancel" id="fp-csv">Exportar</button>
+    </div>
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Vendido na promoção · ${escapeHtml(periodo)}</small><b>${fmtMoney(tot('valor'))}</b><span>${tbQtd(tot('qtd'))} unidades · ${fmtNum(tot('clientes'))} clientes · ${fmtNum(tot('pedidos'))} pedidos</span></div>
+      <div class="tb-kpi"><small>Vendedores que venderam</small><b>${fmtNum(V.length)}</b><span>${V[0] ? 'quem mais vendeu: ' + escapeHtml(nomeV(V[0].vendedor)) : ''}</span></div>
+      ${bon ? `<div class="tb-kpi"><small>Bonificação devida (marketing)</small><b>${tbQtd(tot('bonus'))} un.</b><span>custo estimado ${fmtMoney(tot('bonus_custo'))}, pelo custo do produto no Fácil123</span></div>` : ''}
+    </div>
+    <div class="tb-wrap" style="min-height:0;max-height:34vh"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Clientes</th><th class="n">Pedidos</th><th class="n">Unidades</th><th class="n">Valor</th>${bon ? '<th class="n">Bonificação</th><th class="n">Custo</th>' : ''}</tr></thead>
+    <tbody>${V.map(r=> `<tr><td class="prod">${escapeHtml(nomeV(r.vendedor))}</td><td class="n">${r.clientes}</td><td class="n">${r.pedidos}</td><td class="n">${tbQtd(r.qtd)}</td><td class="n">${fmtMoney(r.valor)}</td>${bon ? `<td class="n">${tbQtd(r.bonus || 0)}</td><td class="n">${fmtMoney(r.bonus_custo || 0)}</td>` : ''}</tr>`).join('') || `<tr><td colspan="7" class="vazio">Nenhuma venda da promoção ${escapeHtml(periodo)}.</td></tr>`}</tbody></table></div>
+    <div class="cm-resumo" style="margin:12px 0 4px">Pedido a pedido (${fmtNum(I.length)})</div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Data</th><th>Pedido</th><th>Vendedor</th><th>Cliente</th><th>Produto</th><th class="n">Qtd.</th><th class="n">Preço un.</th><th class="n">Valor</th>${bon ? '<th class="n">Bonifica</th>' : ''}</tr></thead>
+    <tbody>${I.slice(0, 400).map(r=> `<tr><td>${fmtDate(r.dia)}</td><td>${r.pedido ?? ''}</td><td>${escapeHtml(nomeV(r.vendedor))}</td><td class="prod">${escapeHtml(r.cliente || '')}${r.cidade ? ' <small class="vazio">' + escapeHtml(r.cidade) + '</small>' : ''}</td><td>${escapeHtml(r.codigo || '')} ${escapeHtml(r.produto || '')}</td><td class="n">${tbQtd(r.qtd)}</td><td class="n">${tbR(r.unit)}</td><td class="n">${fmtMoney(r.valor)}</td>${bon ? `<td class="n">${r.bonus ? tbQtd(r.bonus) + (r.bonus_codigo && r.bonus_codigo !== r.codigo ? ' de ' + escapeHtml(r.bonus_codigo) : '') : '—'}</td>` : ''}</tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhuma venda.</td></tr>'}</tbody></table></div>
+    <div class="tb-rodape">Vendas dos produtos da promoção dentro do período dela, pela mesma regra das outras telas. ${bon ? 'Bonificação devida = a cada tantas unidades no mesmo pedido, a quantidade bonificada; o custo usa o custo atual do produto bonificado no Fácil123 e é uma estimativa para o lançamento de marketing no DRE. Se a bonificação for lançada no Fácil123 como nota de bonificação, dá para conferir com esta conta.' : 'Na promoção de desconto, o preço unitário mostra se a venda saiu no preço promocional.'}</div>`;
+  liga();
+  host.querySelector('#fp-p').addEventListener('change', e=>{ FR.pid = Number(e.target.value); FR.pdia = ''; frPromo(host, chips, liga, nomeV); });
+  host.querySelectorAll('[data-fpd]').forEach(b=> b.addEventListener('click', ()=>{ FR.pdia = b.dataset.fpd; frPromo(host, chips, liga, nomeV); }));
+  host.querySelector('#fp-copia').addEventListener('click', async ()=>{
+    const linhas = V.map(r=>{ const cl = [...new Set(I.filter(i=> i.vendedor === r.vendedor).map(i=> i.cliente))];
+      return `• ${nomeV(r.vendedor)}: ${tbQtd(r.qtd)} un. para ${r.clientes} cliente${r.clientes == 1 ? '' : 's'} (${fmtMoney(r.valor)})${cl.length <= 4 ? ' · ' + cl.join(', ') : ''}`; });
+    const txt = `*${P.nome}* · ${periodo}\n${linhas.join('\n') || 'Nenhuma venda.'}\nTotal: ${tbQtd(tot('qtd'))} un., ${fmtMoney(tot('valor'))}${bon ? `\nBonificação devida: ${tbQtd(tot('bonus'))} un. (custo estimado ${fmtMoney(tot('bonus_custo'))})` : ''}`;
+    try{ await navigator.clipboard.writeText(txt); showToast('Fechamento copiado: é só colar no WhatsApp.'); }catch(_){ prompt('Copie o fechamento:', txt); }
+    uso('clique', 'promoção: copiar fechamento', { promocao:P.id });
+  });
+  host.querySelector('#fp-csv').addEventListener('click', ()=>{
+    csvDownload([['Data', 'Pedido', 'Vendedor', 'Cliente', 'Cidade', 'Código', 'Produto', 'Quantidade', 'Preço unitário', 'Valor', 'Bonificação devida', 'Produto bonificado', 'Custo estimado da bonificação']]
+      .concat(I.map(r=> [fmtDate(r.dia), r.pedido, nomeV(r.vendedor), r.cliente, r.cidade, r.codigo, r.produto, String(r.qtd).replace('.', ','), Number(r.unit || 0).toFixed(2).replace('.', ','), Number(r.valor || 0).toFixed(2).replace('.', ','), r.bonus ?? '', r.bonus_codigo || '', r.bonus_custo == null ? '' : Number(r.bonus_custo).toFixed(2).replace('.', ',')])),
+      'promocao-' + P.id + '-' + (FR.pdia || P.fim) + '.csv');
+  });
+}
 const FR_SIT = { '':'Todas as situações', ativo:'Ativos', novo:'Novos', em_risco:'Em risco', parado:'Parados' };
 async function fiRelatorios(host){
-  const chips = `<div class="cm-chips" style="margin:0 0 10px"><button class="cm-chip ${FR.rel === 'ender' ? 'on' : ''}" data-frrel="ender">Clientes com endereço (para a rota)</button><button class="cm-chip ${FR.rel === 'novos' ? 'on' : ''}" data-frrel="novos">Clientes novos por vendedor</button></div>`;
+  const chips = `<div class="cm-chips" style="margin:0 0 10px"><button class="cm-chip ${FR.rel === 'ender' ? 'on' : ''}" data-frrel="ender">Clientes com endereço (para a rota)</button><button class="cm-chip ${FR.rel === 'novos' ? 'on' : ''}" data-frrel="novos">Clientes novos por vendedor</button><button class="cm-chip ${FR.rel === 'promo' ? 'on' : ''}" data-frrel="promo">Vendas das promoções</button></div>`;
   const liga = ()=> host.querySelectorAll('[data-frrel]').forEach(b=> b.addEventListener('click', ()=>{ FR.rel = b.dataset.frrel; uso('clique', 'relatório: ' + FR.rel); fiRelatorios(host); }));
   const nomeV = v=> nomeBonito(v || '') || 'Sem vendedor';
+  if(FR.rel === 'promo') return frPromo(host, chips, liga, nomeV);
   if(FR.rel === 'ender'){
     if(!FR.ender){
       host.innerHTML = chips + '<div class="tb-rodape">Buscando os endereços…</div>'; liga();
@@ -10390,12 +10513,12 @@ async function fiInadimplencia(host){
       <input id="fi-q" class="ca-inp" placeholder="Buscar cliente ou CNPJ" value="${escapeHtml(FI.q)}" style="min-width:180px">
       <span class="tb-esp"></span><button class="om-cancel" id="fi-csv" title="Baixar a lista para acompanhar a cobrança">Exportar</button>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th><th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th><th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th><th></th></tr></thead>
     <tbody>${mostra.map(r=>{ const d = diasDe(r.mais_antigo), x = RT_MAPA && r.pessoa_id && RT_MAPA.get(r.pessoa_id);
       return `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" ${r.pessoa_id ? `data-pid="${r.pessoa_id}" data-uso-linha="cliente financeiro" title="Ver compras e boletos de ${escapeHtml(r.cliente || 'o cliente')}"` : 'title="Cliente sem cadastro no CRM com este CNPJ"'}>
       <td class="prod">${escapeHtml(r.cliente || r.cnpj)}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.empresas || '')}</td>
       <td class="n">${Number(r.em_atraso) ? '<b>' + fmtMoney(r.em_atraso) + '</b>' : '—'}</td><td class="n">${r.boletos_atraso || '—'}</td><td class="n ${d > 30 ? 'cm-pend' : ''}">${d != null ? d + ' dias' : '—'}</td>
-      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td><td class="n">${x ? rtSelo(x) : ''}</td></tr>`; }).join('') || '<tr><td colspan="9" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
+      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td><td class="n">${x ? rtSelo(x) : ''}</td><td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados. Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</div>`;
   const re = ()=> fiInadimplencia(host);
   host.querySelectorAll('[data-fifx]').forEach(b=> b.addEventListener('click', ()=>{ FI.faixa = FI.faixa === b.dataset.fifx ? '' : b.dataset.fifx; if(FI.faixa) FI.mostra = 'atraso'; re(); }));
@@ -10404,7 +10527,8 @@ async function fiInadimplencia(host){
   host.querySelector('#fi-vend')?.addEventListener('change', e=>{ FI.vend = e.target.value; re(); });
   let tq; host.querySelector('#fi-q').addEventListener('input', e=>{ clearTimeout(tq); tq = setTimeout(()=>{ FI.q = e.target.value; re(); const i = document.getElementById('fi-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 350); });
   const nav = { ids:mostra.filter(r=> r.pessoa_id).map(r=> r.pessoa_id), nomes:Object.fromEntries(mostra.map(r=> [r.pessoa_id, r.cliente])) };
-  host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', ()=> clDetalhe(tr.dataset.pid, nav)));
+  host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', e=>{ if(e.target.closest('[data-cob]')) return; clDetalhe(tr.dataset.pid, nav); }));
+  host.querySelectorAll('[data-cob]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); waCobrar(b.dataset.cob); }));
   host.querySelector('#fi-csv').addEventListener('click', ()=>{
     uso('clique', 'Exportar inadimplência', { linhas:L.length });
     const n = v=> Number(v || 0).toFixed(2).replace('.', ',');
@@ -10456,6 +10580,158 @@ async function fiRating(host){
       .concat(L.map(r=> [r.nota ?? 'sem histórico', r.nome, r.cidade, r.uf, nomeV(r), r.motivo, r.atraso_medio == null ? '' : String(r.atraso_medio).replace('.', ','), pct(r.pct_atraso_7), Number(r.vencido || 0).toFixed(2).replace('.', ','), r.boletos, Number(r.fat_12m || 0).toFixed(2).replace('.', ','), r.dias_sem_comprar ?? '', r.ligado_devedor || ''])),
       'rating-clientes-' + new Date().toISOString().slice(0, 10) + '.csv');
   });
+}
+
+// ---------- ESPECIALISTA COMERCIAL (05/11/2026, a "cadeira" de inteligência comercial; por enquanto só o Administrador, também no banco) ----------
+// Ritmo da semana: segunda (até 10h) manda a estratégia da semana a cada vendedor; quarta revisa o que mandou (sem falar com o vendedor,
+// salvo se ele precisar); sexta faz o fechamento e manda para ele. O plano fica salvo (crm_esp_planos) para medir quem comprou e ajustar as estratégias.
+const ES_EST = {
+  reativar:{ t:'Reativar parados da carteira', c:'clientes seus que pararam de comprar (91 dias a 1 ano), os que mais compravam', q:3 },
+  orfao:{ t:'Clientes sem vendedor ou de quem saiu', c:'na sua região, da carteira de vendedor que não vende mais ou sem vendedor', q:4 },
+  risco:{ t:'Em risco', c:'clientes seus que passaram do ciclo normal de compra', q:1 },
+  prospect:{ t:'Clientes novos na região', c:'cadastrados nas suas cidades e que nunca compraram', q:2 } };
+const ESP = { semana:null, vend:null, aba:'plano', cand:null, sel:null, qtd:null, plano:null, res:null };
+const esSegunda = d=>{ const x = new Date(d); x.setHours(12, 0, 0, 0); const w = x.getDay(); x.setDate(x.getDate() - (w === 0 ? 6 : w - 1)); return x.toISOString().slice(0, 10); };
+const esDia = (iso, n)=>{ const x = new Date(iso + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+const esDM = iso=> fmtDate(iso).slice(0, 5);
+const esNome = v=> waPrimeiroNome(nomeBonito(v || '')) || 'vendedor';
+async function renderEspecialista(){
+  const host = document.getElementById('es'); if(!host) return;
+  if(!ESP.semana) ESP.semana = esSegunda(new Date());
+  if(ESP.vend) return esVendedor(host);
+  host.innerHTML = '<div class="tb-rodape">Buscando os vendedores…</div>';
+  const { data, error } = await sb.rpc('crm_esp_vendedores', { p_semana:ESP.semana });
+  if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  const V = data || [], hoje = new Date().getDay(), etapa = hoje === 1 || hoje === 2 ? 'seg' : hoje === 3 || hoje === 4 ? 'qua' : 'sex';
+  const feitos = k=> V.filter(r=> r[k]).length, ok = (v, t)=> v ? `<span class="rt rt-A" title="${escapeHtml(t + ' em ' + new Date(v).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }))}">✓</span>` : '<span class="vazio">—</span>';
+  host.innerHTML = `
+    <div class="tb-bar"><button class="cm-chip" id="es-ant">‹ Semana anterior</button><b style="margin:0 8px">Semana de ${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}</b><button class="cm-chip" id="es-prox">Próxima semana ›</button><span class="tb-esp"></span><span class="tb-rodape" style="margin:0">Só você vê esta tela.</span></div>
+    <div class="tb-kpis">
+      <div class="tb-kpi ${etapa === 'seg' ? 'alerta' : ''}"><small>Segunda, até as 10h · estratégia da semana</small><b>${feitos('enviado_em')} de ${V.length}</b><span>vendedores que já receberam o plano</span></div>
+      <div class="tb-kpi ${etapa === 'qua' ? 'alerta' : ''}"><small>Quarta · revisão</small><b>${feitos('revisao_em')} de ${feitos('plano_id')}</b><span>planos revisados (quem já comprou, quem falta)</span></div>
+      <div class="tb-kpi ${etapa === 'sex' ? 'alerta' : ''}"><small>Sexta · fechamento</small><b>${feitos('fechamento_em')} de ${feitos('plano_id')}</b><span>fechamentos enviados ao vendedor</span></div>
+    </div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Vendeu em 90 dias</th><th class="n">Carteira</th><th class="n">Parados até 1 ano</th><th class="n">Em risco</th><th class="n">Cidades</th><th class="n">Plano</th><th class="n">Seg</th><th class="n">Qua</th><th class="n">Sex</th></tr></thead>
+    <tbody>${V.map(r=> `<tr class="vd-lin" data-sid="${r.seller_id}" data-nome="${escapeHtml(r.vendedor)}" title="Montar ou ver a semana de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n">${fmtMoney(r.vendido_90d)}</td><td class="n">${fmtNum(r.carteira)}</td><td class="n">${fmtNum(r.parados)}</td><td class="n">${fmtNum(r.em_risco)}</td><td class="n">${fmtNum(r.cidades)}</td>
+      <td class="n">${r.plano_id ? r.itens + ' clientes' : '<span class="vazio">a montar</span>'}</td><td class="n">${ok(r.enviado_em, 'Plano enviado')}</td><td class="n">${ok(r.revisao_em, 'Revisado')}</td><td class="n">${ok(r.fechamento_em, 'Fechamento enviado')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum vendedor com venda nos últimos 90 dias.</td></tr>'}</tbody></table></div>
+    <div class="tb-rodape">Vendedores com venda nos últimos 90 dias, os que mais venderam primeiro. Clique num vendedor para montar a estratégia da semana: o sistema sugere clientes por estratégia (reativar parados da carteira, clientes de quem saiu ou sem vendedor na região dele, em risco e cadastros novos sem compra), sem quem está devendo, e monta a mensagem para você mandar. Quarta: revisão; sexta: fechamento.</div>`;
+  host.querySelector('#es-ant').addEventListener('click', ()=>{ ESP.semana = esDia(ESP.semana, -7); renderEspecialista(); });
+  host.querySelector('#es-prox').addEventListener('click', ()=>{ ESP.semana = esDia(ESP.semana, 7); renderEspecialista(); });
+  host.querySelectorAll('tr[data-sid]').forEach(tr=> tr.addEventListener('click', ()=>{
+    ESP.vend = { id:Number(tr.dataset.sid), nome:tr.dataset.nome }; ESP.cand = null; ESP.sel = null; ESP.plano = null; ESP.res = null;
+    ESP.aba = etapa === 'seg' ? 'plano' : etapa === 'qua' ? 'revisao' : 'fechamento'; uso('clique', 'especialista: vendedor aberto', { seller_id:ESP.vend.id }); renderEspecialista(); }));
+}
+async function esVendedor(host){
+  const V = ESP.vend, nome = esNome(V.nome);
+  if(!ESP.plano){
+    host.innerHTML = '<div class="tb-rodape">Buscando a semana do vendedor…</div>';
+    const { data } = await sb.from('crm_esp_planos').select('*').eq('semana', ESP.semana).eq('seller_id', V.id).maybeSingle();
+    ESP.plano = data || { itens:[] };
+  }
+  const P = ESP.plano, tem = !!P.id;
+  const abas = { plano:'Segunda · estratégia da semana', revisao:'Quarta · revisão', fechamento:'Sexta · fechamento' };
+  const topo = `<div class="tb-bar"><button class="cm-chip" id="es-volta">‹ Todos os vendedores</button><b style="margin:0 8px">${escapeHtml(nomeBonito(V.nome))} · semana de ${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}</b><span class="tb-esp"></span>
+      ${P.enviado_em ? '<span class="rt rt-A">plano enviado</span>' : ''}${P.revisao_em ? ' <span class="rt rt-A">revisado</span>' : ''}${P.fechamento_em ? ' <span class="rt rt-A">fechamento enviado</span>' : ''}</div>
+    <div class="cm-abas">${Object.entries(abas).map(([k, t])=> `<button class="cm-aba ${ESP.aba === k ? 'on' : ''}" data-esa="${k}" ${k !== 'plano' && !tem ? 'disabled title="Monte e salve o plano da segunda primeiro"' : ''}>${t}</button>`).join('')}</div><div id="es-in"></div>`;
+  host.innerHTML = topo;
+  host.querySelector('#es-volta').addEventListener('click', ()=>{ ESP.vend = null; renderEspecialista(); });
+  host.querySelectorAll('[data-esa]').forEach(b=> b.addEventListener('click', ()=>{ if(b.disabled) return; ESP.aba = b.dataset.esa; esVendedor(host); }));
+  const box = host.querySelector('#es-in');
+  if(ESP.aba === 'plano') return esPlano(box, host, nome);
+  return esAcompanha(box, host, nome);
+}
+async function esPlano(box, host, nome){
+  const V = ESP.vend, P = ESP.plano;
+  if(!ESP.cand){
+    box.innerHTML = '<div class="tb-rodape">Lendo a carteira, os parados, os clientes sem vendedor e os cadastros da região…</div>';
+    const [{ data, error }] = await Promise.all([sb.rpc('crm_esp_candidatos', { p_seller:V.id, p_semana:ESP.semana }), WA_PROMOS ? Promise.resolve() : sb.rpc('crm_promocoes_lista').then(r=>{ WA_PROMOS = (r.data || []).filter(x=> x.situacao === 'ativa'); })]);
+    if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+    ESP.cand = data || [];
+    ESP.qtd = Object.fromEntries(Object.entries(ES_EST).map(([k, e])=> [k, e.q]));
+    // plano salvo: marca o que já estava nele; senão, os primeiros de cada estratégia
+    ESP.sel = new Set((P.itens || []).map(i=> i.pessoa_id));
+    if(!ESP.sel.size) Object.keys(ES_EST).forEach(k=> ESP.cand.filter(c=> c.estrategia === k).slice(0, ESP.qtd[k]).forEach(c=> ESP.sel.add(c.pessoa_id)));
+  }
+  const C = ESP.cand, porEst = k=> C.filter(c=> c.estrategia === k);
+  // um cliente pode aparecer em mais de uma estratégia: fica na primeira em que foi marcado
+  const vistos = new Set(), escolhidos = [];
+  Object.keys(ES_EST).forEach(k=> porEst(k).forEach(c=>{ if(ESP.sel.has(c.pessoa_id) && !vistos.has(c.pessoa_id)){ vistos.add(c.pessoa_id); escolhidos.push(c); } }));
+  const prodTxt = c=> (c.produtos || '').split(' · ').slice(0, 2).join(', ');
+  const fone = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.length >= 10 ? `(${d.slice(-11, -9) || d.slice(0, 2)}) ${d.slice(-9, -4)}-${d.slice(-4)}` : (t || ''); };
+  const promo = (WA_PROMOS || []).slice(0, 2).map(x=> `${x.nome}${x.tipo === 'bonificacao' ? ' (bonificação)' : ''}, até ${esDM(x.fim)}`).join('; ');
+  const msgPadrao = ()=> {
+    let n = 0;
+    const blocos = Object.entries(ES_EST).map(([k, e])=>{ const L = escolhidos.filter(c=> c.estrategia === k); if(!L.length) return '';
+      return `*${e.t} (${L.length})*\n` + L.map(c=> `${++n}. ${c.nome}${c.cidade ? ' (' + nomeBonito(c.cidade) + ')' : ''}${c.telefone ? ' · ' + fone(c.telefone) : ''}\n   ${c.motivo}${prodTxt(c) ? '\n   comprava: ' + prodTxt(c) : ''}`).join('\n'); }).filter(Boolean);
+    return `Bom dia, ${nome}! 🎯 Sua estratégia da semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}).\n\nSão ${escolhidos.length} clientes para você acessar:\n\n${blocos.join('\n\n')}${promo ? `\n\nPromoção para usar na conversa: ${promo}.` : ''}\n\nMeta da semana: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Na quarta eu passo para ver como está; qualquer dúvida, me chama.`; };
+  const msg = P.mensagem && P.id && P.itens && P.itens.length === escolhidos.length && P.itens.every(i=> ESP.sel.has(i.pessoa_id)) ? P.mensagem : msgPadrao();
+  box.innerHTML = `
+    <div class="tb-bar">${Object.entries(ES_EST).map(([k, e])=> `<label title="${escapeHtml(e.c)}" style="font-size:13px">${escapeHtml(e.t)} <input data-esq="${k}" type="number" min="0" max="15" value="${ESP.qtd[k]}" style="width:48px"> <span class="vazio">de ${porEst(k).length}</span></label>`).join('')}
+      <button class="cm-chip" id="es-sug" title="Refaz a seleção com as quantidades ao lado">Sugerir de novo</button></div>
+    ${Object.entries(ES_EST).map(([k, e])=>{ const L = porEst(k); return `
+      <div class="cm-resumo" style="margin:12px 0 4px">${escapeHtml(e.t)} <span class="vazio">· ${escapeHtml(e.c)}</span></div>
+      ${L.length ? `<div class="tb-wrap" style="min-height:0;max-height:30vh"><table class="tb-tab"><thead><tr><th></th><th>Cliente</th><th>Cidade</th><th>Por quê</th><th>Comprava</th><th class="n">Nota pgto.</th><th>Telefone</th></tr></thead><tbody>
+        ${L.map(c=> `<tr><td><input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}></td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td><small>${escapeHtml(prodTxt(c))}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
+    <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes)</div>
+    <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-salva">Salvar plano</button><button class="om-cancel" id="es-copia">Copiar mensagem</button><button class="om-save" id="es-envia" title="Salva, copia a mensagem e marca que o plano da semana foi enviado">${P.enviado_em ? 'Plano já enviado · salvar de novo' : 'Copiar e marcar como enviado'}</button></div>
+    <div class="tb-rodape">Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra. Um cliente que já está no plano de outro vendedor nesta semana também não. Clique no nome para ver o detalhe do cliente.</div>`;
+  const re = ()=> esPlano(box, host, nome);
+  box.querySelectorAll('[data-esq]').forEach(i=> i.addEventListener('change', ()=>{ ESP.qtd[i.dataset.esq] = Math.max(0, Math.min(15, Number(i.value) || 0)); }));
+  box.querySelector('#es-sug').addEventListener('click', ()=>{ ESP.sel = new Set(); Object.keys(ES_EST).forEach(k=> porEst(k).filter(c=> !ESP.sel.has(c.pessoa_id)).slice(0, ESP.qtd[k]).forEach(c=> ESP.sel.add(c.pessoa_id))); ESP.plano.mensagem = null; re(); });
+  box.querySelectorAll('[data-esc]').forEach(cb=> cb.addEventListener('change', ()=>{ if(cb.checked) ESP.sel.add(cb.dataset.esc); else ESP.sel.delete(cb.dataset.esc); ESP.plano.mensagem = null; re(); }));
+  box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
+  box.querySelector('#es-regera').addEventListener('click', ()=>{ box.querySelector('#es-msg').value = msgPadrao(); });
+  const salvar = async ()=>{
+    const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c) }));
+    const mensagem = box.querySelector('#es-msg').value;
+    const { data: id, error } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:itens, p_mensagem:mensagem });
+    if(error){ showToast(errAmigavel(error)); return null; }
+    ESP.plano = { ...ESP.plano, id, itens, mensagem }; return id; };
+  const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-msg').value); showToast('Mensagem copiada: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie a mensagem:', box.querySelector('#es-msg').value); } };
+  box.querySelector('#es-salva').addEventListener('click', async ()=>{ if(await salvar()){ showToast('Plano salvo.'); esVendedor(host); } });
+  box.querySelector('#es-copia').addEventListener('click', copia);
+  box.querySelector('#es-envia').addEventListener('click', async ()=>{
+    if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
+    const id = await salvar(); if(!id) return; await copia();
+    const { error } = await sb.rpc('crm_esp_marcar', { p_id:id, p_etapa:'enviado' }); if(error){ showToast(errAmigavel(error)); return; }
+    ESP.plano.enviado_em = new Date().toISOString(); uso('clique', 'especialista: plano enviado', { seller_id:ESP.vend.id, clientes:escolhidos.length }); esVendedor(host); });
+}
+// quarta (revisão) e sexta (fechamento): quem do plano comprou desde a segunda, quanto, e quem teve registro no CRM
+async function esAcompanha(box, host, nome){
+  const P = ESP.plano, sexta = ESP.aba === 'fechamento';
+  box.innerHTML = '<div class="tb-rodape">Conferindo quem do plano comprou…</div>';
+  const { data, error } = await sb.rpc('crm_esp_resultado', { p_id:P.id });
+  if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  const R = new Map((data || []).map(r=> [r.pessoa_id, r])), I = P.itens || [];
+  const comp = I.filter(i=> (R.get(i.pessoa_id) || {}).comprou), falta = I.filter(i=> !(R.get(i.pessoa_id) || {}).comprou);
+  const valor = comp.reduce((t, i)=> t + Number((R.get(i.pessoa_id) || {}).valor || 0), 0);
+  const porEst = Object.entries(ES_EST).map(([k, e])=>{ const L = I.filter(i=> i.estrategia === k); return L.length ? { k, t:e.t, n:L.length, c:L.filter(i=> (R.get(i.pessoa_id) || {}).comprou).length } : null; }).filter(Boolean);
+  const msgSexta = ()=> `Fechamento da semana, ${nome} (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}) 📊\n\nDos ${I.length} clientes da estratégia, *${comp.length} compraram* (${fmtMoney(valor)}).\n${porEst.map(e=> `• ${e.t}: ${e.c} de ${e.n}`).join('\n')}${comp.length ? `\n\n✅ Compraram: ${comp.map(i=> i.nome).join(', ')}.` : ''}${falta.length ? `\n\n⏳ Ainda não compraram: ${falta.map(i=> i.nome).join(', ')}. Os que fizerem sentido entram de novo na semana que vem.` : ''}\n\n${comp.length >= Math.max(1, Math.round(I.length * .3)) ? 'Bateu a meta da semana. Parabéns!' : 'Ficou abaixo da meta; segunda a gente ajusta a estratégia juntos.'} Bom fim de semana!`;
+  const txt = sexta ? (P.fechamento_msg || msgSexta()) : (P.revisao_nota || '');
+  box.innerHTML = `
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Compraram desde segunda</small><b>${comp.length} de ${I.length}</b><span>${fmtMoney(valor)} em pedidos</span></div>
+      <div class="tb-kpi"><small>Com registro no CRM</small><b>${I.filter(i=> (R.get(i.pessoa_id) || {}).registros > 0).length}</b><span>clientes com ligação ou visita registrada desde segunda</span></div>
+      <div class="tb-kpi"><small>Por estratégia</small><b style="font-size:15px">${porEst.map(e=> `${e.c}/${e.n}`).join(' · ') || '—'}</b><span>${porEst.map(e=> e.t.split(' ')[0]).join(' · ')}</span></div>
+    </div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Estratégia</th><th>Por quê</th><th class="n">Comprou?</th><th class="n">Valor</th><th class="n">Última compra</th><th class="n">Registros</th></tr></thead>
+    <tbody>${I.map(i=>{ const r = R.get(i.pessoa_id) || {}; return `<tr><td class="prod"><a href="#" data-esd="${i.pessoa_id}">${escapeHtml(i.nome || '')}</a></td><td>${escapeHtml((ES_EST[i.estrategia] || {}).t || i.estrategia)}</td><td><small>${escapeHtml(i.motivo || '')}</small></td>
+      <td class="n">${r.comprou ? '<span class="rt rt-A">sim</span>' : '<span class="vazio">ainda não</span>'}</td><td class="n">${r.valor ? fmtMoney(r.valor) : '—'}</td><td class="n">${r.ultima ? fmtDate(r.ultima) : '—'}</td><td class="n">${r.registros || '—'}</td></tr>`; }).join('')}</tbody></table></div>
+    <div class="cm-resumo" style="margin:14px 0 4px">${sexta ? `Fechamento para ${escapeHtml(nome)}` : 'Anotações da revisão (só para você: o que ajustar, quem cobrar na sexta)'}</div>
+    <textarea id="es-txt" rows="${sexta ? 12 : 5}" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px" placeholder="${sexta ? '' : 'Ex.: 3 clientes de quem saiu não atendem; trocar por parados da carteira na próxima semana.'}">${escapeHtml(txt)}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px">${sexta ? '<button class="om-cancel" id="es-regera">Refazer mensagem</button><button class="om-cancel" id="es-copia">Copiar</button>' : ''}<button class="om-save" id="es-marca">${sexta ? (P.fechamento_em ? 'Fechamento já enviado · salvar de novo' : 'Copiar e marcar fechamento como enviado') : (P.revisao_em ? 'Revisão feita · salvar anotação' : 'Marcar revisão como feita')}</button></div>
+    <div class="tb-rodape">Comprou = nota faturada para o cliente desde a segunda da semana, pela mesma regra das outras telas. Registros = ligações e visitas lançadas no CRM.</div>`;
+  box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
+  box.querySelector('#es-regera')?.addEventListener('click', ()=>{ box.querySelector('#es-txt').value = msgSexta(); });
+  const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-txt').value); showToast('Copiado: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie:', box.querySelector('#es-txt').value); } };
+  box.querySelector('#es-copia')?.addEventListener('click', copia);
+  box.querySelector('#es-marca').addEventListener('click', async ()=>{
+    const t = box.querySelector('#es-txt').value; if(sexta) await copia();
+    const { error } = await sb.rpc('crm_esp_marcar', { p_id:P.id, p_etapa:sexta ? 'fechamento' : 'revisao', p_texto:t });
+    if(error){ showToast(errAmigavel(error)); return; }
+    if(sexta){ P.fechamento_em = new Date().toISOString(); P.fechamento_msg = t; } else { P.revisao_em = new Date().toISOString(); P.revisao_nota = t; }
+    showToast(sexta ? 'Fechamento marcado como enviado.' : 'Revisão registrada.'); uso('clique', 'especialista: ' + (sexta ? 'fechamento' : 'revisão'), { seller_id:ESP.vend.id }); esVendedor(host); });
 }
 
 // ---------- PRAZO MÉDIO POR VENDEDOR E POR GERÊNCIA (prioridade 3 do CEO, 27/10/2026) ----------
@@ -10762,6 +11038,9 @@ function ctIntelHtml(R, filtros, n, curvaA, nVend, totV){
 }
 // ---- PROMOÇÕES (28/10/2026): nome, início e fim, produtos em bloco ou um a um, preço ou % de desconto, comissão própria opcional ----
 const PR_SIT = { ativa:'Ativa', programada:'Programada', encerrada:'Encerrada', cancelada:'Cancelada' };
+// regra de um item: desconto (preço ou %) ou bonificação (a cada X unidades, bonifica Y do mesmo produto ou de outro; 05/11/2026)
+const prRegra = i=> i.compra_qtd ? ` · a cada ${tbQtd(i.compra_qtd)} un., bonifica ${tbQtd(i.bonus_qtd)}${i.bonus_product_id && i.bonus_product_id !== i.product_id ? ' de ' + escapeHtml(i.bonus_codigo || '') : ''}`
+  : i.preco ? ' a R$ ' + tbR(i.preco) : i.desconto ? ' com ' + cmP(i.desconto) + '% off' : '';
 const prData = d=> d ? new Date(d + 'T12:00').toLocaleDateString('pt-BR') : '';
 function ctPromos(host){
   const g = ehGestao(), P = CAT.promos;
@@ -10772,8 +11051,8 @@ function ctPromos(host){
   const melhor = enc.length ? enc.reduce((a, b)=> (b.valor_durante / b.valor_antes) > (a.valor_durante / a.valor_antes) ? b : a) : null;
   const card = x=>{ const it = x.itens || [], dias = Math.round((Date.parse(x.fim) - Date.parse(x.inicio)) / 864e5) + 1;
     const varQ = Number(x.qtd_antes) > 0 ? Math.round(100 * (x.qtd_durante / x.qtd_antes - 1)) : null;
-    const desc = it.map(i=> `${escapeHtml(i.codigo)} ${escapeHtml(i.produto)}${i.preco ? ' a R$ ' + tbR(i.preco) : i.desconto ? ' com ' + cmP(i.desconto) + '% off' : ''}`);
-    return `<div class="pr-card ${x.situacao}"><div class="pr-top"><b>${escapeHtml(x.nome)}</b><span class="ct-sit ${x.situacao === 'ativa' ? 'ativo' : 'sob_encomenda'}">${PR_SIT[x.situacao]}</span>
+    const desc = it.map(i=> `${escapeHtml(i.codigo)} ${escapeHtml(i.produto)}${prRegra(i)}`);
+    return `<div class="pr-card ${x.situacao}"><div class="pr-top"><b>${escapeHtml(x.nome)}</b><span class="ct-sit ${x.situacao === 'ativa' ? 'ativo' : 'sob_encomenda'}">${PR_SIT[x.situacao]}</span><span class="ct-sit ${x.tipo === 'bonificacao' ? 'ativo' : ''}" title="${x.tipo === 'bonificacao' ? 'O preço de tabela fica igual e o cliente ganha produto; o custo vai para marketing' : 'Preço promocional ou % de desconto'}">${x.tipo === 'bonificacao' ? '🎁 bonificação' : '% desconto'}</span>
       <span>${prData(x.inicio)} a ${prData(x.fim)} (${dias} dia${dias === 1 ? '' : 's'})</span><span>${it.length} produto${it.length === 1 ? '' : 's'}</span>
       ${x.comissao_pct != null ? `<span title="Nas vendas destes produtos durante a promoção, vale esta comissão no lugar da regra do produto">comissão ${cmP(x.comissao_pct)}%</span>` : '<span class="vazio">comissão pela regra normal</span>'}
       <span class="tb-esp"></span>${g && x.situacao !== 'cancelada' ? `<button class="cm-chip" data-pred="${x.id}">Editar</button>${x.situacao === 'ativa' ? `<button class="cm-chip" data-prfim="${x.id}">Encerrar hoje</button>` : ''}<button class="cm-chip" data-prcan="${x.id}">Cancelar</button>` : ''}</div>
@@ -10801,36 +11080,56 @@ function ctPromoEditar(promoId, ids){
   const pr = promoId ? CAT.promos.find(x=> x.id === promoId) : null;
   const itens = pr ? pr.itens.map(i=> ({ ...i })) : (ids || []).map(id=>{ const r = CAT.rows.find(x=> x.product_id === id) || {}; return { product_id:id, codigo:r.codigo, produto:r.produto, t1:r.t1, preco:null, desconto:null }; });
   const hoje = new Date().toISOString().slice(0, 10);
+  let tipo = pr && pr.tipo === 'bonificacao' ? 'bonificacao' : 'desconto';
   const linha = (i, k)=> `<tr><td>${escapeHtml(i.codigo || '')} · ${escapeHtml(i.produto || '')}</td><td class="n">${i.t1 ? tbR(i.t1) : '—'}</td>
-    <td><input data-prp="${k}" inputmode="decimal" placeholder="preço" style="width:90px" value="${i.preco ? tbR(i.preco) : ''}"></td><td><input data-prd="${k}" inputmode="decimal" placeholder="%" style="width:60px" value="${i.desconto ? cmP(i.desconto) : ''}"></td>
+    ${tipo === 'desconto' ? `<td><input data-prp="${k}" inputmode="decimal" placeholder="preço" style="width:90px" value="${i.preco ? tbR(i.preco) : ''}"></td><td><input data-prd="${k}" inputmode="decimal" placeholder="%" style="width:60px" value="${i.desconto ? cmP(i.desconto) : ''}"></td>`
+      : `<td>a cada <input data-prc="${k}" inputmode="decimal" placeholder="12" style="width:52px" value="${i.compra_qtd ? tbQtd(i.compra_qtd) : ''}"> un.</td><td>bonifica <input data-prb="${k}" inputmode="decimal" placeholder="2" style="width:52px" value="${i.bonus_qtd ? tbQtd(i.bonus_qtd) : ''}">
+         <input data-prbp="${k}" list="pr-lista" placeholder="do mesmo produto" style="width:150px" title="Deixe em branco para bonificar o mesmo produto, ou escolha outro (ex.: o frasco de 1 litro)" value="${i.bonus_product_id && i.bonus_product_id !== i.product_id ? escapeHtml((i.bonus_codigo || '') + ' · ' + (i.bonus_produto || '')) : ''}"></td>`}
     <td><button class="cm-chip" data-prx="${k}" title="Tirar da promoção">✕</button></td></tr>`;
   const box = dlgOpen(`<div class="om-title"><div><h3>${pr ? 'Editar promoção' : 'Nova promoção'}</h3><div class="om-sub">Registre o período e os produtos. O histórico fica guardado e a comissão do período usa estas datas.</div></div><button data-close>✕</button></div>
     <div class="dlg-body">
       <div class="cm-faixas"><label>Nome<input id="pr-nome" maxlength="80" placeholder="Ex.: Semana do ATF" value="${escapeHtml(pr ? pr.nome : '')}"></label>
         <label>Início<input id="pr-ini" type="date" value="${pr ? pr.inicio : hoje}"></label><label>Fim<input id="pr-fim" type="date" value="${pr ? pr.fim : ''}"></label>
         <label title="Deixe em branco para manter a regra normal de comissão de cada produto">Comissão na promoção (%)<input id="pr-com" inputmode="decimal" placeholder="regra normal" value="${pr && pr.comissao_pct != null ? cmP(pr.comissao_pct) : ''}"></label></div>
-      <div class="tb-passo" style="margin:10px 0">Aplicar a todos: <input id="pr-todos" inputmode="decimal" placeholder="%" style="width:60px"> % de desconto <button class="cm-chip" id="pr-todos-ok">Aplicar</button>
+      <div class="cm-chips" style="margin:10px 0 0" id="pr-tipo"><button type="button" class="cm-chip" data-prt="desconto" title="A promoção do CEO: preço promocional ou % de desconto">% Desconto</button><button type="button" class="cm-chip" data-prt="bonificacao" title="O preço de tabela fica igual e o cliente ganha produto (ex.: compra 12, ganha 2 litros). O custo da bonificação vai para marketing no DRE.">🎁 Bonificação em produto</button></div>
+      <div class="tb-rodape" id="pr-tipo-txt" style="margin:4px 0 0"></div>
+      <div class="tb-passo" style="margin:10px 0"><span id="pr-todos-box"></span>
         <span style="margin-left:12px">Incluir produto: <input id="pr-busca" list="pr-lista" placeholder="código ou nome" style="width:220px"><datalist id="pr-lista">${CAT.rows.slice(0, 2000).map(r=> `<option value="${escapeHtml(r.codigo + ' · ' + r.produto)}">`).join('')}</datalist></span></div>
-      <div class="tb-wrap" style="max-height:300px;min-height:0"><table class="tb-tab"><thead><tr><th>Produto</th><th class="n" title="Preço da Tabela 1">T1</th><th title="Preço promocional (R$)">Preço</th><th title="Desconto sobre o preço de tabela">% off</th><th></th></tr></thead><tbody id="pr-itens"></tbody></table></div>
+      <div class="tb-wrap" style="max-height:300px;min-height:0"><table class="tb-tab"><thead id="pr-cab"></thead><tbody id="pr-itens"></tbody></table></div>
       <label style="display:block;margin-top:10px">Observação<input id="pr-obs" maxlength="200" style="width:100%" value="${escapeHtml(pr && pr.obs ? pr.obs : '')}"></label>
     </div>
     <div class="om-err" id="pr-err"></div>
     <div class="om-foot"><span style="flex:1"></span><button class="om-cancel" data-close>Cancelar</button><button class="om-save" id="pr-ok">Salvar promoção</button></div>`, true);
-  const corpo = ()=>{ box.querySelector('#pr-itens').innerHTML = itens.map(linha).join('') || '<tr><td colspan="5" class="vazio">Nenhum produto ainda: inclua pela busca acima.</td></tr>';
+  const corpo = ()=>{
+    box.querySelectorAll('[data-prt]').forEach(b=> b.classList.toggle('on', b.dataset.prt === tipo));
+    box.querySelector('#pr-tipo-txt').textContent = tipo === 'bonificacao' ? 'O preço de tabela não muda: o cliente ganha produto a cada tantas unidades no mesmo pedido. A tela de vendas da promoção mostra a bonificação devida e o custo estimado, para lançar como marketing.' : 'Preço promocional ou % de desconto sobre o preço de tabela.';
+    box.querySelector('#pr-cab').innerHTML = `<tr><th>Produto</th><th class="n" title="Preço da Tabela 1">T1</th>${tipo === 'desconto' ? '<th title="Preço promocional (R$)">Preço</th><th title="Desconto sobre o preço de tabela">% off</th>' : '<th>Compra</th><th>Bonificação</th>'}<th></th></tr>`;
+    box.querySelector('#pr-todos-box').innerHTML = tipo === 'desconto' ? 'Aplicar a todos: <input id="pr-todos" inputmode="decimal" placeholder="%" style="width:60px"> % de desconto <button class="cm-chip" id="pr-todos-ok">Aplicar</button>'
+      : 'Aplicar a todos: a cada <input id="pr-tc" inputmode="decimal" placeholder="12" style="width:52px"> un., bonifica <input id="pr-tb" inputmode="decimal" placeholder="2" style="width:52px"> <button class="cm-chip" id="pr-todos-ok">Aplicar</button>';
+    box.querySelector('#pr-todos-ok').addEventListener('click', ()=>{ ler();
+      if(tipo === 'desconto'){ const v = cmNum(box.querySelector('#pr-todos').value); if(!(v > 0 && v < 1)) return; itens.forEach(i=>{ i.desconto = v; i.preco = null; }); }
+      else { const c = tbNum(box.querySelector('#pr-tc').value), b = tbNum(box.querySelector('#pr-tb').value); if(!(c > 0 && b > 0)) return; itens.forEach(i=>{ i.compra_qtd = c; i.bonus_qtd = b; }); }
+      corpo(); });
+    box.querySelector('#pr-itens').innerHTML = itens.map(linha).join('') || '<tr><td colspan="5" class="vazio">Nenhum produto ainda: inclua pela busca acima.</td></tr>';
     box.querySelectorAll('[data-prx]').forEach(b=> b.addEventListener('click', ()=>{ ler(); itens.splice(Number(b.dataset.prx), 1); corpo(); })); };
-  const ler = ()=>{ itens.forEach((i, k)=>{ const p = box.querySelector(`[data-prp="${k}"]`), d = box.querySelector(`[data-prd="${k}"]`); if(p) i.preco = tbNum(p.value); if(d){ const v = cmNum(d.value); i.desconto = v == null || isNaN(v) ? null : v; } if(i.preco) i.desconto = null; }); };   // preço promocional vale sobre o %
+  const ler = ()=>{ itens.forEach((i, k)=>{
+    const p = box.querySelector(`[data-prp="${k}"]`), d = box.querySelector(`[data-prd="${k}"]`); if(p) i.preco = tbNum(p.value); if(d){ const v = cmNum(d.value); i.desconto = v == null || isNaN(v) ? null : v; } if(i.preco) i.desconto = null;   // preço promocional vale sobre o %
+    const c = box.querySelector(`[data-prc="${k}"]`), b = box.querySelector(`[data-prb="${k}"]`), bp = box.querySelector(`[data-prbp="${k}"]`);
+    if(c) i.compra_qtd = tbNum(c.value); if(b) i.bonus_qtd = tbNum(b.value);
+    if(bp){ const cod = bp.value.split(' · ')[0].trim(), r = cod && CAT.rows.find(x=> x.codigo === cod); i.bonus_product_id = r ? r.product_id : null; i.bonus_codigo = r ? r.codigo : null; i.bonus_produto = r ? r.produto : null; } }); };
+  box.querySelectorAll('[data-prt]').forEach(b=> b.addEventListener('click', ()=>{ ler(); tipo = b.dataset.prt; corpo(); }));
   corpo();
-  box.querySelector('#pr-todos-ok').addEventListener('click', ()=>{ ler(); const v = cmNum(box.querySelector('#pr-todos').value); if(!(v > 0 && v < 1)) return; itens.forEach(i=>{ i.desconto = v; i.preco = null; }); corpo(); });
   box.querySelector('#pr-busca').addEventListener('change', e=>{ const cod = e.target.value.split(' · ')[0].trim(); const r = CAT.rows.find(x=> x.codigo === cod);
     if(r && !itens.some(i=> i.product_id === r.product_id)){ ler(); itens.push({ product_id:r.product_id, codigo:r.codigo, produto:r.produto, t1:r.t1, preco:null, desconto:null }); corpo(); } e.target.value = ''; });
   box.querySelector('#pr-ok').addEventListener('click', async e=>{
     ler(); const err = box.querySelector('#pr-err'), com = cmNum(box.querySelector('#pr-com').value);
     if(com != null && (isNaN(com) || com < 0 || com > .2)){ err.textContent = 'Comissão entre 0 e 20%, ou em branco para a regra normal.'; return; }
     if(!itens.length){ err.textContent = 'Inclua ao menos um produto.'; return; }
+    if(tipo === 'bonificacao' && itens.some(i=> !(i.compra_qtd > 0 && i.bonus_qtd > 0))){ err.textContent = 'Na bonificação, preencha para cada produto a cada quantas unidades e quanto bonifica.'; return; }
     e.target.disabled = true;
     const { error } = await sb.rpc('crm_promocao_salvar', { p_id:pr ? pr.id : null, p_nome:box.querySelector('#pr-nome').value, p_inicio:box.querySelector('#pr-ini').value || null,
-      p_fim:box.querySelector('#pr-fim').value || null, p_obs:box.querySelector('#pr-obs').value, p_comissao:com,
-      p_itens:itens.map(i=> ({ product_id:i.product_id, preco:i.preco, desconto:i.desconto })) });
+      p_fim:box.querySelector('#pr-fim').value || null, p_obs:box.querySelector('#pr-obs').value, p_comissao:com, p_tipo:tipo,
+      p_itens:itens.map(i=> ({ product_id:i.product_id, preco:i.preco, desconto:i.desconto, compra_qtd:i.compra_qtd, bonus_qtd:i.bonus_qtd, bonus_product_id:i.bonus_product_id })) });
     e.target.disabled = false;
     if(error){ err.textContent = errAmigavel(error); return; }
     dlgClose(); showToast('Promoção salva.'); CAT.aba = 'promos'; CAT.sel = new Set(); renderCatalogo(true);
