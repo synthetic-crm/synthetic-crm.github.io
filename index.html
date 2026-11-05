@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-185728">
+<meta name="crm-versao" content="20261105-190452">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -232,7 +232,6 @@
   #rail .nav-membro{ display:none !important;}
   @media (max-width:820px){ #rail button.nav-grp, #rail .nav-btn{ flex:1 1 0; width:auto; min-width:0;} #acomp{ bottom:calc(62px + 12px) !important;} }
   .grp-abas{ margin:0 0 12px;} .grp-abas[hidden]{ display:none;}
-  #view-operacao > .grp-abas{ margin:10px 16px 0;}
   #rail .rail-logo{ width:34px; height:46px; object-fit:cover; object-position:left center; margin-bottom:8px; flex:none;}
   #rail button{ background:transparent; border:none; color:#cfe3ea; width:60px; height:54px; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; transition:all .15s;}
   #rail button svg{ width:20px; height:20px; flex:none;}
@@ -269,6 +268,11 @@
   .view-container{ position:relative; overflow:hidden; background:var(--bg);}
   .view{ position:absolute; inset:0; display:none; }
   .view.active{ display:grid; }
+  /* 05/11/2026 (critico-dev): telas de conteúdo rolam por inteiro; antes o fim de Vendas, Planejamento, Rotas e Especialista ficava fora de alcance */
+  .view.active:has(> .tb){ overflow-y:auto; overflow-x:hidden; align-content:start; grid-template-columns:minmax(0,1fr);}
+  .view > .grp-abas{ margin:0; padding:clamp(12px, 1.4vw, 22px) var(--pg-pad) 0;}
+  .view:has(> .grp-abas) > .tb{ padding-top:12px;}
+  #view-operacao:has(> .grp-abas){ grid-template-rows:auto auto 1fr;}
 
   /* ---------- ficha do cliente ---------- */
   #main{ overflow-y:auto; padding:30px 36px;}
@@ -10454,10 +10458,12 @@ async function renderFinanceiro(){
 // ---- Planejamento Estratégico 2027 (05/11/2026): a meta do ano distribuída mês a mês pela sazonalidade dos anos anteriores e pelos
 // 100 produtos que mais vendem. Base de um orçamento que a Synthetic ainda não tem; o detalhe (preço, mix, equipe, despesas) vem depois.
 const PL = { ano:2027, meta:null, vm:null, top:null, n:100 };
+// dinheiro digitado: "50.000.000", "50 milhões" ou "50.000.000,00" (o tbNum trata ponto como decimal quando não há vírgula)
+const plDinheiro = t=>{ let x = String(t || '').toLowerCase().trim(); const mi = /mi/.test(x); x = x.replace(/[^\d,.]/g, ''); if(x.includes(',')) x = x.replace(/\./g, '').replace(',', '.'); else if((x.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(x)) x = x.replace(/\./g, ''); const v = Number(x); return isFinite(v) && v > 0 ? (mi && v < 1e4 ? v * 1e6 : v) : null; };
 async function fiPlanejamento(host){
   if(!PL.vm){
     host.innerHTML = '<div class="tb-rodape">Somando as vendas mês a mês e os produtos que mais vendem…</div>';
-    const d0 = new Date(), dd = x=> x.toISOString().slice(0, 10);
+    const d0 = new Date(), dd = diaLocal;
     const [vm, top, mt, tm, nv, pdd] = await Promise.all([sb.rpc('crm_vendas_mensal', { p_desde:'2022-01-01' }), sb.rpc('crm_plan_top_produtos', { p_n:100 }), sb.from('crm_planejamento').select('meta').eq('ano', PL.ano).maybeSingle(),
       sb.rpc('crm_tabela_media', { p_ini:dd(new Date(d0 - 90 * 864e5)), p_fim:dd(d0) }), sb.rpc('crm_clientes_novos', { p_ini:dd(new Date(d0 - 90 * 864e5)), p_fim:dd(d0) }),
       opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m,dias_sem_comprar', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 365)).catch(()=> [])]);
@@ -10474,6 +10480,7 @@ async function fiPlanejamento(host){
   // por ano e mês; o mês corrente fica fora (incompleto)
   const T = {}; PL.vm.forEach(x=>{ const y = Number(String(x.mes).slice(0, 4)), m = Number(String(x.mes).slice(5, 7)); if(y * 100 + m >= mesAtual) return; (T[y] = T[y] || {})[m] = Number(x.valor); });
   const anos = Object.keys(T).map(Number).filter(y=> y < PL.ano).sort().slice(-3);
+  anos.forEach(y=>{ const vs = Object.values(T[y]).sort((a, b)=> a - b), med = vs[Math.floor(vs.length / 2)] || 0; Object.keys(T[y]).forEach(m=>{ if(T[y][m] < med * .5) delete T[y][m]; }); });
   // índice de cada mês = quanto o mês vende em relação à média mensal daquele ano (com os meses que existem), na média dos anos; normalizado para somar 12
   const idx = M3.map((_, k)=>{ const r = anos.map(y=>{ const mm = Object.values(T[y]); const med = mm.reduce((a, b)=> a + b, 0) / mm.length; return T[y][k + 1] != null && med ? T[y][k + 1] / med : null; }).filter(v=> v != null); return r.length ? r.reduce((a, b)=> a + b, 0) / r.length : 1; });
   const sIdx = idx.reduce((a, b)=> a + b, 0), ind = idx.map(v=> v * 12 / sIdx);
@@ -10521,10 +10528,10 @@ async function fiPlanejamento(host){
     <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null;
       return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td><td class="n">${fmtMoney(proj[0] * Number(p.parte))}</td><td class="n">${p.clientes}</td></tr>`; }).join('')}</tbody></table></div>
     <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
-  host.querySelector('#pl-salva')?.addEventListener('click', async ()=>{ const v = tbNum(host.querySelector('#pl-meta').value); if(!(v > 0)){ showToast('Informe a meta em reais.'); return; }
+  host.querySelector('#pl-salva')?.addEventListener('click', async ()=>{ const v = plDinheiro(host.querySelector('#pl-meta').value); if(!(v > 0)){ showToast('Informe a meta em reais.'); return; }
     const { error } = await sb.rpc('crm_planejamento_salvar', { p_ano:PL.ano, p_meta:v }); if(error){ showToast(errAmigavel(error)); return; }
     PL.meta = v; showToast('Meta salva.'); uso('clique', 'planejamento: meta salva'); fiPlanejamento(host); });
-  host.querySelector('#pl-meta').addEventListener('change', e=>{ const v = tbNum(e.target.value); if(v > 0){ PL.meta = v; fiPlanejamento(host); } });
+  host.querySelector('#pl-meta').addEventListener('change', e=>{ const v = plDinheiro(e.target.value); if(v > 0){ PL.meta = v; fiPlanejamento(host); } });
   host.querySelector('#pl-csv').addEventListener('click', ()=>{
     const n = v=> Number(v || 0).toFixed(2).replace('.', ',');
     const linhas = [['Planejamento Estratégico ' + PL.ano, 'Meta', n(PL.meta)], [], ['Mês', ...anos.map(String), 'Peso do mês', 'Meta ' + PL.ano]]
@@ -10894,7 +10901,7 @@ async function esWhats(titulo, texto, aoEnviar){
   if(!ES_FONES){ const { data } = await sb.from('crm_esp_contatos').select('seller_id,whatsapp'); ES_FONES = new Map((data || []).map(r=> [r.seller_id, r.whatsapp])); }
   const sid = ESP.vend.id;
   waDialog(titulo, nomeBonito(ESP.vend.nome), ES_FONES.get(sid) || '', texto, '', 'especialista', async (n, txt)=>{
-    if(ES_FONES.get(sid) !== n){ ES_FONES.set(sid, n); await sb.rpc('crm_esp_fone_salvar', { p_seller:sid, p_whatsapp:n }); }
+    if(ES_FONES.get(sid) !== n){ const { error } = await sb.rpc('crm_esp_fone_salvar', { p_seller:sid, p_whatsapp:n }); if(error) showToast('Não guardei o número: ' + errAmigavel(error)); else ES_FONES.set(sid, n); }
     if(aoEnviar) await aoEnviar(txt); });
 }
 // "O que fazer esta semana": sugestões por regra a partir dos números de cada vendedor, das carteiras sem dono e do catálogo
@@ -10917,18 +10924,37 @@ function esInteligenciaHtml(I){
   return `<details class="cm-recado" open style="margin:8px 0 12px"><summary><b>🧠 O que fazer esta semana</b> · ${top.length} sugestões pelos números${semPlano ? ` · ${semPlano} vendedores ainda sem plano` : ''}</summary>
     <ol class="cm-recado-txt" style="padding-left:20px;margin:6px 0">${top.map(([, ic, t])=> `<li style="margin:4px 0">${ic} ${t}</li>`).join('') || '<li>Nada fora do esperado nos números desta semana.</li>'}
       ${C.vendidos_12m ? `<li style="margin:4px 0">📦 <b>Catálogo:</b> ${fmtNum(C.faz_80)} produtos fazem 80% das vendas; ${fmtNum(C.vendidos_12m)} venderam em 12 meses e ${fmtNum(C.sem_venda_12m)} dos ${fmtNum(C.cadastrados_ativos)} cadastrados ativos não venderam nada. Proposta: um catálogo enxuto com os que vendem e "sob encomenda" para o resto. <a href="#" id="es-cauda">Ver os ${(C.cauda || []).length} de menor venda</a></li>` : ''}
-      ${sp.planos ? `<li style="margin:4px 0">📊 <b>Semana passada:</b> ${sp.planos} planos, ${sp.itens} clientes, <b>${sp.compraram} compraram</b> (${sp.itens ? Math.round(100 * sp.compraram / sp.itens) : 0}%). A taxa de quem volta sozinho é de uns 13% em 30 dias: o que passar disso é o efeito do plano.</li>` : ''}
+      ${sp.planos ? `<li style="margin:4px 0">📊 <b>Semana passada:</b> ${sp.planos} planos, ${sp.itens} clientes, <b>${sp.compraram} compraram</b> (${sp.itens ? Math.round(100 * sp.compraram / sp.itens) : 0}%). O efeito medido contra o grupo de controle está no quadro acima.</li>` : ''}
     </ol><div class="tb-rodape" style="margin:0">Sugestões por regra (queda de venda, parados, tabela média, prazo, carteira sem dono, resultado da semana passada, catálogo). A varredura com IA, que propõe estratégias diferentes toda semana, entra quando a chave de IA estiver ligada.</div></details>`;
+}
+// Resultado do Especialista (prova para a participação nas vendas): plano contra grupo de controle, 30 dias a partir de cada segunda
+function esEfeitoResumo(E){
+  const L = (E || []).filter(e=> e.efeito != null), hoje = new Date().toISOString().slice(0, 10);
+  if(!L.length) return null;
+  const fech = L.filter(e=> esDia(String(e.semana).slice(0, 10), 30) <= hoje);
+  const pn = L.reduce((t, e)=> t + e.plano_n, 0), pc = L.reduce((t, e)=> t + e.plano_compraram, 0), cn = L.reduce((t, e)=> t + e.controle_n, 0), cc = L.reduce((t, e)=> t + e.controle_compraram, 0);
+  return { total:L.reduce((t, e)=> t + Number(e.efeito), 0), fechado:fech.reduce((t, e)=> t + Number(e.efeito), 0), desde:String(L[0].semana).slice(0, 10), semanas:L.length, fechadas:fech.length,
+    taxaP:pn ? pc / pn : 0, taxaC:cn ? cc / cn : 0, pn, cn };
+}
+function esEfeitoHtml(E){
+  const r = esEfeitoResumo(E);
+  if(!r) return `<div class="tb-rodape" style="margin:4px 0 10px">📏 <b>Prova do resultado:</b> cada plano salvo separa um grupo de controle (clientes parecidos que não vão para o vendedor). Depois da primeira semana enviada, aqui aparece quanto o plano vendeu a mais que o controle: é o número para combinar a participação nas vendas.</div>`;
+  return `<div class="tb-kpis" style="margin:6px 0 10px">
+    <div class="tb-kpi ${r.total > 0 ? 'rs-kpi-ok' : 'alerta'}"><small>Efeito do Especialista desde ${esDM(r.desde)}</small><b>${fmtMoney(r.total)}</b><span>vendido a mais que o grupo de controle, em ${r.semanas} semana${r.semanas === 1 ? '' : 's'}${r.fechadas < r.semanas ? ` (${r.semanas - r.fechadas} ainda dentro dos 30 dias)` : ''}</span></div>
+    <div class="tb-kpi"><small>Voltaram a comprar em 30 dias</small><b>${Math.round(r.taxaP * 100)}% × ${Math.round(r.taxaC * 100)}%</b><span>plano (${r.pn} clientes) contra controle (${r.cn} clientes)</span></div>
+    <div class="tb-kpi"><small>0,3% sobre o efeito (referência)</small><b>${fmtMoney(r.total * .003)}</b><span>e ${fmtMoney(r.total * .01)} a 1%</span></div></div>`;
 }
 async function renderEspecialista(){
   const host = document.getElementById('es'); if(!host) return;
   if(!ESP.semana) ESP.semana = esSegunda(new Date());
   if(ESP.vend) return esVendedor(host);
   host.innerHTML = '<div class="tb-rodape">Buscando os vendedores…</div>';
-  const [{ data, error }, ig] = await Promise.all([sb.rpc('crm_esp_vendedores', { p_semana:ESP.semana }),
-    ESP.intel && ESP.intelDe === ESP.semana ? Promise.resolve({ data:ESP.intel }) : sb.rpc('crm_esp_inteligencia', { p_semana:ESP.semana })]);
+  const [{ data, error }, ig, ef] = await Promise.all([sb.rpc('crm_esp_vendedores', { p_semana:ESP.semana }),
+    ESP.intel && ESP.intelDe === ESP.semana ? Promise.resolve({ data:ESP.intel }) : sb.rpc('crm_esp_inteligencia', { p_semana:ESP.semana }),
+    sb.rpc('crm_esp_efeito')]);
+  ESP.efeito = (ef && !ef.error && ef.data) || [];
   if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
-  if(ig && !ig.error){ ESP.intel = ig.data; ESP.intelDe = ESP.semana; }
+  if(ig && !ig.error){ ESP.intel = ig.data; ESP.intelDe = ESP.semana; } else { ESP.intel = null; }
   const V = data || [], hoje = new Date().getDay(), etapa = hoje === 1 || hoje === 2 ? 'seg' : hoje === 3 || hoje === 4 ? 'qua' : 'sex';
   const feitos = k=> V.filter(r=> r[k]).length, ok = (v, t)=> v ? `<span class="rt rt-A" title="${escapeHtml(t + ' em ' + new Date(v).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }))}">✓</span>` : '<span class="vazio">—</span>';
   host.innerHTML = `
@@ -10938,6 +10964,7 @@ async function renderEspecialista(){
       <div class="tb-kpi ${etapa === 'qua' ? 'alerta' : ''}"><small>Quarta · revisão</small><b>${feitos('revisao_em')} de ${feitos('plano_id')}</b><span>planos revisados (quem já comprou, quem falta)</span></div>
       <div class="tb-kpi ${etapa === 'sex' ? 'alerta' : ''}"><small>Sexta · fechamento</small><b>${feitos('fechamento_em')} de ${feitos('plano_id')}</b><span>fechamentos enviados ao vendedor</span></div>
     </div>
+    ${esEfeitoHtml(ESP.efeito)}
     ${esInteligenciaHtml(ESP.intel)}
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Vendeu em 90 dias</th><th class="n">Carteira</th><th class="n">Parados até 1 ano</th><th class="n">Em risco</th><th class="n">Cidades</th><th class="n">Plano</th><th class="n">Seg</th><th class="n">Qua</th><th class="n">Sex</th></tr></thead>
     <tbody>${V.map(r=> `<tr class="vd-lin" data-sid="${r.seller_id}" data-nome="${escapeHtml(r.vendedor)}" title="Montar ou ver a semana de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n">${fmtMoney(r.vendido_90d)}</td><td class="n">${fmtNum(r.carteira)}</td><td class="n">${fmtNum(r.parados)}</td><td class="n">${fmtNum(r.em_risco)}</td><td class="n">${fmtNum(r.cidades)}</td>
@@ -11020,7 +11047,17 @@ async function esPlano(box, host, nome){
   const salvar = async ()=>{
     const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c) }));
     const mensagem = box.querySelector('#es-msg').value;
-    const { data: id, error } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:itens, p_mensagem:mensagem });
+    // grupo de controle (prova do resultado): na primeira gravação, ~30% do tamanho de cada estratégia, sorteados entre os candidatos que
+    // ficaram de fora; eles não vão para o vendedor e servem de comparação (quem volta sozinho)
+    let controle = null;
+    if(!(ESP.plano.controle || []).length){
+      const usados = new Set(itens.map(i=> i.pessoa_id)); controle = [];
+      Object.keys(ES_EST).forEach(k=>{ const n = itens.filter(i=> i.estrategia === k).length; if(!n) return;
+        const fora = ESP.cand.filter(c=> c.estrategia === k && !usados.has(c.pessoa_id)).sort(()=> Math.random() - .5).slice(0, Math.max(1, Math.round(n * .3)));
+        fora.forEach(c=>{ usados.add(c.pessoa_id); controle.push({ pessoa_id:c.pessoa_id, estrategia:k }); }); });
+    }
+    const { data: id, error } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:itens, p_mensagem:mensagem, p_controle:controle });
+    if(controle) ESP.plano.controle = controle;
     if(error){ showToast(errAmigavel(error)); return null; }
     ESP.plano = { ...ESP.plano, id, itens, mensagem }; return id; };
   const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-msg').value); showToast('Mensagem copiada: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie a mensagem:', box.querySelector('#es-msg').value); } };
@@ -11090,17 +11127,19 @@ async function esAcompanha(box, host, nome){
   box.querySelector('#es-regera').addEventListener('click', ()=>{ box.querySelector('#es-txt').value = sexta ? msgSex() : msgQua(); });
   const marcar = async t=>{
     if(!sexta){ const snap = { em:new Date().toISOString(), itens:S.map(({ i, s })=> ({ pessoa_id:i.pessoa_id, comprou:s.comprou, valor:s.valor, atraso:s.atraso, registros:s.registros })) };
-      await sb.rpc('crm_esp_snapshot', { p_id:P.id, p_snap:snap }); P.revisao_snapshot = snap; }
+      const { error: es } = await sb.rpc('crm_esp_snapshot', { p_id:P.id, p_snap:snap }); if(es){ showToast(errAmigavel(es)); return false; } P.revisao_snapshot = snap; }
     const { error: er } = await sb.rpc('crm_esp_marcar', { p_id:P.id, p_etapa:sexta ? 'fechamento' : 'revisao', p_texto:sexta ? t : (box.querySelector('#es-nota') || {}).value });
     if(er){ showToast(errAmigavel(er)); return false; }
     if(sexta){ P.fechamento_em = new Date().toISOString(); P.fechamento_msg = t; } else { P.revisao_em = new Date().toISOString(); P.revisao_nota = (box.querySelector('#es-nota') || {}).value; }
     uso('clique', 'especialista: ' + (sexta ? 'fechamento' : 'varredura'), { seller_id:ESP.vend.id }); return true; };
   box.querySelector('#es-marca').addEventListener('click', async ()=>{ if(await marcar(box.querySelector('#es-txt').value)){ showToast(sexta ? 'Fechamento registrado.' : 'Varredura de quarta salva.'); esVendedor(host); } });
   box.querySelector('#es-wa').addEventListener('click', ()=> esWhats(sexta ? 'Mandar o fechamento da semana' : 'Mensagem de meio de semana', box.querySelector('#es-txt').value, async t=>{ if(await marcar(t)){ dlgClose(); esVendedor(host); } }));
-  box.querySelector('#es-repro')?.addEventListener('click', async ()=>{
-    const { error: er } = await sb.rpc('crm_esp_reprogramar', { p_id:P.id });
+  box.querySelector('#es-repro')?.addEventListener('click', async e=>{
+    if(!confirm(`Criar o plano da próxima segunda com os ${falta.length} clientes que ainda não compraram? Se a próxima semana já tiver plano, ele fica como está.`)) return;
+    e.target.disabled = true;
+    const { error: er } = await sb.rpc('crm_esp_reprogramar', { p_id:P.id }); e.target.disabled = false;
     if(er){ showToast(errAmigavel(er)); return; }
-    showToast(`Próxima segunda criada com ${falta.length} pendente${falta.length === 1 ? '' : 's'}: ajuste e complete com clientes novos.`);
+    showToast(`Próxima segunda: plano aberto com os pendentes (se ela já existia, ficou como estava). Ajuste e complete com clientes novos.`);
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
 }
 
@@ -11126,7 +11165,7 @@ async function renderRota(){
   const g = ehGestao(), admin = perfilEfetivo() === 'admin';
   if(!RO.semana) RO.semana = esSegunda(new Date());
   if(!g){ RO.sid = window._perfil && window._perfil.seller_id; RO.aba = 'roteiro'; if(RO.fonte === 'plano') RO.fonte = 'plano'; }
-  if(g && !RO.area){ const { data } = await sb.rpc('crm_rota_area'); RO.area = data || []; }
+  if(g && !RO.area){ const { data, error } = await sb.rpc('crm_rota_area'); if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; } RO.area = data || []; }
   if(g && !RO.sid && RO.area.length){ RO.sid = RO.area[0].seller_id; RO.nome = RO.area[0].vendedor; }
   const abas = g ? `<div class="cm-abas"><button class="cm-aba ${RO.aba === 'roteiro' ? 'on' : ''}" data-roa="roteiro">Roteiro da semana</button><button class="cm-aba ${RO.aba === 'area' ? 'on' : ''}" data-roa="area">Área de cada vendedor</button></div>` : '';
   const liga = ()=> host.querySelectorAll('[data-roa]').forEach(b=> b.addEventListener('click', ()=>{ RO.aba = b.dataset.roa; renderRota(); }));
@@ -11677,15 +11716,16 @@ async function renderResumo(){
   const iniMes = d(new Date(h.getFullYear(), h.getMonth(), 1)), hoje = d(h);
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
-  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR] = await Promise.all([
+  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
-    sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), sb.rpc('crm_tabelas_precos', { p_dias:90 }),
-    sb.rpc('crm_catalogo', { p_todos:false }), sb.rpc('crm_promocoes_lista'),
-    veCom ? sb.rpc('crm_comissoes', { p_ini:ciIni, p_fim:ciFim }) : Promise.resolve({ data:null }),
+    sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), Promise.resolve({ data:[] }),
+    Promise.resolve({ data:[] }), sb.rpc('crm_promocoes_lista'),
+    Promise.resolve({ data:null }),   // tabelas, catálogo e comissão saíram da Vendas (05/11): não consultam mais
     sb.rpc('crm_vendas_mensal', { p_desde:d(new Date(h.getFullYear() - 1, h.getMonth() - 11, 1)) }),
     ehGestao() ? sb.rpc('crm_financeiro_inadimplencia', { p_desde:d(new Date(h.getFullYear(), 0, 1)) }) : Promise.resolve({ data:null }),
-    opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 180)).catch(()=> null) ]);
-  const erro = [tmA, pz, tb, cat].find(x=> x.error);
+    opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 180)).catch(()=> null),
+    ehMaster() ? sb.rpc('crm_esp_efeito') : Promise.resolve({ data:null }) ]);
+  const erro = [tmA, pz].find(x=> x.error);
   if(erro){ host.innerHTML = `<div class="tb-aviso">Não consegui montar o resumo: ${escapeHtml(errAmigavel(erro.error))}</div>`; return; }
   const soma = (L, k)=> (L || []).reduce((a, r)=> a + Number(r[k] || 0), 0);
   const pond = (L, peso, v)=>{ const w = soma(L, peso); return w ? (L || []).reduce((a, r)=> a + Number(r[peso] || 0) * Number(r[v] || 0), 0) / w : null; };
@@ -11713,11 +11753,14 @@ async function renderResumo(){
   const VM = (vm && !vm.error && vm.data) || [], ym = x=> String(x.mes).slice(0, 7), mesAtual = iniMes.slice(0, 7);
   const vMesSerie = Number((VM.find(x=> ym(x) === mesAtual) || {}).valor || 0);
   const ano = h.getFullYear(), ytd = VM.filter(x=> ym(x).startsWith(ano + '-')).reduce((t, x)=> t + Number(x.valor), 0);
-  const ytdAnt = VM.filter(x=> ym(x).startsWith((ano - 1) + '-') && Number(ym(x).slice(5)) <= h.getMonth() + 1).reduce((t, x)=> t + Number(x.valor), 0);
+  // ano contra ano pelos meses fechados (o mês corrente, ainda aberto, fica fora dos dois lados)
+  const ytdF = VM.filter(x=> ym(x).startsWith(ano + '-') && Number(ym(x).slice(5)) < h.getMonth() + 1).reduce((t, x)=> t + Number(x.valor), 0);
+  const ytdAnt = VM.filter(x=> ym(x).startsWith((ano - 1) + '-') && Number(ym(x).slice(5)) < h.getMonth() + 1).reduce((t, x)=> t + Number(x.valor), 0);
   // projeção do mês pelo ritmo dos dias úteis (sem fim de semana e feriado nacional)
   const uteis = (a, b)=>{ let n = 0; for(let x = new Date(a); x <= b; x.setDate(x.getDate() + 1)) if(!opIsNonBusinessDay(x)) n++; return n; };
   const dIni = new Date(h.getFullYear(), h.getMonth(), 1), dFim = new Date(h.getFullYear(), h.getMonth() + 1, 0);
-  const uPass = uteis(dIni, new Date(h.getFullYear(), h.getMonth(), h.getDate() - 1)), uMes = uteis(dIni, dFim);
+  // hoje conta como meio dia útil: as notas de hoje já entram no vendido
+  const uPass = uteis(dIni, new Date(h.getFullYear(), h.getMonth(), h.getDate() - 1)) + (opIsNonBusinessDay(h) ? 0 : .5), uMes = uteis(dIni, dFim);
   const proj = uPass > 0 ? vMesSerie / uPass * uMes : null;
   const mesAntSerie = Number((VM.find(x=> ym(x) === iniAnt.slice(0, 7)) || {}).valor || 0);
   const F = fin && !fin.error ? fin.data : null;
@@ -11735,8 +11778,9 @@ async function renderResumo(){
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
       ${kpi('rank', 'Vendido no mês', fmtMoney(vMesSerie || vMes), varMes == null ? 'até hoje' : `<span class="rs-var ${varMes >= 0 ? 'up' : 'down'}">${pct(varMes)}</span> contra o mesmo período do mês passado`)}
-      ${proj != null ? kpi('rank', 'Projeção do mês', fmtMoney(proj), `no ritmo de ${uPass} de ${uMes} dias úteis${mesAntSerie ? ` · mês passado fechou em ${fmtMoney(mesAntSerie)}` : ''}`, mesAntSerie && proj < mesAntSerie ? 'alerta' : 'rs-kpi-ok') : ''}
-      ${kpi('rank', 'Vendido no ano', fmtMoney(ytd), ytdAnt ? `<span class="rs-var ${ytd >= ytdAnt ? 'up' : 'down'}">${pct(ytd / ytdAnt - 1)}</span> contra o mesmo período de ${ano - 1}` : `desde janeiro de ${ano}`)}
+      ${proj != null ? kpi('rank', 'Projeção do mês', fmtMoney(proj), `no ritmo de ${String(uPass).replace('.', ',')} de ${uMes} dias úteis${mesAntSerie ? ` · mês passado fechou em ${fmtMoney(mesAntSerie)}` : ''}`, mesAntSerie && proj < mesAntSerie ? 'alerta' : 'rs-kpi-ok') : ''}
+      ${kpi('rank', 'Vendido no ano', fmtMoney(ytd), ytdAnt && h.getMonth() > 0 ? `<span class="rs-var ${ytdF >= ytdAnt ? 'up' : 'down'}">${pct(ytdF / ytdAnt - 1)}</span> de janeiro a ${['', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro'][h.getMonth()]} contra ${ano - 1}` : `desde janeiro de ${ano}`)}
+      ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r ? kpi('rank', 'Especialista comercial', fmtMoney(r.total), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.total > 0 ? 'rs-kpi-ok' : '') : ''; })()}
       ${F ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
     <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">Ranking dos vendedores no mês</h3><span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
