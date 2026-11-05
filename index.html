@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-181922">
+<meta name="crm-versao" content="20261105-184700">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -225,13 +225,18 @@
   #hdr-sync.old{ color:var(--amber-ink); background:var(--amber-soft);}
 
   /* ---------- nav rail ---------- */
-  #rail{ background:var(--brand); border-right:none; display:flex; flex-direction:column; align-items:center; padding-top:12px; gap:4px;}
+  #rail{ background:var(--brand); border-right:none; display:flex; flex-direction:column; align-items:center; padding-top:12px; gap:4px; overflow-y:auto;}
+  /* 05/11/2026: telas agrupadas (Clientes, Vendedores, Produtos) saem do rail e viram abas; o botão continua no código para permissões e atalhos */
+  #rail .nav-membro{ display:none !important;}
+  .grp-abas{ margin:0 0 12px;} .grp-abas[hidden]{ display:none;}
+  #view-operacao > .grp-abas{ margin:10px 16px 0;}
   #rail .rail-logo{ width:34px; height:46px; object-fit:cover; object-position:left center; margin-bottom:8px; flex:none;}
   #rail button{ background:transparent; border:none; color:#cfe3ea; width:60px; height:54px; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; transition:all .15s;}
   #rail button svg{ width:20px; height:20px; flex:none;}
-  #rail button span{ font-size:9.5px; font-family:'Barlow',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-weight:700; max-width:100%; text-align:center;}
+  #rail button span{ font-size:10.5px; font-family:'Barlow',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-weight:700; max-width:100%; text-align:center;}
   #rail .nav-btn{ width:70px;}   /* a barra tem 76px: cabe "Apresentação", o rótulo mais longo */
-  #rail button[data-view="sobre"] span{ font-size:8.5px; letter-spacing:0;}
+  #rail button[data-view="sobre"] span{ font-size:9px; letter-spacing:0;}
+  #rail button[data-grp="vendedores"] span{ font-size:9.5px; letter-spacing:0;}
   #rail button:hover{ background:rgba(255,255,255,.1); color:#ffffff;}
   #rail button.active{ background:#ffffff; color:var(--brand);}
   .rail-spacer{ flex:1;}
@@ -467,24 +472,27 @@
   <nav id="rail">
     <img class="rail-logo" src="assets/logo-synthetic.png" alt="Synthetic">
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sobre" title="Apresentação: o que é a Torre de Controle Synthetic e para que ela serve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h-6z"></path><path d="M9 9h6l1 13H8z"></path><line x1="4" y1="22" x2="20" y2="22"></line></svg><span>Apresentação</span></button>
-    <button data-perfis="gerente,master" class="nav-btn" data-view="resumo" title="Resumo: as prioridades da diretoria num relance e o que pede atenção hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Resumo</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="tabelas" title="Tabelas de preço 1 a 5 de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="21"></line></svg><span>Tabelas</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="catalogo" title="Catálogo oficial: quais produtos estão ativos e o que de fato está vendendo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><line x1="9" y1="7" x2="16" y2="7"></line><line x1="9" y1="11" x2="14" y2="11"></line></svg><span>Catálogo</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="tabmedia" title="Tabela média: em que tabela cada vendedor está vendendo, contra a meta de 2,3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="20" x2="20" y2="20"></line><rect x="5" y="11" width="3" height="9"></rect><rect x="10.5" y="7" width="3" height="13"></rect><rect x="16" y="13" width="3" height="7"></rect><line x1="3" y1="10" x2="21" y2="10" stroke-dasharray="2 2"></line></svg><span>Tab. média</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="prazo" title="Prazo médio: em quantos dias a Synthetic recebe, por vendedor e por gerência"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9 2h6"></path></svg><span>Prazo</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="parados" title="Clientes parados: quem comprava e está há mais de 90 dias sem comprar, por vendedor (lista da semana)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21v-1a7 7 0 0 1 11-5.7"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v2l1.2 1.2"></path></svg><span>Parados</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="comissoes" title="Comissões: quanto cada vendedor ganha no ciclo, item a item, pela regra de desconto de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg><span>Comissões</span></button>
+    <button data-perfis="gerente,master" class="nav-btn" data-view="resumo" title="Vendas: como estão as vendas do mês, o ranking dos vendedores e o que pede atenção hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Vendas</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="tabelas" data-grupo="produtos" title="Tabelas de preço 1 a 5 de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="21"></line></svg><span>Tabelas</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="catalogo" data-grupo="produtos" title="Catálogo oficial: quais produtos estão ativos e o que de fato está vendendo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><line x1="9" y1="7" x2="16" y2="7"></line><line x1="9" y1="11" x2="14" y2="11"></line></svg><span>Catálogo</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="tabmedia" data-grupo="vendedores" title="Tabela média: em que tabela cada vendedor está vendendo, contra a meta de 2,3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="20" x2="20" y2="20"></line><rect x="5" y="11" width="3" height="9"></rect><rect x="10.5" y="7" width="3" height="13"></rect><rect x="16" y="13" width="3" height="7"></rect><line x1="3" y1="10" x2="21" y2="10" stroke-dasharray="2 2"></line></svg><span>Tab. média</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="prazo" data-grupo="vendedores" title="Prazo médio: em quantos dias a Synthetic recebe, por vendedor e por gerência"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9 2h6"></path></svg><span>Prazo</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="parados" data-grupo="clientes" title="Clientes parados: quem comprava e está há mais de 90 dias sem comprar, por vendedor (lista da semana)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21v-1a7 7 0 0 1 11-5.7"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v2l1.2 1.2"></path></svg><span>Parados</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="comissoes" data-grupo="vendedores" title="Comissões: quanto cada vendedor ganha no ciclo, item a item, pela regra de desconto de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg><span>Comissões</span></button>
+    <button class="nav-grp" data-grp="clientes" title="Clientes: a carteira na linha do tempo e os parados há mais de 90 dias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Clientes</span></button>
+    <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
+    <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn" data-view="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sugestoes" title="Sugestões: ideias, problemas e dúvidas sobre o sistema, e o que foi feito com cada uma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg><span>Sugestões</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-atender" data-view="atender" title="Atender um cliente: inteligência, abordagem, conversa e proposta, passo a passo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><span>Atender</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn active" data-view="hoje" title="Hoje: quem ligar agora, em ordem de prioridade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg><span>Hoje</span></button>
-    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="operacao" title="Carteira de clientes: funil e compras na linha do tempo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Carteira</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="operacao" data-grupo="clientes" title="Carteira de clientes: funil e compras na linha do tempo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Carteira</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="produtos" title="Produtos: quem compra, quem parou e quem nunca comprou cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="agenda" title="Agenda de visitas e compromissos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Agenda</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="indicadores" title="Painel do gestor: meta, faturamento, carteira e vendedores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Painel</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="mapa" title="Estratégia comercial: plano de metas, onde estão os clientes e o diagnóstico da carteira"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Estratégia</span></button>
-    <button data-perfis="gerente,master" class="nav-btn" data-view="equipe" title="Usuários, equipes e convites de acesso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Acessos</span></button>
+    <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="equipe" title="Usuários, equipes e convites de acesso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Acessos</span></button>
     <div class="rail-spacer"></div>
     <button data-perfis="master" class="nav-btn" data-view="ajustes" title="Base de conhecimento, sugestões, ata, sincronização e backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>Ajustes</span></button>
     <button data-perfis="master" id="btn-sync" class="rail-sync" title="Status da sincronização com o Fácil123"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span>Sync</span><i class="sync-dot" id="sync-dot"></i></button>
@@ -3931,6 +3939,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     document.getElementById('view-'+btn.dataset.view).classList.add('active');
     const v = btn.dataset.view;
+    grpMarca(v);
     if(v !== 'sobre') ultimaTelaGrava(v);
     if(v === 'sobre') renderSobre();
     if(v === 'tabelas') renderTabelas();
@@ -4003,7 +4012,7 @@ document.addEventListener('click', e=>{
 // O menu só organiza a tela: quem garante o acesso é o banco (RLS e funções que conferem o perfil).
 // Perfis da Torre (27/10/2026). Códigos internos antigos, nomes novos: vendedor = Especialista, master = CEO.
 // admin = Administrador (Capacity Case): único que aprova acessos. supervisor fica só por compatibilidade.
-const PERFIS = { admin:'Administrador', master:'CEO', gerente:'Gerente de vendas', analista:'Analista', vendedor:'Especialista', supervisor:'Supervisor' };
+const PERFIS = { admin:'Administrador', master:'CEO', gerente:'Gerente de vendas', analista:'Analista', vendedor:'Vendedor', supervisor:'Supervisor' };   // 05/11: "Especialista" virou "Vendedor" (o nome batia com a tela Especialista comercial)
 const PERFIS_OFERECIDOS = ['master','gerente','analista','vendedor'];
 function perfilEfetivo(){
   const real = (window._perfil && window._perfil.role) || 'vendedor';
@@ -4022,10 +4031,48 @@ function menuLiberado(view, p){
   if(view === 'comissoes' && VE_COMISSOES && !(window._perfil && perfilEfetivo() !== window._perfil.role)) return true;
   const quem = MENU_ATIVO[view]; return !!quem && (quem === '*' || quem.split(',').includes(p));
 }
+// ---- Menu pela jornada de quem usa (05/11/2026): o CEO entra em Vendas, depois Clientes, Vendedores, Produtos e Financeiro;
+// o financeiro entra no Financeiro; o vendedor, na própria carteira. Telas irmãs viram abas de um botão só (as telas não mudam).
+const NAV_GRUPOS = {
+  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias']] },
+  vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
+  produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
+const RAIL_ORDEM = {
+  padrao:['sobre', 'resumo', 'g:clientes', 'g:vendedores', 'g:produtos', 'financeiro', 'especialista', 'sugestoes'],
+  analista:['sobre', 'financeiro', 'resumo', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'],
+  vendedor:['sobre', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'] };
+const GRP_ULT = {};   // última aba usada em cada grupo
+const grpDe = v=> Object.keys(NAV_GRUPOS).find(g=> NAV_GRUPOS[g].m.some(x=> x[0] === v));
+const grpLivres = g=> NAV_GRUPOS[g].m.filter(([v])=>{ const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b && !b.hidden; });
+function grpAtualizaRail(){
+  document.querySelectorAll('#rail [data-grp]').forEach(gb=>{ gb.hidden = !grpLivres(gb.dataset.grp).length; });
+  // ordem do menu pelo perfil (os botões que não estão na lista ficam escondidos antes, como já estavam)
+  const rail = document.getElementById('rail'), fim = rail.querySelector('.rail-spacer'), p = perfilEfetivo();
+  (RAIL_ORDEM[p === 'supervisor' ? 'vendedor' : p] || RAIL_ORDEM.padrao).forEach(k=>{
+    const el = k.startsWith('g:') ? rail.querySelector(`[data-grp="${k.slice(2)}"]`) : rail.querySelector(`.nav-btn[data-view="${k}"]`);
+    if(el) rail.insertBefore(el, fim); });
+}
+function grpMarca(v){
+  const g = grpDe(v);
+  document.querySelectorAll('#rail [data-grp]').forEach(x=> x.classList.toggle('active', x.dataset.grp === g));
+  const el = document.getElementById('view-' + v); if(!el) return;
+  let bar = el.querySelector(':scope > .grp-abas');
+  if(!g){ if(bar) bar.remove(); return; }
+  GRP_ULT[g] = v;
+  const L = grpLivres(g);
+  if(!bar){ bar = document.createElement('div'); bar.className = 'grp-abas cm-abas'; el.prepend(bar); }
+  bar.hidden = L.length < 2;
+  bar.innerHTML = L.map(([k, t])=> `<button class="cm-aba ${k === v ? 'on' : ''}" data-grpv="${k}">${t}</button>`).join('');
+  bar.querySelectorAll('[data-grpv]').forEach(b=> b.addEventListener('click', ()=>{ const nb = document.querySelector(`#rail .nav-btn[data-view="${b.dataset.grpv}"]`); if(nb) nb.click(); }));
+  const h = document.getElementById('hdr-title'); if(h) h.textContent = NAV_GRUPOS[g].t + ' · ' + ((L.find(x=> x[0] === v) || [])[1] || '');
+}
+document.querySelectorAll('#rail [data-grp]').forEach(gb=> gb.addEventListener('click', ()=>{
+  const L = grpLivres(gb.dataset.grp), ult = GRP_ULT[gb.dataset.grp], alvo = (L.find(x=> x[0] === ult) || L[0] || [])[0];
+  const b = alvo && document.querySelector(`#rail .nav-btn[data-view="${alvo}"]`); if(b) b.click(); }));
 async function comissoesLiberadas(){
   if(window._perfil && perfilEfetivo() !== window._perfil.role) return;   // Administrador vendo como outro perfil: vale o perfil escolhido
   const { data } = await sb.rpc('crm_ve_comissoes'); if(!data || VE_COMISSOES) return;
-  VE_COMISSOES = true; const b = document.querySelector('#rail .nav-btn[data-view="comissoes"]'); if(!b) return; b.hidden = false;
+  VE_COMISSOES = true; const b = document.querySelector('#rail .nav-btn[data-view="comissoes"]'); if(!b) return; b.hidden = false; grpAtualizaRail();
   // quem foi liberado pelo e-mail (o comercial) e ainda não leu o recado entra direto na tabela oficial de comissão
   let visto = false; try{ visto = localStorage.getItem('cm_recado_luiz') === '1'; }catch(_){}
   if(!visto && !ehMaster()){ CM.aba = 'regras'; b.click(); }
@@ -4037,6 +4084,13 @@ function aplicarPerfil(){
   document.querySelectorAll('[data-perfis]').forEach(el=>{ el.hidden = !el.dataset.perfis.split(',').some(x=> equivale.includes(x)); });
   document.querySelectorAll('#rail .nav-btn').forEach(el=>{ if(!menuLiberado(el.dataset.view, p)) el.hidden = true; });
   if(MENU_ZERADO){ const sy = document.getElementById('btn-sync'); if(sy) sy.hidden = true; }
+  grpAtualizaRail();
+  // Acessos sai do menu lateral e fica no topo, ao lado do Backup (só o Administrador)
+  let ac = document.getElementById('hdr-acessos');
+  const eqb = document.querySelector('#rail .nav-btn[data-view="equipe"]');
+  if(eqb && !eqb.hidden){ if(!ac){ ac = document.createElement('button'); ac.id = 'hdr-acessos'; ac.type = 'button'; ac.className = 'om-cancel'; ac.textContent = '🔒 Acessos'; ac.title = 'Usuários, convites, equipes e vendedores internos';
+      const bk = document.getElementById('btn-backup'); (bk ? bk.parentNode : document.querySelector('header .who')).insertBefore(ac, bk || null); ac.addEventListener('click', ()=> eqb.click()); } ac.hidden = false; }
+  else if(ac) ac.hidden = true;
   comissoesLiberadas();
   const bk = document.getElementById('btn-backup'); if(bk) bk.hidden = p !== 'admin';
   // Administrador vendo como outro perfil: mantém um atalho para voltar
@@ -4061,6 +4115,7 @@ function goToPersonView(personId, tab){
   document.getElementById('hdr-title').textContent = 'Ficha do cliente';
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-pessoas').classList.add('active');
+  document.querySelectorAll('#rail [data-grp]').forEach(x=> x.classList.toggle('active', x.dataset.grp === 'clientes'));
   openPerson(personId, tab);
 }
 
@@ -5573,7 +5628,9 @@ document.getElementById('view-operacao').addEventListener('click', (e)=>{
     opOpenModal(lane.dataset.pid, date, null); return;
   }
   const open = e.target.closest('[data-open]');
-  if(open){ goToPersonView(open.dataset.open, open.dataset.tab); return; }
+  // 05/11/2026: o clique no cliente abre o detalhe (compras, boletos, nota, oferta), com ‹ › pela lista filtrada; a ficha completa sai de lá
+  if(open){ if(open.dataset.tab){ goToPersonView(open.dataset.open, open.dataset.tab); return; }
+    clDetalhe(open.dataset.open, { ids:OP.filtered.map(p=> p.id), nomes:Object.fromEntries(OP.filtered.map(p=> [p.id, p.nome])) }); return; }
   if(e.target.closest('#op-sumtoggle') && !e.target.closest('.info-ico')){
     OP.sumOpen = !OP.sumOpen;
     opRenderAll(OP.shown);
@@ -8426,7 +8483,7 @@ document.addEventListener('click', e=>{ if(e.target.id==='pa-wa') pvWaDialog(); 
 // ---------- SUGESTÕES DE MELHORIA ----------
 const SG_STATUS = [['nova','Nova','#005071'],['em_analise','Em análise','#c8790b'],['aprovada','Aprovada','#149c6b'],['em_execucao','Em execução','#7b3fe4'],['concluida','Concluída','#2f9e57'],['rejeitada','Rejeitada','#c23636'],['depois','Deixar para depois','#8990a3']];
 const SG_TIPOS = {ideia:'Ideia nova', melhoria:'Melhoria', problema:'Problema / erro', duvida:'Dúvida'};
-const SG_TELAS = ['Resumo','Tabelas','Catálogo','Tab. média','Prazo','Parados','Comissões','Financeiro','Apresentação','Carteira','Ficha do cliente','Hoje','Atender','Ranking de prioridade','Novo cliente','Painel','Mapa','Agenda','Base','Ata','Login / acesso','Outro'];
+const SG_TELAS = ['Resumo','Tabelas','Catálogo','Tab. média','Prazo','Parados','Comissões','Financeiro','Especialista','Apresentação','Carteira','Ficha do cliente','Hoje','Atender','Ranking de prioridade','Novo cliente','Painel','Mapa','Agenda','Base','Ata','Login / acesso','Outro'];
 const SG = { list:[], filter:'', q:'', rec:null, media:null, chunks:[], audioBlob:null, recording:false, files:[] };
 const sgLabel = (k)=> (SG_STATUS.find(s=>s[0]===k)||[k,k,'#666']);
 const SG_SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -9239,6 +9296,8 @@ setInterval(versaoConfere, 2*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção, o ano, o gráfico mês a mês e o ranking dos vendedores (com "copiar para o grupo"). Clientes junta a Carteira e os Parados; Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. Acessos foi para o topo.' },
+  { id:'cliente-unico', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
   { id:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
   { id:'desconto', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
   { id:'promo-bonificacao', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
@@ -9747,7 +9806,9 @@ function abrirEntrada(){
   let ult = null; try{ ult = localStorage.getItem(ultimaTelaChave()); }catch(_){}
   const veio = !!ult || !!(window._perfil && window._perfil.ja_entrou);
   const botao = v=>{ const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b && !b.hidden ? b : null; };
-  const destino = !veio ? 'sobre' : ehMaster() && botao('resumo') ? 'resumo' : (ult && botao(ult) ? ult : (botao('resumo') ? 'resumo' : 'sobre'));
+  // 05/11/2026: cada perfil entra na sua tela (CEO e gerente em Vendas, financeiro no Financeiro, vendedor na própria carteira)
+  const pref = { analista:'financeiro', vendedor:'operacao', supervisor:'operacao' }[perfilEfetivo()] || 'resumo';
+  const destino = !veio ? 'sobre' : botao(pref) ? pref : (ult && botao(ult) ? ult : (botao('resumo') ? 'resumo' : 'sobre'));
   (botao(destino) || botao('sobre'))?.click();
 }
 function abrirTelaInicial(){
@@ -10143,7 +10204,8 @@ let PD_REDE = null;
 async function pdRedeCarrega(){
   if(PD_REDE) return PD_REDE;
   const { data, error } = await sb.rpc('crm_parados_rede');
-  PD_REDE = new Map(error ? [] : (data || []).map(r=> [r.pessoa_id, r])); return PD_REDE;
+  if(error) return new Map();   // não guarda o erro: tenta de novo na próxima vez
+  PD_REDE = new Map((data || []).map(r=> [r.pessoa_id, r])); return PD_REDE;
 }
 async function rtCarrega(){
   if(RT_MAPA) return RT_MAPA;
@@ -10200,7 +10262,7 @@ async function renderParados(){
     ${devendo.length && PDS.pg !== 'ok' ? (()=>{ const lig = devendo.filter(r=> !(Number(rt(r).vencido) > 0)).length;
       return `<div class="tb-aviso"><b>${fmtNum(devendo.length - lig)} destes clientes têm boleto em atraso</b> (${fmtMoney(devendo.reduce((t, r)=> t + Number(rt(r).vencido || 0), 0))})${lig ? ` e <b>${fmtNum(lig)} parecem ser do mesmo dono de quem deve</b> (mesmo CNPJ raiz, telefone, e-mail ou endereço)` : ''}. Antes de ligar para vender, combine com o financeiro. Para tirá-los da lista, use o filtro de pagamento.</div>`; })() : ''}
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th><th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th><th>Telefone</th></tr></thead>
-    <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou ${escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d))} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
+    <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou${PD_REDE.get(r.pessoa_id).valor_90d != null ? ' ' + escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d)) : ''} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
       <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td><td class="n">${RT_MAPA ? rtSelo(rt(r)) : ''}</td><td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
     <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou. Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</div>`;
   const re = ()=> renderParados();
@@ -10226,7 +10288,7 @@ async function renderParados(){
 // A mensagem sai pronta e editável; quem clica manda pelo próprio WhatsApp (envio em massa bloqueia o número). Nada é enviado sozinho.
 const waNumero = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.startsWith('55') && d.length >= 12 ? d : (d.length === 10 || d.length === 11) ? '55' + d : null; };
 const waPrimeiroNome = n=> String(n || '').trim().split(/\s+/)[0] || '';
-function waDialog(titulo, sub, fone, texto, aviso, evento){
+function waDialog(titulo, sub, fone, texto, aviso, evento, aoAbrir){   // aoAbrir(numero): ex. guardar o WhatsApp do vendedor e marcar a etapa da semana
   const box = dlgOpen(`<div class="om-title"><div><h3>${escapeHtml(titulo)}</h3><div class="om-sub">${escapeHtml(sub)}</div></div><button data-close>✕</button></div>
     <div class="dlg-body">${aviso ? `<div class="tb-aviso">${aviso}</div>` : ''}
       <label style="display:block;font-size:13px;color:var(--ink-soft)">WhatsApp do cliente<input id="wa-fone" inputmode="tel" style="display:block;width:220px;margin-top:4px" value="${escapeHtml(fone || '')}" placeholder="(11) 99999-9999"></label>
@@ -10239,6 +10301,7 @@ function waDialog(titulo, sub, fone, texto, aviso, evento){
     if(!n){ box.querySelector('#wa-err').textContent = 'Informe o WhatsApp com DDD.'; return; }
     window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(box.querySelector('#wa-txt').value), '_blank', 'noopener');
     uso('clique', evento + ': abriu WhatsApp');
+    if(aoAbrir) aoAbrir(n, box.querySelector('#wa-txt').value);
   });
 }
 async function waCobrar(pid){
@@ -10291,9 +10354,9 @@ async function clDetalhe(pid, nav){
       + (R && R.bloqueado ? `<div class="tb-aviso"><b>No Fácil123, este cliente está com o limite de crédito em "Bloquear"</b>${R.limite_credito ? ' (limite de ' + fmtMoney(R.limite_credito) + ')' : ''}. Confirme com o financeiro antes de vender.</div>` : '')
       + (R && R.obs_restricao ? `<div class="tb-aviso"><b>Observação no cadastro do Fácil123:</b> ${escapeHtml(R.obs_restricao)}</div>` : '')
       + (R && R.ligado_devedor ? `<div class="tb-aviso"><b>Pode ser o mesmo dono de quem está devendo${R.ligado_forca < 2 ? ' (só nome parecido: confira antes)' : ''}:</b> ${escapeHtml(R.ligado_devedor)}. Confirme com o financeiro antes de vender a prazo.</div>` : '')
-      + (dados.rede ? `<div class="tb-aviso" style="background:var(--surface-2)"><b>Parou nesta loja, mas a rede ainda compra:</b> ${dados.rede.lojas} outra${dados.rede.lojas > 1 ? 's lojas' : ' loja'} com a mesma raiz de CNPJ comprou ${fmtMoney(dados.rede.valor_90d)} nos últimos 90 dias (a última em ${fmtDate(dados.rede.ultima_compra)}${dados.rede.exemplo ? ', ' + escapeHtml(dados.rede.exemplo) : ''}). Pode ser que a compra só tenha mudado de CNPJ.</div>` : '')
+      + (dados.rede ? `<div class="tb-aviso" style="background:var(--surface-2)"><b>Parou nesta loja, mas a rede ainda compra:</b> ${dados.rede.lojas} outra${dados.rede.lojas > 1 ? 's lojas' : ' loja'} com a mesma raiz de CNPJ comprou${dados.rede.valor_90d != null ? ' ' + fmtMoney(dados.rede.valor_90d) : ''} nos últimos 90 dias (a última em ${fmtDate(dados.rede.ultima_compra)}${dados.rede.exemplo ? ', ' + escapeHtml(dados.rede.exemplo) : ''}). Pode ser que a compra só tenha mudado de CNPJ.</div>` : '')
       + ((dados.mud || []).length ? `<div class="tb-aviso"><b>O endereço do cadastro mudou${dados.mud.length > 1 ? ' ' + dados.mud.length + ' vezes' : ''}:</b> ${dados.mud.slice(0, 2).map(m=> `em ${fmtDate(String(m.em).slice(0, 10))}, de "${escapeHtml(m.antes || '—')}" para "${escapeHtml(m.depois || '—')}"`).join('; ')}.</div>` : '')
-      + `<div class="cl-acoes" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="om-save" id="cl-oferta" title="Mensagem pronta com o que ele comprava e a promoção ativa, para mandar pelo seu WhatsApp">📲 Mandar oferta no WhatsApp</button>${atr.length && ehGestao() ? '<button class="om-cancel" id="cl-cobrar" title="Mensagem pronta com os boletos em atraso, para o financeiro mandar pelo WhatsApp">💬 Cobrar no WhatsApp</button>' : ''}</div>`
+      + `<div class="cl-acoes" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="om-cancel" id="cl-ficha" title="Ficha do cliente: registrar ligação ou visita, próxima ação, funil, propostas e histórico">📝 Registrar contato · ficha completa</button><button class="om-save" id="cl-oferta" title="Mensagem pronta com o que ele comprava e a promoção ativa, para mandar pelo seu WhatsApp">📲 Mandar oferta no WhatsApp</button>${atr.length && ehGestao() ? '<button class="om-cancel" id="cl-cobrar" title="Mensagem pronta com os boletos em atraso, para o financeiro mandar pelo WhatsApp">💬 Cobrar no WhatsApp</button>' : ''}</div>`
       + `<div class="cl-fatos">
         <span>Nota de pagamento ${R ? rtSelo(R) + ' <b>' + escapeHtml(R.motivo || '') + '</b>' : '<b>sem boletos nas empresas que faturam</b>'}</span>
         <span>Parado há <b>${c.dias_sem_comprar != null ? fmtNum(c.dias_sem_comprar) + ' dias' : '—'}</b></span>
@@ -10316,11 +10379,12 @@ async function clDetalhe(pid, nav){
         <td class="n ${r.situacao !== 'a vencer' && r.dias > 7 ? 'cm-pend' : ''}">${r.situacao === 'a vencer' ? (r.dias > 0 ? 'venceu há ' + r.dias : 'vence em ' + (-r.dias)) : r.dias}</td></tr>`).join(''), 'Nenhum boleto deste cliente nas empresas que faturam (AMG, Asia, Blendbase, Canada, Korea).');
     if(aba === 'crm') h += A.length ? tabela('<th>Data</th><th>Tipo</th><th>O que foi feito</th><th>Resultado</th><th>Quem</th>',
       A.map(r=> `<tr><td>${dt(r.data_hora)}</td><td>${escapeHtml(r.tipo || '')}</td><td class="prod">${escapeHtml(r.resumo || '')}${r.proxima_acao ? `<br><small>Próximo: ${escapeHtml(r.proxima_acao)}${r.proxima_data ? ' em ' + dt(r.proxima_data) : ''}</small>` : ''}</td><td>${escapeHtml([r.resultado, r.motivo_perda].filter(Boolean).join(' · '))}</td><td>${escapeHtml(r.responsavel || '')}</td></tr>`).join(''), '')
-      : `<div class="tb-aviso">Ainda não há registro de contato com este cliente em nenhum sistema que a Torre lê: hoje não dá para saber se alguém ligou. O registro de ligações e visitas é a próxima fase.</div>`;
+      : `<div class="tb-aviso">Ainda não há registro de contato com este cliente. Para registrar uma ligação ou visita, use "📝 Registrar contato · ficha completa" acima.</div>`;
     h += `<div class="tb-rodape">Vendas da Synthetic pela mesma regra das outras telas. "Tab." usa a tabela de preços de hoje: pedidos antigos podem aparecer mais baixos se a tabela subiu depois.</div>`;
     corpo.innerHTML = h;
     corpo.querySelectorAll('[data-cla]').forEach(b=> b.addEventListener('click', ()=>{ aba = b.dataset.cla; pinta(); }));
     corpo.querySelector('#cl-oferta')?.addEventListener('click', ()=> waOferta(atual, dados));
+    corpo.querySelector('#cl-ficha')?.addEventListener('click', ()=>{ dlgClose(); goToPersonView(atual); });
     corpo.querySelector('#cl-cobrar')?.addEventListener('click', ()=> waCobrar(atual));
   };
   const carrega = async id=>{
@@ -10330,11 +10394,15 @@ async function clDetalhe(pid, nav){
     box.querySelector('#cl-nome').textContent = (nav && nav.nomes[id]) || 'Carregando…';
     box.querySelector('#cl-sub').textContent = varios ? `${i + 1}º de ${nav.ids.length} da lista` : '';
     corpo.innerHTML = '<div class="tb-rodape">Buscando as compras…</div>';
-    const [{ data, error }, rr, bb, mm] = await Promise.all([sb.rpc('crm_cliente_detalhe', { p_pessoa:id }), sb.rpc('crm_rating_clientes', { p_pessoa:id }), sb.rpc('crm_cliente_boletos', { p_pessoa:id }),
-      ehGestao() ? sb.rpc('crm_cliente_mudancas', { p_pessoa:id }) : Promise.resolve({ data:[] }), PD_REDE ? Promise.resolve() : pdRedeCarrega()]);
-    if(meu !== seq || corpo.dataset.cl !== marca) return;
-    if(error){ corpo.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+    let data, error, rr, bb, mm;
+    try{ [{ data, error }, rr, bb, mm] = await Promise.all([sb.rpc('crm_cliente_detalhe', { p_pessoa:id }), sb.rpc('crm_rating_clientes', { p_pessoa:id }), sb.rpc('crm_cliente_boletos', { p_pessoa:id }),
+      ehGestao() ? sb.rpc('crm_cliente_mudancas', { p_pessoa:id }) : Promise.resolve({ data:[] })]); }
+    catch(e){ error = e; }
+    if(meu !== seq || corpo.dataset.cl !== marca || !corpo.isConnected) return;
+    if(error || !data){ corpo.innerHTML = `<div class="tb-aviso">${escapeHtml(error ? errAmigavel(error) : 'Não encontrei os dados deste cliente.')}</div>`; return; }
     dados = { ...data, rt:(!rr.error && rr.data && rr.data[0]) || null, bol:(!bb.error && bb.data) || [], mud:(mm && !mm.error && mm.data) || [], rede:PD_REDE && PD_REDE.get(id) }; const c = data.cliente || {};
+    // "rede compra" é uma consulta pesada: o detalhe abre sem esperar e o aviso entra quando ela chega
+    if(!PD_REDE) pdRedeCarrega().then(m=>{ if(meu === seq && corpo.isConnected && m && m.get(id)){ dados.rede = m.get(id); pinta(); } }).catch(()=>{});
     box.querySelector('#cl-nome').textContent = c.nome || 'Cliente';
     box.querySelector('#cl-sub').textContent = [c.razao_social && c.razao_social !== c.nome ? c.razao_social : '', [c.cidade, c.uf].filter(Boolean).join('/'), c.vendedor ? 'vendedor ' + nomeBonito(c.vendedor) : '', varios ? `${i + 1}º de ${nav.ids.length} da lista` : ''].filter(Boolean).join(' · ');
     pinta(); uso('clique', 'cliente: aberto', { pessoa_id:id });
@@ -10355,15 +10423,79 @@ async function clDetalhe(pid, nav){
 // Inadimplência e baixas: substitui a planilha que o financeiro puxa do Fácil123 (janeiro a outubro) para acompanhar quem deve e quem foi pagando.
 // Rating dos clientes: nota de pagamento de cada cliente pelos boletos (crm_rating_clientes); as premissas estão escritas na tela para a diretoria ajustar.
 // Fonte: boletos das empresas que faturam (AMG, Asia, Blendbase, Canada, Korea). "Em atraso" = venceu há mais de 3 dias e não foi baixado.
-const FI = { aba:'inad', desde:'2026-01-01', dados:null, dadosDe:'', mostra:'atraso', faixa:'', vend:'', q:'', rt:'', nomes:null };
+const FI = { aba:'inad', desde:'2026-01-01', dados:null, dadosDe:'', mostra:'atraso', faixa:'', vend:'', q:'', qr:'', rt:'', nomes:null };   // q = busca da Inadimplência; qr = da Nota de pagamento
 const FI_FAIXAS = [['4 a 30 dias', 4, 30], ['31 a 90 dias', 31, 90], ['91 a 180 dias', 91, 180], ['mais de 180 dias', 181, Infinity]];
 const fiMi = v=>{ v = Number(v) || 0; return v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits:1 }) + ' mi' : Math.round(v / 1e3).toLocaleString('pt-BR') + ' mil'; };
 async function renderFinanceiro(){
   const fora = document.getElementById('fi'); if(!fora) return;
-  fora.innerHTML = `<div class="cm-abas"><button class="cm-aba ${FI.aba === 'inad' ? 'on' : ''}" data-fiaba="inad">Inadimplência e baixas</button><button class="cm-aba ${FI.aba === 'rating' ? 'on' : ''}" data-fiaba="rating">Nota de pagamento dos clientes</button><button class="cm-aba ${FI.aba === 'desc' ? 'on' : ''}" data-fiaba="desc">Desconto de duplicatas</button><button class="cm-aba ${FI.aba === 'rel' ? 'on' : ''}" data-fiaba="rel">Relatórios</button></div><div id="fi-in"></div>`;
+  fora.innerHTML = `<div class="cm-abas"><button class="cm-aba ${FI.aba === 'inad' ? 'on' : ''}" data-fiaba="inad">Inadimplência e baixas</button><button class="cm-aba ${FI.aba === 'rating' ? 'on' : ''}" data-fiaba="rating">Nota de pagamento dos clientes</button><button class="cm-aba ${FI.aba === 'desc' ? 'on' : ''}" data-fiaba="desc">Desconto de duplicatas</button><button class="cm-aba ${FI.aba === 'rel' ? 'on' : ''}" data-fiaba="rel">Relatórios</button><button class="cm-aba ${FI.aba === 'plan' ? 'on' : ''}" data-fiaba="plan">📈 Planejamento Estratégico 2027</button></div><div id="fi-in"></div>`;
   fora.querySelectorAll('[data-fiaba]').forEach(b=> b.addEventListener('click', ()=>{ FI.aba = b.dataset.fiaba; uso('clique', 'financeiro: aba ' + FI.aba); renderFinanceiro(); }));
   const host = document.getElementById('fi-in');
-  return FI.aba === 'rating' ? fiRating(host) : FI.aba === 'rel' ? fiRelatorios(host) : FI.aba === 'desc' ? fiDesconto(host) : fiInadimplencia(host);
+  return FI.aba === 'rating' ? fiRating(host) : FI.aba === 'rel' ? fiRelatorios(host) : FI.aba === 'desc' ? fiDesconto(host) : FI.aba === 'plan' ? fiPlanejamento(host) : fiInadimplencia(host);
+}
+// ---- Planejamento Estratégico 2027 (05/11/2026): a meta do ano distribuída mês a mês pela sazonalidade dos anos anteriores e pelos
+// 100 produtos que mais vendem. Base de um orçamento que a Synthetic ainda não tem; o detalhe (preço, mix, equipe, despesas) vem depois.
+const PL = { ano:2027, meta:null, vm:null, top:null, n:100 };
+async function fiPlanejamento(host){
+  if(!PL.vm){
+    host.innerHTML = '<div class="tb-rodape">Somando as vendas mês a mês e os produtos que mais vendem…</div>';
+    const [vm, top, mt] = await Promise.all([sb.rpc('crm_vendas_mensal', { p_desde:'2022-01-01' }), sb.rpc('crm_plan_top_produtos', { p_n:100 }), sb.from('crm_planejamento').select('meta').eq('ano', PL.ano).maybeSingle()]);
+    if(vm.error || top.error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(vm.error || top.error))}</div>`; return; }
+    PL.vm = vm.data || []; PL.top = top.data || []; PL.meta = Number((mt.data || {}).meta) || 50e6;
+  }
+  const M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const hoje = new Date(), mesAtual = hoje.getFullYear() * 100 + hoje.getMonth() + 1;
+  // por ano e mês; o mês corrente fica fora (incompleto)
+  const T = {}; PL.vm.forEach(x=>{ const y = Number(String(x.mes).slice(0, 4)), m = Number(String(x.mes).slice(5, 7)); if(y * 100 + m >= mesAtual) return; (T[y] = T[y] || {})[m] = Number(x.valor); });
+  const anos = Object.keys(T).map(Number).filter(y=> y < PL.ano).sort().slice(-3);
+  // índice de cada mês = quanto o mês vende em relação à média mensal daquele ano (com os meses que existem), na média dos anos; normalizado para somar 12
+  const idx = M3.map((_, k)=>{ const r = anos.map(y=>{ const mm = Object.values(T[y]); const med = mm.reduce((a, b)=> a + b, 0) / mm.length; return T[y][k + 1] != null && med ? T[y][k + 1] / med : null; }).filter(v=> v != null); return r.length ? r.reduce((a, b)=> a + b, 0) / r.length : 1; });
+  const sIdx = idx.reduce((a, b)=> a + b, 0), ind = idx.map(v=> v * 12 / sIdx);
+  const proj = ind.map(v=> PL.meta * v / 12);
+  // o ano corrente fechado: o que já vendeu + os meses que faltam pela sazonalidade
+  const yA = hoje.getFullYear(), real = T[yA] || {}, mesesReais = Object.keys(real).map(Number);
+  const medReal = mesesReais.length ? mesesReais.reduce((t, m)=> t + real[m] / ind[m - 1], 0) / mesesReais.length : 0;
+  const estAno = M3.reduce((t, _, k)=> t + (real[k + 1] != null ? real[k + 1] : medReal * ind[k]), 0);
+  const cresc = estAno ? PL.meta / estAno - 1 : null;
+  const cores = ['#C9D9E0', '#A9C7D2', '#6E9FB3'];
+  const mx = Math.max(1, ...proj, ...anos.flatMap(y=> Object.values(T[y])));
+  const W = 1000, H = 230, b = 24, gw = W / 12, bw = gw / (anos.length + 2);
+  const graf = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:230px;display:block" role="img" aria-label="Vendas por mês nos anos anteriores e a meta de ${PL.ano}">${M3.map((m, k)=> anos.map((y, j)=>{ const v = T[y][k + 1]; if(v == null) return ''; const hh = (H - b - 10) * v / mx;
+      return `<rect x="${k * gw + bw * (j + .5)}" y="${H - b - hh}" width="${bw * .9}" height="${hh}" fill="${cores[j + 3 - anos.length] || cores[0]}"><title>${m}/${y}: ${fmtMoney(v)}</title></rect>`; }).join('')
+      + `<rect x="${k * gw + bw * (anos.length + .5)}" y="${H - b - (H - b - 10) * proj[k] / mx}" width="${bw * .9}" height="${(H - b - 10) * proj[k] / mx}" fill="#E0A458"><title>meta ${m}/${PL.ano}: ${fmtMoney(proj[k])}</title></rect>
+      <text x="${k * gw + gw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:11px;fill:var(--ink-faint)">${m}</text>`).join('')}</svg>
+    <div class="fi-leg">${anos.map((y, j)=> `<span><i style="background:${cores[j + 3 - anos.length] || cores[0]}"></i>${y}${Object.keys(T[y]).length < 12 ? ` (${Object.keys(T[y]).length} meses)` : ''}</span>`).join('')}<span><i style="background:#E0A458"></i>meta ${PL.ano}</span></div>`;
+  const totTop = PL.top.reduce((t, p)=> t + Number(p.parte), 0), pode = ['admin', 'master'].includes(perfilEfetivo());
+  host.innerHTML = `
+    <div class="tb-bar"><label style="font-size:14px">Meta de faturamento ${PL.ano}: R$ <input id="pl-meta" inputmode="decimal" value="${PL.meta.toLocaleString('pt-BR')}" style="width:150px;font-weight:700" ${pode ? '' : 'disabled'}></label>${pode ? '<button class="om-save" id="pl-salva">Salvar meta</button>' : ''}<span class="tb-esp"></span><button class="om-cancel" id="pl-csv">Exportar o plano (mês a mês e por produto)</button></div>
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Meta ${PL.ano}</small><b>${fmtMoney(PL.meta)}</b><span>média de ${fmtMoney(PL.meta / 12)} por mês</span></div>
+      <div class="tb-kpi"><small>${yA} deve fechar em</small><b>${fmtMoney(estAno)}</b><span>${mesesReais.length} meses vendidos + ${12 - mesesReais.length} estimados pela sazonalidade</span></div>
+      <div class="tb-kpi ${cresc != null && cresc > .3 ? 'alerta' : ''}"><small>Crescimento necessário</small><b>${cresc == null ? '—' : (cresc >= 0 ? '+' : '') + Math.round(cresc * 100) + '%'}</b><span>sobre ${yA}${cresc != null && cresc > .3 ? ': precisa de estratégia nova (clientes, mix e preço), não só do ritmo atual' : ''}</span></div>
+      <div class="tb-kpi"><small>Os ${PL.top.length} produtos que mais vendem</small><b>${Math.round(totTop * 100)}%</b><span>do faturamento dos últimos 12 meses: é neles que a meta se distribui</span></div>
+    </div>
+    <h3 style="font-size:15px;margin:8px 0">Vendas mês a mês e a meta de ${PL.ano} pela sazonalidade</h3>
+    ${graf}
+    <div class="tb-wrap" style="min-height:0;max-height:none;margin-top:8px"><table class="tb-tab"><thead><tr><th>Mês</th>${anos.map(y=> `<th class="n">${y}</th>`).join('')}<th class="n" title="Quanto o mês vende em relação à média do ano (1,00 = um mês normal)">Peso do mês</th><th class="n">Meta ${PL.ano}</th><th class="n">Contra ${anos[anos.length - 1] || ''}</th></tr></thead>
+    <tbody>${M3.map((m, k)=>{ const ul = anos.length ? T[anos[anos.length - 1]][k + 1] : null; return `<tr><td>${m}</td>${anos.map(y=> `<td class="n">${T[y][k + 1] != null ? fmtMoney(T[y][k + 1]) : '—'}</td>`).join('')}<td class="n">${ind[k].toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}</td><td class="n"><b>${fmtMoney(proj[k])}</b></td><td class="n">${ul ? (proj[k] / ul - 1 >= 0 ? '+' : '') + Math.round((proj[k] / ul - 1) * 100) + '%' : '—'}</td></tr>`; }).join('')}
+      <tr class="tm-grupo"><td>Ano</td>${anos.map(y=> `<td class="n">${fmtMoney(Object.values(T[y]).reduce((a, c)=> a + c, 0))}</td>`).join('')}<td></td><td class="n"><b>${fmtMoney(PL.meta)}</b></td><td></td></tr></tbody></table></div>
+    <h3 style="font-size:15px;margin:16px 0 8px">Quanto cada produto precisa vender em ${PL.ano} (os ${PL.top.length} que mais vendem)</h3>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th class="n">Vendeu em 12 meses</th><th class="n">Parte</th><th class="n">Meta ${PL.ano}</th><th class="n">Crescer</th><th class="n">Quantidade no ano</th><th class="n">Em janeiro</th><th class="n">Clientes</th></tr></thead>
+    <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null;
+      return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${Number(p.valor_12m) ? '+' + Math.round((mp / Number(p.valor_12m) - 1) * 100) + '%' : '—'}</td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td><td class="n">${fmtMoney(proj[0] * Number(p.parte))}</td><td class="n">${p.clientes}</td></tr>`; }).join('')}</tbody></table></div>
+    <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de 2024: o histórico está sendo carregado e a tela recalcula sozinha. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
+  host.querySelector('#pl-salva')?.addEventListener('click', async ()=>{ const v = tbNum(host.querySelector('#pl-meta').value); if(!(v > 0)){ showToast('Informe a meta em reais.'); return; }
+    const { error } = await sb.rpc('crm_planejamento_salvar', { p_ano:PL.ano, p_meta:v }); if(error){ showToast(errAmigavel(error)); return; }
+    PL.meta = v; showToast('Meta salva.'); uso('clique', 'planejamento: meta salva'); fiPlanejamento(host); });
+  host.querySelector('#pl-meta').addEventListener('change', e=>{ const v = tbNum(e.target.value); if(v > 0){ PL.meta = v; fiPlanejamento(host); } });
+  host.querySelector('#pl-csv').addEventListener('click', ()=>{
+    const n = v=> Number(v || 0).toFixed(2).replace('.', ',');
+    const linhas = [['Planejamento Estratégico ' + PL.ano, 'Meta', n(PL.meta)], [], ['Mês', ...anos.map(String), 'Peso do mês', 'Meta ' + PL.ano]]
+      .concat(M3.map((m, k)=> [m, ...anos.map(y=> T[y][k + 1] != null ? n(T[y][k + 1]) : ''), n(ind[k]), n(proj[k])]))
+      .concat([[], ['Código', 'Produto', 'Vendeu em 12 meses', 'Parte', 'Meta ' + PL.ano, 'Quantidade no ano', ...M3.map(m=> 'Meta ' + m)]])
+      .concat(PL.top.map(p=>{ const mp = PL.meta * Number(p.parte); return [p.codigo, p.produto, n(p.valor_12m), n(Number(p.parte) * 100) + '%', n(mp), Number(p.preco_medio) ? Math.round(mp / Number(p.preco_medio)) : '', ...proj.map(v=> n(v * Number(p.parte)))]; }));
+    csvDownload(linhas, 'planejamento-' + PL.ano + '.csv'); uso('clique', 'planejamento: exportar');
+  });
 }
 // ---- Desconto de duplicatas (05/11/2026, reunião 01:06:30): o financeiro separa aqui os boletos a vencer que vão ser descontados no banco,
 // no lugar da planilha que monta para o CEO. Nada muda no Fácil123 (mexer no boleto lá dá problema com o banco); a Torre só registra a separação.
@@ -10403,7 +10535,7 @@ async function fiDesconto(host){
         : `<button class="om-cancel" data-fdm="" ${selRows.length ? '' : 'disabled'}>Voltar para a lista (${selRows.length})</button>`}
       <button class="om-cancel" id="fd-csv">Exportar</button>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="ck"><input type="checkbox" id="fd-all" title="Marcar todos os da lista"></th><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Emitida</th><th class="n">Vence</th><th class="n">Valor</th><th class="n">Nota pgto.</th>${FD.f !== 'livre' ? '<th>Separado por</th>' : ''}</tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="ck"><input type="checkbox" id="fd-all" title="Marcar todos os da lista" ${L.length && L.slice(0, MAX).every(r=> FD.sel.has(k(r))) ? 'checked' : ''}></th><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Emitida</th><th class="n">Vence</th><th class="n">Valor</th><th class="n">Nota pgto.</th>${FD.f !== 'livre' ? '<th>Separado por</th>' : ''}</tr></thead>
     <tbody>${L.slice(0, MAX).map(r=> `<tr><td class="ck"><input type="checkbox" data-fdk="${escapeHtml(k(r))}" ${FD.sel.has(k(r)) ? 'checked' : ''}></td><td class="prod">${escapeHtml(r.cliente || r.cnpj || '')}</td><td>${escapeHtml(nomeBonito(r.vendedor || ''))}</td><td>${escapeHtml(r.empresa)}</td>
       <td class="n">${fmtDate(r.emitida)}</td><td class="n ${r.vence < hoje ? 'cm-pend' : ''}">${fmtDate(r.vence)}</td><td class="n">${fmtMoneyC(r.valor)}</td><td class="n">${r.nota != null ? `<span class="rt rt-${r.nota >= 8 ? 'A' : r.nota >= 6 ? 'B' : r.nota >= 4 ? 'C' : 'D'}">${r.nota}</span>` : '<span class="vazio">—</span>'}</td>
       ${FD.f !== 'livre' ? `<td><small>${escapeHtml((r.marcado_por || '').split('@')[0])}${r.marcado_em ? ' · ' + new Date(r.marcado_em).toLocaleDateString('pt-BR') : ''}</small></td>` : ''}</tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum boleto com esses filtros.</td></tr>'}</tbody></table></div>
@@ -10418,6 +10550,7 @@ async function fiDesconto(host){
   host.querySelector('#fd-all').addEventListener('change', e=>{ L.slice(0, MAX).forEach(r=> e.target.checked ? FD.sel.add(k(r)) : FD.sel.delete(k(r))); re(); });
   host.querySelectorAll('[data-fdm]').forEach(b=> b.addEventListener('click', async ()=>{
     const itens = selRows.map(r=> ({ empresa:r.empresa, parcela_id:r.parcela_id })); if(!itens.length) return;
+    if(!b.dataset.fdm || b.dataset.fdm === 'desistiu'){ if(!confirm(`${b.dataset.fdm ? 'Marcar como desistiu' : 'Tirar da lista'} ${itens.length} boleto${itens.length === 1 ? '' : 's'} (${fmtMoney(soma(selRows))})?`)) return; }
     b.disabled = true; const { error } = await sb.rpc('crm_desconto_marcar', { p_itens:itens, p_status:b.dataset.fdm }); b.disabled = false;
     if(error){ showToast(errAmigavel(error)); return; }
     uso('clique', 'desconto: ' + (b.dataset.fdm || 'tirou'), { boletos:itens.length });
@@ -10451,7 +10584,7 @@ async function frPromo(host, chips, liga, nomeV){
   if(!FR.promos.length){ host.innerHTML = chips + '<div class="tb-aviso">Nenhuma promoção ativa ou encerrada ainda. Elas são cadastradas em Catálogo › Promoções.</div>'; liga(); return; }
   const P = FR.promos.find(x=> x.id === FR.pid) || FR.promos[0], hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
   const chave = P.id + '|' + FR.pdia;
-  if(!FR.pv || FR.pvDe !== chave){
+  if(!FR.pv || FR.pvDe !== chave || FR.pdia === hoje){   // "Hoje" sempre relê: é o fechamento do dia
     host.innerHTML = chips + '<div class="tb-rodape">Somando as vendas da promoção…</div>'; liga();
     const { data, error } = await sb.rpc('crm_promocao_vendas', { p_id:P.id, p_dia:FR.pdia || null });
     if(error){ host.innerHTML = chips + `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; liga(); return; }
@@ -10570,7 +10703,7 @@ async function fiRelatorios(host){
     <tbody>${V.map(r=> `<tr class="vd-lin fr-nv" data-v="${escapeHtml(nomeV(r.vendedor))}" title="Ver os clientes novos de ${escapeHtml(nomeV(r.vendedor))}"><td class="prod">${escapeHtml(nomeV(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtNum(r.novos)}</b></td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.voltaram || '—'}</td><td class="n">${r.hoje_com_outro || '—'}</td></tr>`).join('') || '<tr><td colspan="5" class="vazio">Nenhum cliente novo no período.</td></tr>'}</tbody></table></div>
     <div class="cm-resumo" style="margin:12px 0 4px">${FR.nvend ? 'Clientes novos de ' + escapeHtml(FR.nvend) : 'Todos os clientes novos'} (${fmtNum(C.length)})</div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th class="n">Primeira compra</th><th class="n">Valor da primeira</th><th class="n">No período</th><th class="n">Pedidos</th><th>Vendedor da primeira</th><th>Vendedor hoje</th></tr></thead>
-    <tbody>${C.slice(0, 400).map(r=> `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" ${r.pessoa_id ? `data-pid="${r.pessoa_id}"` : ''}><td class="prod">${escapeHtml(r.cliente || '')}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td class="n">${fmtDate(r.dia)}</td><td class="n">${fmtMoney(r.primeira)}</td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.pedidos}</td><td>${escapeHtml(nomeV(r.vendedor))}</td><td class="${r.vendedor_atual && r.vendedor_atual !== r.vendedor ? 'cm-pend' : ''}">${escapeHtml(nomeV(r.vendedor_atual))}</td></tr>`).join('') || '<tr><td colspan="8" class="vazio">Nenhum cliente.</td></tr>'}</tbody></table></div>
+    <tbody>${C.slice(0, 400).map(r=> `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" data-uso-linha="cliente novo" ${r.pessoa_id ? `data-pid="${r.pessoa_id}"` : ''}><td class="prod">${escapeHtml(r.cliente || '')}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td class="n">${fmtDate(r.dia)}</td><td class="n">${fmtMoney(r.primeira)}</td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.pedidos}</td><td>${escapeHtml(nomeV(r.vendedor))}</td><td class="${r.vendedor_atual && r.vendedor_atual !== r.vendedor ? 'cm-pend' : ''}">${escapeHtml(nomeV(r.vendedor_atual))}</td></tr>`).join('') || '<tr><td colspan="8" class="vazio">Nenhum cliente.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">Cliente novo = primeira venda faturada do cliente cai no período, pela mesma regra das outras telas; o crédito é de quem fez essa primeira venda. Cliente que só foi transferido de um vendedor para outro não conta, e cadastro sem venda também não. As notas da Torre começam em outubro/2024: quem comprou antes disso e ficou mais de um ano parado aparece como novo. O tempo entre o cadastro e a primeira venda depende da data de cadastro, que a leitura do Fácil123 ainda não traz.</div>`;
   liga();
   host.querySelector('#fr-per').addEventListener('change', e=>{ FR.per = e.target.value; FR.nvend = ''; fiRelatorios(host); });
@@ -10669,7 +10802,7 @@ async function fiRating(host){
   }
   const nomeV = r=> nomeBonito(r.vendedor || '') || 'Sem vendedor';
   const T = [...RT_MAPA.values()].map(r=> ({ ...r, ...(FI.nomes.get(r.pessoa_id) || { nome:'(cliente)' }) }));
-  const q = FI.q.trim().toLowerCase();
+  const q = FI.qr.trim().toLowerCase();
   const L = T.filter(r=> (!FI.rt || (FI.rt === 'L' ? r.ligado_forca >= 2 : r.rating === FI.rt)) && (!q || [r.nome, r.cidade, nomeV(r)].join(' ').toLowerCase().includes(q)))
     .sort((a, b)=> (a.nota ?? 11) - (b.nota ?? 11) || Number(b.vencido) - Number(a.vencido) || Number(b.fat_12m || 0) - Number(a.fat_12m || 0));
   const MAX = 400, mostra = L.slice(0, MAX), pct = v=> v == null ? '—' : Math.round(Number(v) * 100) + '%';
@@ -10688,13 +10821,13 @@ async function fiRating(host){
       <br><span class="rt rt-A">8–10</span> paga em dia · <span class="rt rt-B">6–7</span> atrasa pouco · <span class="rt rt-C">4–5</span> atenção · <span class="rt rt-D">0–3</span> em atraso: não vender a prazo sem falar com o financeiro · <span class="rt rt-N">—</span> sem nota: menos de 3 boletos vencidos em 12 meses e nada em atraso.
       <br><b>⚠</b> ao lado da nota = cliente que parece ser do mesmo dono de quem deve (mesma raiz de CNPJ, mesmo telefone, e-mail ou CEP e número de um cliente com boleto em atraso há mais de 30 dias; telefone e e-mail usados por mais de 3 clientes não contam, porque costumam ser do contador), com o limite de crédito em "Bloquear" no Fácil123 ou com observação de restrição no cadastro. Por enquanto isso é só aviso e não muda a nota: estamos confirmando com o financeiro se o "Bloquear" é o "não vender".
       <br>Próximas premissas a combinar: volume de compra, consulta a Serasa/SPC e os acordos de renegociação.</div></details>
-    <div class="tb-bar"><input id="fi-q" class="ca-inp" placeholder="Buscar cliente, cidade ou vendedor" value="${escapeHtml(FI.q)}" style="min-width:200px"><span class="tb-esp"></span><button class="om-cancel" id="fi-csv">Exportar</button></div>
+    <div class="tb-bar"><input id="fi-q" class="ca-inp" placeholder="Buscar cliente, cidade ou vendedor" value="${escapeHtml(FI.qr)}" style="min-width:200px"><span class="tb-esp"></span><button class="om-cancel" id="fi-csv">Exportar</button></div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">Nota</th><th>Cliente</th><th>Vendedor</th><th>Por quê${FI.rt === 'L' ? ' / com quem está ligado' : ''}</th><th class="n">Atraso médio</th><th class="n" title="Parte do valor pago com mais de 7 dias de atraso">Pago com +7 dias</th><th class="n">Em atraso</th><th class="n">Boletos 12m</th><th class="n">Comprou em 12 meses</th><th class="n">Dias sem comprar</th></tr></thead>
     <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente rating" title="Ver compras e boletos"><td class="n">${rtSelo(r)}</td><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span></td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.motivo || '')}${r.ligado_devedor && (FI.rt === 'L' || r.ligado_forca >= 2) ? `<br><small class="cm-pend">⚠ ${escapeHtml(r.ligado_devedor)}</small>` : ''}</td>
       <td class="n">${r.atraso_medio != null ? String(r.atraso_medio).replace('.', ',') + ' dias' : '—'}</td><td class="n">${pct(r.pct_atraso_7)}</td><td class="n">${Number(r.vencido) ? '<b>' + fmtMoney(r.vencido) + '</b>' : '—'}</td><td class="n">${r.boletos}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.dias_sem_comprar != null ? fmtNum(r.dias_sem_comprar) : '—'}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esse rating.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}. ` : ''}Só aparecem clientes com boleto nas empresas que faturam e com cadastro no CRM pelo CNPJ/CPF. Clique num cliente para ver as compras e os boletos, um a um. O rating também aparece na tela Parados e no detalhe do cliente.</div>`;
   host.querySelectorAll('[data-firt]').forEach(k=> k.addEventListener('click', ()=>{ FI.rt = FI.rt === k.dataset.firt ? '' : k.dataset.firt; fiRating(host); }));
-  let tq; host.querySelector('#fi-q').addEventListener('input', e=>{ clearTimeout(tq); tq = setTimeout(()=>{ FI.q = e.target.value; fiRating(host); const i = document.getElementById('fi-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 350); });
+  let tq; host.querySelector('#fi-q').addEventListener('input', e=>{ clearTimeout(tq); tq = setTimeout(()=>{ FI.qr = e.target.value; fiRating(host); const i = document.getElementById('fi-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 350); });
   const nav = { ids:mostra.map(r=> r.pessoa_id), nomes:Object.fromEntries(mostra.map(r=> [r.pessoa_id, r.nome])) };
   host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', ()=> clDetalhe(tr.dataset.pid, nav)));
   host.querySelector('#fi-csv').addEventListener('click', ()=>{
@@ -10718,13 +10851,47 @@ const esSegunda = d=>{ const x = new Date(d); x.setHours(12, 0, 0, 0); const w =
 const esDia = (iso, n)=>{ const x = new Date(iso + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
 const esDM = iso=> fmtDate(iso).slice(0, 5);
 const esNome = v=> waPrimeiroNome(nomeBonito(v || '')) || 'vendedor';
+// WhatsApp do vendedor (crm_esp_contatos): abre a mensagem pronta; o número digitado fica guardado para as próximas semanas
+let ES_FONES = null;
+async function esWhats(titulo, texto, aoEnviar){
+  if(!ES_FONES){ const { data } = await sb.from('crm_esp_contatos').select('seller_id,whatsapp'); ES_FONES = new Map((data || []).map(r=> [r.seller_id, r.whatsapp])); }
+  const sid = ESP.vend.id;
+  waDialog(titulo, nomeBonito(ESP.vend.nome), ES_FONES.get(sid) || '', texto, '', 'especialista', async (n, txt)=>{
+    if(ES_FONES.get(sid) !== n){ ES_FONES.set(sid, n); await sb.rpc('crm_esp_fone_salvar', { p_seller:sid, p_whatsapp:n }); }
+    if(aoEnviar) await aoEnviar(txt); });
+}
+// "O que fazer esta semana, Luiz": sugestões por regra a partir dos números de cada vendedor, das carteiras sem dono e do catálogo
+// (crm_esp_inteligencia). Uma IA que varre e propõe estratégias diferentes toda semana entra quando a chave de IA estiver ligada no Supabase.
+function esInteligenciaHtml(I){
+  if(!I) return '';
+  const S = [], V = I.vendedores || [], nm = v=> escapeHtml(nomeBonito(v || ''));
+  V.forEach(v=>{
+    const varp = Number(v.v90a) > 0 ? Number(v.v90) / Number(v.v90a) - 1 : null;
+    if(varp != null && varp < -0.2) S.push([Number(v.v90a) - Number(v.v90), '📉', `<b>${nm(v.vendedor)}</b> vendeu ${Math.round(-varp * 100)}% menos nos últimos 90 dias (${fmtMoney(v.v90)} contra ${fmtMoney(v.v90a)}). Converse com ele esta semana e monte o plano com mais reativação: tem ${fmtNum(v.parados)} parados que compravam ${fmtMoney(v.parados_valor)} em 12 meses.`]);
+    else if(Number(v.parados) >= 30) S.push([Number(v.parados_valor) * .1, '🔁', `<b>${nm(v.vendedor)}</b> tem ${fmtNum(v.parados)} clientes parados que compravam ${fmtMoney(v.parados_valor)} em 12 meses: dê a ele 5 ou mais reativações por semana.`]);
+    if(v.tabela_media != null && Number(v.tabela_media) < 2.3) S.push([Number(v.v90) * .02, '🏷️', `<b>${nm(v.vendedor)}</b> vende na tabela média ${String(v.tabela_media).replace('.', ',')}, abaixo da meta de 2,3: oriente a usar bonificação em produto no lugar de desconto.`]);
+    if(v.prazo_medio != null && Number(v.prazo_medio) > 60) S.push([Number(v.v90) * .01, '⏳', `<b>${nm(v.vendedor)}</b> vende com prazo médio de ${Math.round(v.prazo_medio)} dias, acima da meta de 60.`]);
+    if(v.plano_ant_itens && v.plano_ant_compraram === 0) S.push([5e3, '🧭', `O plano da semana passada de <b>${nm(v.vendedor)}</b> não trouxe nenhuma compra (${v.plano_ant_itens} clientes): mude a estratégia dele, por exemplo mais clientes da própria carteira e menos sem vendedor.`]);
+  });
+  (I.orfaos || []).slice(0, 3).forEach(o=> S.push([Number(o.fat_12m) * .2, '👥', `<b>${fmtNum(o.clientes)} clientes de ${o.vendedor === 'Sem vendedor' ? 'ninguém (sem vendedor)' : nm(o.vendedor) + ', que não vende mais'}</b> compraram ${fmtMoney(o.fat_12m)} em 12 meses: distribua entre os vendedores das mesmas cidades (eles já entram na estratégia "sem vendedor").`]));
+  const semPlano = V.filter(v=> !v.tem_plano).length;
+  const top = S.sort((a, b)=> b[0] - a[0]).slice(0, 8);
+  const C = I.catalogo || {}, sp = I.semana_passada || {};
+  return `<details class="cm-recado" open style="margin:8px 0 12px"><summary><b>🧠 O que fazer esta semana, Luiz</b> · ${top.length} sugestões pelos números${semPlano ? ` · ${semPlano} vendedores ainda sem plano` : ''}</summary>
+    <ol class="cm-recado-txt" style="padding-left:20px;margin:6px 0">${top.map(([, ic, t])=> `<li style="margin:4px 0">${ic} ${t}</li>`).join('') || '<li>Nada fora do esperado nos números desta semana.</li>'}
+      ${C.vendidos_12m ? `<li style="margin:4px 0">📦 <b>Catálogo:</b> ${fmtNum(C.faz_80)} produtos fazem 80% das vendas; ${fmtNum(C.vendidos_12m)} venderam em 12 meses e ${fmtNum(C.sem_venda_12m)} dos ${fmtNum(C.cadastrados_ativos)} cadastrados ativos não venderam nada. Proposta: um catálogo enxuto com os que vendem e "sob encomenda" para o resto. <a href="#" id="es-cauda">Ver os ${(C.cauda || []).length} de menor venda</a></li>` : ''}
+      ${sp.planos ? `<li style="margin:4px 0">📊 <b>Semana passada:</b> ${sp.planos} planos, ${sp.itens} clientes, <b>${sp.compraram} compraram</b> (${sp.itens ? Math.round(100 * sp.compraram / sp.itens) : 0}%). A taxa de quem volta sozinho é de uns 13% em 30 dias: o que passar disso é o efeito do plano.</li>` : ''}
+    </ol><div class="tb-rodape" style="margin:0">Sugestões por regra (queda de venda, parados, tabela média, prazo, carteira sem dono, resultado da semana passada, catálogo). A varredura com IA, que propõe estratégias diferentes toda semana, entra quando a chave de IA estiver ligada.</div></details>`;
+}
 async function renderEspecialista(){
   const host = document.getElementById('es'); if(!host) return;
   if(!ESP.semana) ESP.semana = esSegunda(new Date());
   if(ESP.vend) return esVendedor(host);
   host.innerHTML = '<div class="tb-rodape">Buscando os vendedores…</div>';
-  const { data, error } = await sb.rpc('crm_esp_vendedores', { p_semana:ESP.semana });
+  const [{ data, error }, ig] = await Promise.all([sb.rpc('crm_esp_vendedores', { p_semana:ESP.semana }),
+    ESP.intel && ESP.intelDe === ESP.semana ? Promise.resolve({ data:ESP.intel }) : sb.rpc('crm_esp_inteligencia', { p_semana:ESP.semana })]);
   if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  if(ig && !ig.error){ ESP.intel = ig.data; ESP.intelDe = ESP.semana; }
   const V = data || [], hoje = new Date().getDay(), etapa = hoje === 1 || hoje === 2 ? 'seg' : hoje === 3 || hoje === 4 ? 'qua' : 'sex';
   const feitos = k=> V.filter(r=> r[k]).length, ok = (v, t)=> v ? `<span class="rt rt-A" title="${escapeHtml(t + ' em ' + new Date(v).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }))}">✓</span>` : '<span class="vazio">—</span>';
   host.innerHTML = `
@@ -10734,10 +10901,15 @@ async function renderEspecialista(){
       <div class="tb-kpi ${etapa === 'qua' ? 'alerta' : ''}"><small>Quarta · revisão</small><b>${feitos('revisao_em')} de ${feitos('plano_id')}</b><span>planos revisados (quem já comprou, quem falta)</span></div>
       <div class="tb-kpi ${etapa === 'sex' ? 'alerta' : ''}"><small>Sexta · fechamento</small><b>${feitos('fechamento_em')} de ${feitos('plano_id')}</b><span>fechamentos enviados ao vendedor</span></div>
     </div>
+    ${esInteligenciaHtml(ESP.intel)}
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Vendeu em 90 dias</th><th class="n">Carteira</th><th class="n">Parados até 1 ano</th><th class="n">Em risco</th><th class="n">Cidades</th><th class="n">Plano</th><th class="n">Seg</th><th class="n">Qua</th><th class="n">Sex</th></tr></thead>
     <tbody>${V.map(r=> `<tr class="vd-lin" data-sid="${r.seller_id}" data-nome="${escapeHtml(r.vendedor)}" title="Montar ou ver a semana de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n">${fmtMoney(r.vendido_90d)}</td><td class="n">${fmtNum(r.carteira)}</td><td class="n">${fmtNum(r.parados)}</td><td class="n">${fmtNum(r.em_risco)}</td><td class="n">${fmtNum(r.cidades)}</td>
       <td class="n">${r.plano_id ? r.itens + ' clientes' : '<span class="vazio">a montar</span>'}</td><td class="n">${ok(r.enviado_em, 'Plano enviado')}</td><td class="n">${ok(r.revisao_em, 'Revisado')}</td><td class="n">${ok(r.fechamento_em, 'Fechamento enviado')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum vendedor com venda nos últimos 90 dias.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">Vendedores com venda nos últimos 90 dias, os que mais venderam primeiro. Clique num vendedor para montar a estratégia da semana: o sistema sugere clientes por estratégia (reativar parados da carteira, clientes de quem saiu ou sem vendedor na região dele, em risco e cadastros novos sem compra), sem quem está devendo, e monta a mensagem para você mandar. Quarta: revisão; sexta: fechamento.</div>`;
+  host.querySelector('#es-cauda')?.addEventListener('click', e=>{ e.preventDefault(); const L = (ESP.intel.catalogo || {}).cauda || [];
+    dlgOpen(`<div class="om-title"><div><h3>Produtos de menor venda (os últimos 3% do faturamento)</h3><div class="om-sub">Candidatos a sair do catálogo ou a ficar sob encomenda, do menor para o maior</div></div><button data-close>✕</button></div>
+      <div class="dlg-body"><div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Código</th><th>Produto</th><th class="n">Vendeu em 12 meses</th></tr></thead><tbody>${L.map(p=> `<tr><td>${escapeHtml(p.codigo || '')}</td><td class="prod">${escapeHtml(p.produto || '')}</td><td class="n">${fmtMoney(p.valor_12m)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="tb-rodape">A situação de cada produto (ativo, sob encomenda, fora de linha) é marcada em Produtos › Catálogo e promoções.</div></div>`, true); });
   host.querySelector('#es-ant').addEventListener('click', ()=>{ ESP.semana = esDia(ESP.semana, -7); renderEspecialista(); });
   host.querySelector('#es-prox').addEventListener('click', ()=>{ ESP.semana = esDia(ESP.semana, 7); renderEspecialista(); });
   host.querySelectorAll('tr[data-sid]').forEach(tr=> tr.addEventListener('click', ()=>{
@@ -10760,7 +10932,7 @@ async function esVendedor(host){
   host.querySelector('#es-volta').addEventListener('click', ()=>{ ESP.vend = null; renderEspecialista(); });
   host.querySelectorAll('[data-esa]').forEach(b=> b.addEventListener('click', ()=>{ if(b.disabled) return; ESP.aba = b.dataset.esa; esVendedor(host); }));
   const box = host.querySelector('#es-in');
-  if(ESP.aba === 'plano') return esPlano(box, host, nome);
+  if(ESP.aba === 'plano' || !tem){ if(!tem && ESP.aba !== 'plano'){ ESP.aba = 'plano'; return esVendedor(host); } return esPlano(box, host, nome); }   // sem plano salvo, quarta e sexta não têm o que mostrar
   return esAcompanha(box, host, nome);
 }
 async function esPlano(box, host, nome){
@@ -10770,6 +10942,9 @@ async function esPlano(box, host, nome){
     const [{ data, error }] = await Promise.all([sb.rpc('crm_esp_candidatos', { p_seller:V.id, p_semana:ESP.semana }), WA_PROMOS ? Promise.resolve() : sb.rpc('crm_promocoes_lista').then(r=>{ WA_PROMOS = (r.data || []).filter(x=> x.situacao === 'ativa'); })]);
     if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
     ESP.cand = data || [];
+    // clientes do plano salvo (ou reprogramado da semana passada) que não estão mais nas sugestões continuam no plano
+    const ids = new Set(ESP.cand.map(c=> c.pessoa_id));
+    (P.itens || []).filter(i=> !ids.has(i.pessoa_id)).forEach(i=> ESP.cand.unshift({ estrategia:i.estrategia, pessoa_id:i.pessoa_id, nome:i.nome, cidade:i.cidade, telefone:i.telefone, motivo:i.motivo, produtos:(i.oferta || '').split(', ').join(' · '), nota:null }));
     ESP.qtd = Object.fromEntries(Object.entries(ES_EST).map(([k, e])=> [k, e.q]));
     // plano salvo: marca o que já estava nele; senão, os primeiros de cada estratégia
     ESP.sel = new Set((P.itens || []).map(i=> i.pessoa_id));
@@ -10789,7 +10964,7 @@ async function esPlano(box, host, nome){
     return `Bom dia, ${nome}! 🎯 Sua estratégia da semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}).\n\nSão ${escolhidos.length} clientes para você acessar:\n\n${blocos.join('\n\n')}${promo ? `\n\nPromoção para usar na conversa: ${promo}.` : ''}\n\nMeta da semana: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Na quarta eu passo para ver como está; qualquer dúvida, me chama.`; };
   const msg = P.mensagem && P.id && P.itens && P.itens.length === escolhidos.length && P.itens.every(i=> ESP.sel.has(i.pessoa_id)) ? P.mensagem : msgPadrao();
   box.innerHTML = `
-    <div class="tb-bar">${Object.entries(ES_EST).map(([k, e])=> `<label title="${escapeHtml(e.c)}" style="font-size:13px">${escapeHtml(e.t)} <input data-esq="${k}" type="number" min="0" max="15" value="${ESP.qtd[k]}" style="width:48px"> <span class="vazio">de ${porEst(k).length}</span></label>`).join('')}
+    <div class="tb-bar">${Object.entries(ES_EST).map(([k, e])=> `<label title="${escapeHtml(e.c)}" style="font-size:13px">${escapeHtml(e.t)} <input data-esq="${k}" inputmode="numeric" value="${ESP.qtd[k]}" style="width:48px"> <span class="vazio">de ${porEst(k).length}</span></label>`).join('')}
       <button class="cm-chip" id="es-sug" title="Refaz a seleção com as quantidades ao lado">Sugerir de novo</button></div>
     ${Object.entries(ES_EST).map(([k, e])=>{ const L = porEst(k); return `
       <div class="cm-resumo" style="margin:12px 0 4px">${escapeHtml(e.t)} <span class="vazio">· ${escapeHtml(e.c)}</span></div>
@@ -10797,7 +10972,7 @@ async function esPlano(box, host, nome){
         ${L.map(c=> `<tr><td><input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}></td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td><small>${escapeHtml(prodTxt(c))}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
     <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes)</div>
     <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-salva">Salvar plano</button><button class="om-cancel" id="es-copia">Copiar mensagem</button><button class="om-save" id="es-envia" title="Salva, copia a mensagem e marca que o plano da semana foi enviado">${P.enviado_em ? 'Plano já enviado · salvar de novo' : 'Copiar e marcar como enviado'}</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
     <div class="tb-rodape">Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra. Um cliente que já está no plano de outro vendedor nesta semana também não. Clique no nome para ver o detalhe do cliente.</div>`;
   const re = ()=> esPlano(box, host, nome);
   box.querySelectorAll('[data-esq]').forEach(i=> i.addEventListener('change', ()=>{ ESP.qtd[i.dataset.esq] = Math.max(0, Math.min(15, Number(i.value) || 0)); }));
@@ -10819,42 +10994,75 @@ async function esPlano(box, host, nome){
     const id = await salvar(); if(!id) return; await copia();
     const { error } = await sb.rpc('crm_esp_marcar', { p_id:id, p_etapa:'enviado' }); if(error){ showToast(errAmigavel(error)); return; }
     ESP.plano.enviado_em = new Date().toISOString(); uso('clique', 'especialista: plano enviado', { seller_id:ESP.vend.id, clientes:escolhidos.length }); esVendedor(host); });
+  box.querySelector('#es-wa').addEventListener('click', async ()=>{
+    if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
+    const id = await salvar(); if(!id) return;
+    esWhats('Mandar a estratégia da semana', box.querySelector('#es-msg').value, async txt=>{
+      if(txt !== ESP.plano.mensagem) await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:ESP.plano.itens, p_mensagem:txt });
+      const { error } = await sb.rpc('crm_esp_marcar', { p_id:id, p_etapa:'enviado' }); if(error){ showToast(errAmigavel(error)); return; }
+      ESP.plano.enviado_em = new Date().toISOString(); ESP.plano.mensagem = txt; uso('clique', 'especialista: plano no WhatsApp', { seller_id:ESP.vend.id }); dlgClose(); esVendedor(host); }); });
 }
-// quarta (revisão) e sexta (fechamento): quem do plano comprou desde a segunda, quanto, e quem teve registro no CRM
+// quarta (varredura) e sexta (fechamento): o que mudou em cada cliente do plano desde segunda. A quarta guarda um retrato (revisao_snapshot)
+// para a sexta mostrar "segunda combinado · quarta estava · sexta está"; da sexta sai a próxima segunda já com os pendentes.
 async function esAcompanha(box, host, nome){
   const P = ESP.plano, sexta = ESP.aba === 'fechamento';
-  box.innerHTML = '<div class="tb-rodape">Conferindo quem do plano comprou…</div>';
-  const { data, error } = await sb.rpc('crm_esp_resultado', { p_id:P.id });
+  box.innerHTML = '<div class="tb-rodape">Fazendo a varredura dos clientes do plano…</div>';
+  const [{ data, error }] = await Promise.all([sb.rpc('crm_esp_resultado', { p_id:P.id }), RT_MAPA ? Promise.resolve() : rtCarrega().catch(()=> null)]);
   if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
-  const R = new Map((data || []).map(r=> [r.pessoa_id, r])), I = P.itens || [];
-  const comp = I.filter(i=> (R.get(i.pessoa_id) || {}).comprou), falta = I.filter(i=> !(R.get(i.pessoa_id) || {}).comprou);
-  const valor = comp.reduce((t, i)=> t + Number((R.get(i.pessoa_id) || {}).valor || 0), 0);
-  const porEst = Object.entries(ES_EST).map(([k, e])=>{ const L = I.filter(i=> i.estrategia === k); return L.length ? { k, t:e.t, n:L.length, c:L.filter(i=> (R.get(i.pessoa_id) || {}).comprou).length } : null; }).filter(Boolean);
-  const msgSexta = ()=> `Fechamento da semana, ${nome} (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}) 📊\n\nDos ${I.length} clientes da estratégia, *${comp.length} compraram* (${fmtMoney(valor)}).\n${porEst.map(e=> `• ${e.t}: ${e.c} de ${e.n}`).join('\n')}${comp.length ? `\n\n✅ Compraram: ${comp.map(i=> i.nome).join(', ')}.` : ''}${falta.length ? `\n\n⏳ Ainda não compraram: ${falta.map(i=> i.nome).join(', ')}. Os que fizerem sentido entram de novo na semana que vem.` : ''}\n\n${comp.length >= Math.max(1, Math.round(I.length * .3)) ? 'Bateu a meta da semana. Parabéns!' : 'Ficou abaixo da meta; segunda a gente ajusta a estratégia juntos.'} Bom fim de semana!`;
-  const txt = sexta ? (P.fechamento_msg || msgSexta()) : (P.revisao_nota || '');
+  const R = new Map((data || []).map(r=> [r.pessoa_id, r])), I = P.itens || [], Q = (P.revisao_snapshot && P.revisao_snapshot.itens) || null;
+  const qv = pid=> Q && Q.find(x=> x.pessoa_id === pid);
+  const st = i=>{ const r = R.get(i.pessoa_id) || {}, x = RT_MAPA && RT_MAPA.get(i.pessoa_id);
+    return { comprou:!!r.comprou, valor:Number(r.valor || 0), registros:r.registros || 0, ultima:r.ultima, atraso:!!(x && Number(x.vencido) > 0) }; };
+  const S = I.map(i=> ({ i, s:st(i) })), comp = S.filter(x=> x.s.comprou), falta = S.filter(x=> !x.s.comprou);
+  const valor = comp.reduce((t, x)=> t + x.s.valor, 0), novosAtraso = S.filter(x=> x.s.atraso && !(qv(x.i.pessoa_id) || {}).atraso);
+  const porEst = Object.entries(ES_EST).map(([k, e])=>{ const L = S.filter(x=> x.i.estrategia === k); return L.length ? { t:e.t, n:L.length, c:L.filter(x=> x.s.comprou).length } : null; }).filter(Boolean);
+  const meta = Math.max(1, Math.round(I.length * .3));
+  // o que a varredura destaca (quarta) ou resume (sexta)
+  const destaques = [];
+  if(comp.length) destaques.push(`✅ ${comp.length} de ${I.length} já compraram (${fmtMoney(valor)})${Q ? `; na quarta eram ${Q.filter(x=> x.comprou).length}` : ''}.`);
+  const semContato = falta.filter(x=> !x.s.registros);
+  if(semContato.length) destaques.push(`📞 ${semContato.length} ainda sem compra e sem registro de contato no CRM: ${semContato.slice(0, 5).map(x=> x.i.nome).join(', ')}${semContato.length > 5 ? '…' : ''}.`);
+  if(novosAtraso.length) destaques.push(`⚠ ${novosAtraso.length} entraram em atraso no meio da semana: ${novosAtraso.map(x=> x.i.nome).join(', ')}. Tire da lista ou combine com o financeiro.`);
+  if(!comp.length && !sexta) destaques.push('Nenhuma compra ainda: vale uma mensagem de incentivo para o vendedor hoje.');
+  const msgQua = ()=> `Oi, ${nome}! Passando para ver como está a semana 💪\n\nDos ${I.length} clientes da estratégia, ${comp.length} já compraram${comp.length ? ` (${comp.map(x=> x.i.nome).slice(0, 4).join(', ')}${comp.length > 4 ? '…' : ''})` : ''}.\n${falta.length ? `Faltam: ${falta.slice(0, 6).map(x=> x.i.nome).join(', ')}${falta.length > 6 ? '…' : ''}.` : ''}\n\nMeta: pelo menos ${meta} até sexta. Precisa de alguma ajuda com algum deles?`;
+  const msgSex = ()=> `Fechamento da semana, ${nome} (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}) 📊\n\n• Segunda: combinamos ${I.length} clientes.\n${Q ? `• Quarta: ${Q.filter(x=> x.comprou).length} tinham comprado.\n` : ''}• Hoje: *${comp.length} compraram* (${fmtMoney(valor)}).\n${porEst.map(e=> `   ${e.t}: ${e.c} de ${e.n}`).join('\n')}${comp.length ? `\n\n✅ Compraram: ${comp.map(x=> x.i.nome).join(', ')}.` : ''}${falta.length ? `\n\n⏳ Ficaram para a próxima semana: ${falta.map(x=> x.i.nome).join(', ')}.` : ''}\n\n${comp.length >= meta ? 'Bateu a meta da semana. Parabéns! 👏' : 'Ficou abaixo da meta; segunda a gente ajusta a estratégia juntos.'} Bom fim de semana!`;
+  const txt = sexta ? (P.fechamento_msg || msgSex()) : msgQua();
+  const col = (b, t)=> b ? `<span class="rt rt-A">${t || 'sim'}</span>` : '<span class="vazio">—</span>';
   box.innerHTML = `
     <div class="tb-kpis">
-      <div class="tb-kpi"><small>Compraram desde segunda</small><b>${comp.length} de ${I.length}</b><span>${fmtMoney(valor)} em pedidos</span></div>
-      <div class="tb-kpi"><small>Com registro no CRM</small><b>${I.filter(i=> (R.get(i.pessoa_id) || {}).registros > 0).length}</b><span>clientes com ligação ou visita registrada desde segunda</span></div>
-      <div class="tb-kpi"><small>Por estratégia</small><b style="font-size:15px">${porEst.map(e=> `${e.c}/${e.n}`).join(' · ') || '—'}</b><span>${porEst.map(e=> e.t.split(' ')[0]).join(' · ')}</span></div>
+      <div class="tb-kpi"><small>${sexta ? 'Resultado da semana' : 'Compraram desde segunda'}</small><b>${comp.length} de ${I.length}</b><span>${fmtMoney(valor)} em pedidos · meta ${meta}</span></div>
+      <div class="tb-kpi"><small>Com registro no CRM</small><b>${S.filter(x=> x.s.registros > 0).length}</b><span>clientes com ligação ou visita registrada desde segunda</span></div>
+      <div class="tb-kpi"><small>Por estratégia</small><b style="font-size:15px">${porEst.map(e=> `${e.c} de ${e.n}`).join(' · ') || '—'}</b><span>${porEst.map(e=> e.t).join(' · ')}</span></div>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Estratégia</th><th>Por quê</th><th class="n">Comprou?</th><th class="n">Valor</th><th class="n">Última compra</th><th class="n">Registros</th></tr></thead>
-    <tbody>${I.map(i=>{ const r = R.get(i.pessoa_id) || {}; return `<tr><td class="prod"><a href="#" data-esd="${i.pessoa_id}">${escapeHtml(i.nome || '')}</a></td><td>${escapeHtml((ES_EST[i.estrategia] || {}).t || i.estrategia)}</td><td><small>${escapeHtml(i.motivo || '')}</small></td>
-      <td class="n">${r.comprou ? '<span class="rt rt-A">sim</span>' : '<span class="vazio">ainda não</span>'}</td><td class="n">${r.valor ? fmtMoney(r.valor) : '—'}</td><td class="n">${r.ultima ? fmtDate(r.ultima) : '—'}</td><td class="n">${r.registros || '—'}</td></tr>`; }).join('')}</tbody></table></div>
-    <div class="cm-resumo" style="margin:14px 0 4px">${sexta ? `Fechamento para ${escapeHtml(nome)}` : 'Anotações da revisão (só para você: o que ajustar, quem cobrar na sexta)'}</div>
-    <textarea id="es-txt" rows="${sexta ? 12 : 5}" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px" placeholder="${sexta ? '' : 'Ex.: 3 clientes de quem saiu não atendem; trocar por parados da carteira na próxima semana.'}">${escapeHtml(txt)}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px">${sexta ? '<button class="om-cancel" id="es-regera">Refazer mensagem</button><button class="om-cancel" id="es-copia">Copiar</button>' : ''}<button class="om-save" id="es-marca">${sexta ? (P.fechamento_em ? 'Fechamento já enviado · salvar de novo' : 'Copiar e marcar fechamento como enviado') : (P.revisao_em ? 'Revisão feita · salvar anotação' : 'Marcar revisão como feita')}</button></div>
-    <div class="tb-rodape">Comprou = nota faturada para o cliente desde a segunda da semana, pela mesma regra das outras telas. Registros = ligações e visitas lançadas no CRM.</div>`;
+    ${destaques.length ? `<div class="cm-recado" style="margin:8px 0"><b>${sexta ? 'Resumo da semana' : 'Varredura de quarta'}:</b><ul class="cm-recado-txt" style="padding-left:18px;margin:4px 0">${destaques.map(t=> `<li>${escapeHtml(t)}</li>`).join('')}</ul></div>` : ''}
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Estratégia</th><th class="n">Segunda</th><th class="n">Quarta</th><th class="n">${sexta ? 'Sexta' : 'Agora'}</th><th class="n">Valor</th><th class="n">Registros</th><th class="n">Pagamento</th></tr></thead>
+    <tbody>${S.map(({ i, s })=>{ const q = qv(i.pessoa_id); return `<tr><td class="prod"><a href="#" data-esd="${i.pessoa_id}">${escapeHtml(i.nome || '')}</a><br><small class="vazio">${escapeHtml(i.motivo || '')}</small></td><td>${escapeHtml((ES_EST[i.estrategia] || {}).t || i.estrategia)}</td>
+      <td class="n"><span class="rt rt-N">combinado</span></td><td class="n">${q ? col(q.comprou, 'comprou') : '<span class="vazio">sem varredura</span>'}</td><td class="n">${col(s.comprou, 'comprou')}</td><td class="n">${s.valor ? fmtMoney(s.valor) : '—'}</td><td class="n">${s.registros || '—'}</td><td class="n">${s.atraso ? '<span class="rt rt-D">em atraso</span>' : ''}</td></tr>`; }).join('')}</tbody></table></div>
+    <div class="cm-resumo" style="margin:14px 0 4px">${sexta ? `Fechamento para ${escapeHtml(nome)}` : `Mensagem de meio de semana para ${escapeHtml(nome)} (opcional: na quarta você só fala com ele se precisar)`}</div>
+    <textarea id="es-txt" rows="${sexta ? 13 : 8}" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(txt)}</textarea>
+    ${!sexta ? `<label style="display:block;margin-top:8px;font-size:13px;color:var(--ink-soft)">Anotações da revisão (só para você)<textarea id="es-nota" rows="3" style="display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px" placeholder="Ex.: os clientes sem vendedor não atendem; trocar por parados da carteira na próxima semana.">${escapeHtml(P.revisao_nota || '')}</textarea></label>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px">
+      <button class="om-cancel" id="es-regera">Refazer mensagem</button>
+      ${sexta ? `<button class="om-cancel" id="es-repro" title="Cria o plano da próxima segunda com os clientes que ainda não compraram">↻ Reprogramar a próxima segunda</button>` : ''}
+      <button class="om-cancel" id="es-marca">${sexta ? (P.fechamento_em ? 'Fechamento já marcado · salvar' : 'Marcar fechamento feito') : (P.revisao_em ? 'Revisão feita · salvar' : 'Salvar a varredura de quarta')}</button>
+      <button class="om-save" id="es-wa">📲 ${sexta ? 'Enviar o fechamento no WhatsApp' : 'Mandar no WhatsApp'}</button></div>
+    <div class="tb-rodape">Comprou = nota faturada para o cliente desde a segunda da semana. Registros = ligações e visitas lançadas no CRM. "Quarta" é o retrato salvo na varredura de quarta. As abas podem ser abertas em qualquer dia.</div>`;
   box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
-  box.querySelector('#es-regera')?.addEventListener('click', ()=>{ box.querySelector('#es-txt').value = msgSexta(); });
-  const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-txt').value); showToast('Copiado: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie:', box.querySelector('#es-txt').value); } };
-  box.querySelector('#es-copia')?.addEventListener('click', copia);
-  box.querySelector('#es-marca').addEventListener('click', async ()=>{
-    const t = box.querySelector('#es-txt').value; if(sexta) await copia();
-    const { error } = await sb.rpc('crm_esp_marcar', { p_id:P.id, p_etapa:sexta ? 'fechamento' : 'revisao', p_texto:t });
-    if(error){ showToast(errAmigavel(error)); return; }
-    if(sexta){ P.fechamento_em = new Date().toISOString(); P.fechamento_msg = t; } else { P.revisao_em = new Date().toISOString(); P.revisao_nota = t; }
-    showToast(sexta ? 'Fechamento marcado como enviado.' : 'Revisão registrada.'); uso('clique', 'especialista: ' + (sexta ? 'fechamento' : 'revisão'), { seller_id:ESP.vend.id }); esVendedor(host); });
+  box.querySelector('#es-regera').addEventListener('click', ()=>{ box.querySelector('#es-txt').value = sexta ? msgSex() : msgQua(); });
+  const marcar = async t=>{
+    if(!sexta){ const snap = { em:new Date().toISOString(), itens:S.map(({ i, s })=> ({ pessoa_id:i.pessoa_id, comprou:s.comprou, valor:s.valor, atraso:s.atraso, registros:s.registros })) };
+      await sb.rpc('crm_esp_snapshot', { p_id:P.id, p_snap:snap }); P.revisao_snapshot = snap; }
+    const { error: er } = await sb.rpc('crm_esp_marcar', { p_id:P.id, p_etapa:sexta ? 'fechamento' : 'revisao', p_texto:sexta ? t : (box.querySelector('#es-nota') || {}).value });
+    if(er){ showToast(errAmigavel(er)); return false; }
+    if(sexta){ P.fechamento_em = new Date().toISOString(); P.fechamento_msg = t; } else { P.revisao_em = new Date().toISOString(); P.revisao_nota = (box.querySelector('#es-nota') || {}).value; }
+    uso('clique', 'especialista: ' + (sexta ? 'fechamento' : 'varredura'), { seller_id:ESP.vend.id }); return true; };
+  box.querySelector('#es-marca').addEventListener('click', async ()=>{ if(await marcar(box.querySelector('#es-txt').value)){ showToast(sexta ? 'Fechamento registrado.' : 'Varredura de quarta salva.'); esVendedor(host); } });
+  box.querySelector('#es-wa').addEventListener('click', ()=> esWhats(sexta ? 'Mandar o fechamento da semana' : 'Mensagem de meio de semana', box.querySelector('#es-txt').value, async t=>{ if(await marcar(t)){ dlgClose(); esVendedor(host); } }));
+  box.querySelector('#es-repro')?.addEventListener('click', async ()=>{
+    const { error: er } = await sb.rpc('crm_esp_reprogramar', { p_id:P.id });
+    if(er){ showToast(errAmigavel(er)); return; }
+    showToast(`Próxima segunda criada com ${falta.length} pendente${falta.length === 1 ? '' : 's'}: ajuste e complete com clientes novos.`);
+    ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
 }
 
 // ---------- PRAZO MÉDIO POR VENDEDOR E POR GERÊNCIA (prioridade 3 do CEO, 27/10/2026) ----------
@@ -11259,6 +11467,7 @@ function ctPromoEditar(promoId, ids){
       p_itens:itens.map(i=> ({ product_id:i.product_id, preco:i.preco, desconto:i.desconto, compra_qtd:i.compra_qtd, bonus_qtd:i.bonus_qtd, bonus_product_id:i.bonus_product_id })) });
     e.target.disabled = false;
     if(error){ err.textContent = errAmigavel(error); return; }
+    FR.promos = null; FR.pv = null; WA_PROMOS = null;   // a promoção nova aparece em Relatórios e na oferta do WhatsApp sem recarregar
     dlgClose(); showToast('Promoção salva.'); CAT.aba = 'promos'; CAT.sel = new Set(); renderCatalogo(true);
   });
 }
@@ -11349,11 +11558,13 @@ async function renderResumo(){
   const iniMes = d(new Date(h.getFullYear(), h.getMonth(), 1)), hoje = d(h);
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
-  const [tmA, tmB, pz, tb, cat, pr, cm] = await Promise.all([
+  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
     sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), sb.rpc('crm_tabelas_precos', { p_dias:90 }),
     sb.rpc('crm_catalogo', { p_todos:false }), sb.rpc('crm_promocoes_lista'),
-    veCom ? sb.rpc('crm_comissoes', { p_ini:ciIni, p_fim:ciFim }) : Promise.resolve({ data:null }) ]);
+    veCom ? sb.rpc('crm_comissoes', { p_ini:ciIni, p_fim:ciFim }) : Promise.resolve({ data:null }),
+    sb.rpc('crm_vendas_mensal', { p_desde:d(new Date(h.getFullYear() - 1, h.getMonth() - 11, 1)) }),
+    ehGestao() ? sb.rpc('crm_financeiro_inadimplencia', { p_desde:d(new Date(h.getFullYear(), 0, 1)) }) : Promise.resolve({ data:null }) ]);
   const erro = [tmA, pz, tb, cat].find(x=> x.error);
   if(erro){ host.innerHTML = `<div class="tb-aviso">Não consegui montar o resumo: ${escapeHtml(errAmigavel(erro.error))}</div>`; return; }
   const soma = (L, k)=> (L || []).reduce((a, r)=> a + Number(r[k] || 0), 0);
@@ -11381,22 +11592,51 @@ async function renderResumo(){
   if(aClass) att.push(['🗂️', `<b>${aClass} produtos ainda sem situação no catálogo</b> (ativo, sob encomenda ou fora de linha). O comercial e a diretoria classificam em lote.`, 'catalogo:classificar']);
   if(veCom && semRegra) att.push(['💰', `<b>${semRegra} itens vendidos no ciclo de ${escapeHtml(ciRot.split(' (')[0])} sem regra de comissão.</b> O comercial completa na tabela oficial.`, 'comissoes:regras']);
   promFim.forEach(x=> att.push(['⏰', `A promoção <b>${escapeHtml(x.nome)}</b> termina em ${prData(x.fim)}.`, 'catalogo:promos']));
+  // ---- Vendas (05/11/2026): a porta do CEO. Primeiro o mês e o ano, depois o gráfico, o ranking dos vendedores e o que pede atenção ----
+  const VM = (vm && !vm.error && vm.data) || [], ym = x=> String(x.mes).slice(0, 7), mesAtual = iniMes.slice(0, 7);
+  const vMesSerie = Number((VM.find(x=> ym(x) === mesAtual) || {}).valor || 0);
+  const ano = h.getFullYear(), ytd = VM.filter(x=> ym(x).startsWith(ano + '-')).reduce((t, x)=> t + Number(x.valor), 0);
+  const ytdAnt = VM.filter(x=> ym(x).startsWith((ano - 1) + '-') && Number(ym(x).slice(5)) <= h.getMonth() + 1).reduce((t, x)=> t + Number(x.valor), 0);
+  // projeção do mês pelo ritmo dos dias úteis (sem fim de semana e feriado nacional)
+  const uteis = (a, b)=>{ let n = 0; for(let x = new Date(a); x <= b; x.setDate(x.getDate() + 1)) if(!opIsNonBusinessDay(x)) n++; return n; };
+  const dIni = new Date(h.getFullYear(), h.getMonth(), 1), dFim = new Date(h.getFullYear(), h.getMonth() + 1, 0);
+  const uPass = uteis(dIni, new Date(h.getFullYear(), h.getMonth(), h.getDate() - 1)), uMes = uteis(dIni, dFim);
+  const proj = uPass > 0 ? vMesSerie / uPass * uMes : null;
+  const mesAntSerie = Number((VM.find(x=> ym(x) === iniAnt.slice(0, 7)) || {}).valor || 0);
+  const F = fin && !fin.error ? fin.data : null;
+  // gráfico: últimos 24 meses, o ano corrente em destaque
+  const graf = (()=>{ const L = VM.slice(-24); if(L.length < 2) return '';
+    const W = 1000, H = 170, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    return `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:170px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
+      return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg>
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span></div>`; })();
+  // ranking dos vendedores no mês (o CEO manda no grupo)
+  const rk = A.filter(r=> Number(r.valor) > 0).slice().sort((a, b)=> b.valor - a.valor);
+  const rkCopia = ()=> `*Ranking de vendas · ${h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}`).join('\n') + `\nTotal: ${fmtMoney(vMes)}`;
   host.innerHTML = `
-    <div class="cm-resumo">Resumo de ${h.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}. Clique em qualquer número para abrir o detalhe.</div>
+    <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
-      ${kpi('tabmedia', 'Vendido no mês', fmtMoney(vMes), varMes == null ? 'até hoje' : `<span class="rs-var ${varMes >= 0 ? 'up' : 'down'}">${pct(varMes)}</span> contra o mesmo período do mês passado`)}
+      ${kpi('tabmedia', 'Vendido no mês', fmtMoney(vMesSerie || vMes), varMes == null ? 'até hoje' : `<span class="rs-var ${varMes >= 0 ? 'up' : 'down'}">${pct(varMes)}</span> contra o mesmo período do mês passado`)}
+      ${proj != null ? kpi('tabmedia', 'Projeção do mês', fmtMoney(proj), `no ritmo de ${uPass} de ${uMes} dias úteis${mesAntSerie ? ` · mês passado fechou em ${fmtMoney(mesAntSerie)}` : ''}`, mesAntSerie && proj < mesAntSerie ? 'alerta' : 'rs-kpi-ok') : ''}
+      ${kpi('tabmedia', 'Vendido no ano', fmtMoney(ytd), ytdAnt ? `<span class="rs-var ${ytd >= ytdAnt ? 'up' : 'down'}">${pct(ytd / ytdAnt - 1)}</span> contra o mesmo período de ${ano - 1}` : `desde janeiro de ${ano}`)}
+      ${F ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
       ${(()=>{ const of = soma(A, 'valor_tabela_crm') / (soma(A, 'valor_com_tabela') || 1);   // 04/11: a tabela antiga do Fácil123 puxa a média para cima
         return of < .95 ? kpi('tabmedia', 'Tabela média do mês (provisória)', fmtTm(tmMes), `meta 2,3 · ${Math.round(100 - of * 100)}% das vendas ainda pela tabela antiga do Fácil123, que puxa a média para cima`, '')
           : kpi('tabmedia', 'Tabela média do mês', fmtTm(tmMes), 'meta 2,3 · quanto maior, mais perto da Tabela 5', tmMes != null && tmMes < 2.3 ? 'alerta' : 'rs-kpi-ok'); })()}
       ${kpi('prazo', 'Prazo médio (90 dias)', pzMed == null ? '—' : Math.round(pzMed) + ' dias', `meta 60 dias · vale para ${Math.round(100 * soma(P, 'valor_com_prazo') / (soma(P, 'valor') || 1))}% das vendas, as com boleto identificado`, pzMed != null && pzMed > 60 ? 'alerta' : 'rs-kpi-ok')}
-      ${kpi('tabelas', 'Vendas com tabela lançada', Math.round(cob * 100) + '%', `nos últimos 90 dias · ${semTab} produtos vendendo sem tabela`, cob < .9 ? 'alerta' : '')}
       ${veCom ? kpi('comissoes', 'Comissão do ciclo', cmR(comTot), escapeHtml(ciRot)) : ''}
-      ${kpi('catalogo', 'Produtos vendendo', String(C.filter(r=> r.movimento === 'vendendo').length), `nos últimos 3 meses · ${sem6} sem venda há 6 meses${promAt.length ? ` · ${promAt.length} em promoção` : ''}`)}
     </div>
+    ${graf}
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">Ranking dos vendedores no mês</h3><span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
+    <div class="tb-wrap" style="min-height:0;max-height:46vh"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">Vendido no mês</th><th class="n">Tabela média</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
+    <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td><td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || '<tr><td colspan="6" class="vazio">Nenhuma venda no mês ainda.</td></tr>'}</tbody></table></div>
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
     <ul class="rs-lista">${att.map(([ic, t, ir])=> `<li><span class="rs-ic">${ic}</span><span class="t">${t}</span><button class="cm-chip" data-ir="${ir}">Abrir ›</button></li>`).join('') || '<li><span class="t">Nada fora do esperado hoje.</span></li>'}</ul>
     <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.</div>`;
   host.querySelectorAll('[data-ir]').forEach(b=> b.addEventListener('click', ()=> rsIr(b.dataset.ir)));
+  host.querySelector('#rs-rk-copia')?.addEventListener('click', async ()=>{ const t = rkCopia(); try{ await navigator.clipboard.writeText(t); showToast('Ranking copiado: é só colar no grupo.'); }catch(_){ prompt('Copie o ranking:', t); } uso('clique', 'vendas: copiar ranking'); });
+  const navRk = { ids:rk.map(r=> r.seller_id), nomes:Object.fromEntries(rk.map(r=> [r.seller_id, r.vendedor])), info:{} };
+  host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), iniMes, hoje, 'mês atual', 'tm', navRk)));
 }
 function rsIr(alvo){
   const [view, sub] = alvo.split(':');
@@ -11449,10 +11689,10 @@ function renderSobre(){
     ['Cada um vê o que precisa.', 'O acesso é liberado por pessoa e por perfil. Custos e margens ficam com quem decide.'],
     ['Os dados ficam na Synthetic.', 'O sistema e os dados ficam nas contas da empresa. Ninguém fica refém de ninguém.']];
   const perfis = [
-    ['CEO', 'Visão do negócio inteiro: vendas, preço, prazo, comissão e clientes parados.'],
-    ['Gerente de vendas', 'Time comercial: tabela média, prazo e clientes parados de cada vendedor.'],
-    ['Analista', 'Prepara e confere os números, acompanha as regras de preço.'],
-    ['Especialista', 'A própria carteira: tabela média, prazo e clientes parados (visitas em construção).']];
+    ['CEO', 'Entra em Vendas: como está o mês, o ranking dos vendedores e o que pede atenção. Depois a carteira, os vendedores, os produtos e o financeiro.'],
+    ['Gerente de vendas', 'Time comercial: vendas, clientes parados de cada vendedor, tabela média e prazo.'],
+    ['Financeiro', 'Entra no Financeiro: quem deve e há quanto tempo, o que entrou mês a mês, a nota de pagamento de cada cliente e o lote de duplicatas para descontar.'],
+    ['Vendedor', 'A própria carteira, a tabela média e o prazo dele, e os parados para ligar na semana.']];
   host.innerHTML = `
     <section class="sb-hero">
       <div class="sb-kick">Torre de Controle - Synthetic</div>
