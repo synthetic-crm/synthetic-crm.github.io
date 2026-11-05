@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-184700">
+<meta name="crm-versao" content="20261105-185147">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -78,8 +78,9 @@
   .cl-fatos{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--ink-soft); margin:2px 0 8px;} .cl-fatos b{ color:var(--ink);}
   .rt{ display:inline-block; min-width:22px; text-align:center; font-size:11px; font-weight:800; border-radius:6px; padding:1px 6px; white-space:nowrap;}
   .rt-A{ background:#DCF2E4; color:#1F6B3A;} .rt-B{ background:#E6F0F7; color:#2D5B78;} .rt-C{ background:var(--amber-soft); color:var(--amber-ink);} .rt-D{ background:#F9DADA; color:#9B2323;} .rt-N{ background:var(--border-soft); color:var(--ink-soft);}
-  .fi-graf{ width:100%; height:auto; display:block; margin:4px 0 2px;} .fi-graf text{ font-size:11px; fill:var(--ink-faint);} .fi-graf .v{ fill:var(--ink-soft); font-weight:700;}
+  .fi-graf{ width:100%; height:220px; display:block; margin:4px 0 2px;}   /* altura fixa: no monitor de 25" o gráfico empurrava a lista para fora da tela */ .fi-graf text{ font-size:11px; fill:var(--ink-faint);} .fi-graf .v{ fill:var(--ink-soft); font-weight:700;}
   .fi-leg{ display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12px; color:var(--ink-soft); margin:2px 0 10px;} .fi-leg i{ display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px;}
+  .tb-como{ display:inline;} .tb-como summary{ display:inline; cursor:pointer; color:var(--brand); margin-left:6px; list-style:none;} .tb-como[open]{ display:block; margin-top:4px;}
   .pr-nova{ font-size:10.5px; font-weight:700; background:var(--amber-soft); color:var(--amber-ink); border-radius:999px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
   .tb-kpi.pr-f{ cursor:pointer;} .tb-kpi.pr-f:hover{ border-color:var(--brand);} .tb-kpi.pr-f.on{ border-color:var(--brand); box-shadow:inset 0 0 0 1px var(--brand);}
   tr.pr-vd{ cursor:pointer;} tr.pr-vd:hover td{ background:var(--surface-2);}
@@ -156,7 +157,8 @@
   .cm-recado summary{ cursor:pointer;} .cm-recado-txt{ margin-top:6px;}
   .cm-resumo{ font-size:13px; color:var(--ink-soft); margin:0 0 8px; line-height:1.5;}
   .cm-chips{ display:flex; gap:6px; flex-wrap:wrap;}
-  .cm-chip{ border:1px solid var(--line, #d9dde3); background:transparent; color:inherit; padding:5px 11px; border-radius:999px; font:inherit; font-size:13px; cursor:pointer;}
+  .cm-chip{ border:1px solid var(--line, #d9dde3); background:transparent; color:inherit; padding:5px 11px; border-radius:999px; font:inherit; font-size:13px; cursor:pointer; min-height:32px;}
+  @media (max-width:820px){ .cm-chip, .cm-aba{ min-height:44px;} }   /* alvo de toque no celular (conselho de design, 05/11) */
   .cm-chip.on{ background:var(--ink, #1d2733); color:#fff; border-color:transparent;}
   .cm-ok{ color:var(--green, #1a7f37); font-weight:600;} .cm-pend{ color:var(--amber-ink, #8a5a00); font-weight:600;}
   .cm-faixas{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;}
@@ -482,6 +484,7 @@
     <button class="nav-grp" data-grp="clientes" title="Clientes: a carteira na linha do tempo e os parados há mais de 90 dias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Clientes</span></button>
     <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
     <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
+    <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="rota" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn" data-view="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sugestoes" title="Sugestões: ideias, problemas e dúvidas sobre o sistema, e o que foi feito com cada uma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg><span>Sugestões</span></button>
@@ -510,6 +513,7 @@
     <div id="view-comissoes" class="view"><div class="tb" id="cm"></div></div>
     <div id="view-financeiro" class="view"><div class="tb" id="fi"></div></div>
     <div id="view-especialista" class="view"><div class="tb" id="es"></div></div>
+    <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-ajustes" class="view"><div class="pg">
       <div class="pg-head"><h2>Ajustes</h2><span class="sub">Ferramentas de administração do CRM. Só o Master vê este menu.</span></div>
       <div class="aj-grade">
@@ -3951,6 +3955,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'comissoes') renderComissoes();
     if(v === 'financeiro') renderFinanceiro();
     if(v === 'especialista') renderEspecialista();
+    if(v === 'rota') renderRota();
     if(v === 'operacao') renderOperacao();
     if(v === 'hoje') renderHoje();
     if(v === 'atender') renderAtender();
@@ -4024,7 +4029,7 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', especialista:'admin', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', especialista:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 let VE_COMISSOES = false;   // pessoa liberada pelo e-mail em crm_comissao_acesso (ex.: o comercial); o banco confere de novo em cada consulta
 function menuLiberado(view, p){
   if(!MENU_ZERADO) return true;
@@ -4038,9 +4043,9 @@ const NAV_GRUPOS = {
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
-  padrao:['sobre', 'resumo', 'g:clientes', 'g:vendedores', 'g:produtos', 'financeiro', 'especialista', 'sugestoes'],
+  padrao:['sobre', 'resumo', 'g:clientes', 'g:vendedores', 'rota', 'g:produtos', 'financeiro', 'especialista', 'sugestoes'],
   analista:['sobre', 'financeiro', 'resumo', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'],
-  vendedor:['sobre', 'g:clientes', 'g:vendedores', 'g:produtos', 'sugestoes'] };
+  vendedor:['sobre', 'g:clientes', 'rota', 'g:vendedores', 'g:produtos', 'sugestoes'] };
 const GRP_ULT = {};   // última aba usada em cada grupo
 const grpDe = v=> Object.keys(NAV_GRUPOS).find(g=> NAV_GRUPOS[g].m.some(x=> x[0] === v));
 const grpLivres = g=> NAV_GRUPOS[g].m.filter(([v])=>{ const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b && !b.hidden; });
@@ -9296,6 +9301,7 @@ setInterval(versaoConfere, 2*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'rotas', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
   { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção, o ano, o gráfico mês a mês e o ranking dos vendedores (com "copiar para o grupo"). Clientes junta a Carteira e os Parados; Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. Acessos foi para o topo.' },
   { id:'cliente-unico', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
   { id:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
@@ -10264,7 +10270,7 @@ async function renderParados(){
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th><th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th><th>Telefone</th></tr></thead>
     <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou${PD_REDE.get(r.pessoa_id).valor_90d != null ? ' ' + escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d)) : ''} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
       <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td><td class="n">${RT_MAPA ? rtSelo(rt(r)) : ''}</td><td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
-    <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou. Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</div>`;
+    <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</details></div>`;
   const re = ()=> renderParados();
   host.querySelectorAll('[data-prso]').forEach(k=> k.addEventListener('click', ()=>{ PDS.so = PDS.so === k.dataset.prso ? '' : k.dataset.prso; re(); }));
   host.querySelectorAll('[data-praba]').forEach(b=> b.addEventListener('click', ()=>{ PDS.aba = b.dataset.praba; if(PDS.aba === 'vend') PDS.vend = ''; re(); }));
@@ -10288,13 +10294,14 @@ async function renderParados(){
 // A mensagem sai pronta e editável; quem clica manda pelo próprio WhatsApp (envio em massa bloqueia o número). Nada é enviado sozinho.
 const waNumero = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.startsWith('55') && d.length >= 12 ? d : (d.length === 10 || d.length === 11) ? '55' + d : null; };
 const waPrimeiroNome = n=> String(n || '').trim().split(/\s+/)[0] || '';
-function waDialog(titulo, sub, fone, texto, aviso, evento, aoAbrir){   // aoAbrir(numero): ex. guardar o WhatsApp do vendedor e marcar a etapa da semana
+function waDialog(titulo, sub, fone, texto, aviso, evento, aoAbrir, voltar){   // aoAbrir(numero): ex. guardar o WhatsApp do vendedor; voltar(): reabre o cliente de onde veio
   const box = dlgOpen(`<div class="om-title"><div><h3>${escapeHtml(titulo)}</h3><div class="om-sub">${escapeHtml(sub)}</div></div><button data-close>✕</button></div>
     <div class="dlg-body">${aviso ? `<div class="tb-aviso">${aviso}</div>` : ''}
       <label style="display:block;font-size:13px;color:var(--ink-soft)">WhatsApp do cliente<input id="wa-fone" inputmode="tel" style="display:block;width:220px;margin-top:4px" value="${escapeHtml(fone || '')}" placeholder="(11) 99999-9999"></label>
       <label style="display:block;margin-top:10px;font-size:13px;color:var(--ink-soft)">Mensagem (pode editar)<textarea id="wa-txt" rows="11" style="display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(texto)}</textarea></label></div>
     <div class="om-err" id="wa-err"></div>
-    <div class="om-foot"><span style="flex:1"></span><button class="om-cancel" id="wa-copia">Copiar texto</button><button class="om-save" id="wa-abre">Abrir no WhatsApp</button></div>`, true);
+    <div class="om-foot">${voltar ? '<button class="om-cancel" id="wa-volta">‹ Voltar ao cliente</button>' : ''}<span style="flex:1"></span><button class="om-cancel" id="wa-copia">Copiar texto</button><button class="om-save" id="wa-abre">Abrir no WhatsApp</button></div>`, true);
+  box.querySelector('#wa-volta')?.addEventListener('click', ()=> voltar());
   box.querySelector('#wa-copia').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#wa-txt').value); showToast('Mensagem copiada.'); }catch(_){} uso('clique', evento + ': copiou'); });
   box.querySelector('#wa-abre').addEventListener('click', ()=>{
     const n = waNumero(box.querySelector('#wa-fone').value);
@@ -10304,18 +10311,18 @@ function waDialog(titulo, sub, fone, texto, aviso, evento, aoAbrir){   // aoAbri
     if(aoAbrir) aoAbrir(n, box.querySelector('#wa-txt').value);
   });
 }
-async function waCobrar(pid){
+async function waCobrar(pid, voltar){
   const [{ data: pe }, { data: bol, error }] = await Promise.all([sb.from('crm_pessoas').select('nome,contato_nome,telefone').eq('id', pid).maybeSingle(), sb.rpc('crm_cliente_boletos', { p_pessoa:pid })]);
   if(error){ showToast(errAmigavel(error)); return; }
   const A = (bol || []).filter(b=> b.situacao === 'em atraso').sort((a, b)=> String(a.vence).localeCompare(String(b.vence)));
   if(!A.length){ showToast('Este cliente não tem boleto em atraso.'); return; }
   const tot = A.reduce((t, b)=> t + Number(b.valor || 0), 0), nome = waPrimeiroNome(pe && pe.contato_nome);
   const txt = `Olá${nome ? ', ' + nome : ''}! Tudo bem? Aqui é do financeiro da Synthetic Lubrificantes.\n\nConsta em aberto no cadastro de ${pe ? pe.nome : 'vocês'}:\n${A.slice(0, 8).map(b=> `• ${fmtMoneyC(b.valor)}, vencido em ${fmtDate(String(b.vence).slice(0, 10))}`).join('\n')}${A.length > 8 ? `\n• e mais ${A.length - 8} boletos` : ''}\nTotal: ${fmtMoneyC(tot)}.\n\nPodemos te ajudar a regularizar? Se for melhor, combinamos um acordo. Se já pagou, desconsidere esta mensagem e, por favor, nos envie o comprovante. Obrigado!`;
-  waDialog('Cobrar no WhatsApp', `${A.length} boleto${A.length === 1 ? '' : 's'} em atraso · ${fmtMoneyC(tot)}`, pe && pe.telefone, txt, '', 'cobrança');
+  waDialog('Cobrar no WhatsApp', `${A.length} boleto${A.length === 1 ? '' : 's'} em atraso · ${fmtMoneyC(tot)}`, pe && pe.telefone, txt, '', 'cobrança', null, voltar);
   uso('clique', 'cobrança: abriu', { pessoa_id:pid });
 }
 let WA_PROMOS = null;
-async function waOferta(pid, dados){
+async function waOferta(pid, dados, voltar){
   const c = dados.cliente || {}, P = (dados.produtos || []).slice(0, 3), R = dados.rt;
   if(!WA_PROMOS){ const { data } = await sb.rpc('crm_promocoes_lista'); WA_PROMOS = (data || []).filter(x=> x.situacao === 'ativa'); }
   const cods = new Set(P.map(p=> String(p.code)));
@@ -10328,7 +10335,7 @@ async function waOferta(pid, dados){
   const prods = P.map(p=> p.name).filter(Boolean);
   const txt = `Olá${nome ? ', ' + nome : ''}! Tudo bem? Aqui é ${eu ? 'o(a) ' + eu + ', ' : ''}da Synthetic Lubrificantes.\n\nFaz um tempinho que vocês não compram com a gente${prods.length ? ` o ${prods.slice(0, 2).join(' e o ')}` : ''} e eu queria saber como estão as coisas por aí.${linhaPromo}\n\nPosso te mandar um orçamento?`;
   const aviso = R && (Number(R.vencido) > 0 || R.ligado_forca >= 2) ? `<b>Atenção:</b> ${escapeHtml(Number(R.vencido) > 0 ? 'este cliente tem boleto em atraso (' + R.motivo + ')' : 'este cliente parece ser do mesmo dono de quem deve')}. Combine com o financeiro antes de vender a prazo.` : '';
-  waDialog('Mandar oferta no WhatsApp', `${c.dias_sem_comprar != null ? 'Parado há ' + fmtNum(c.dias_sem_comprar) + ' dias · ' : ''}${prods.length ? 'comprava ' + prods.join(', ') : ''}`, c.telefone, txt, aviso, 'oferta');
+  waDialog('Mandar oferta no WhatsApp', `${c.dias_sem_comprar != null ? 'Parado há ' + fmtNum(c.dias_sem_comprar) + ' dias · ' : ''}${prods.length ? 'comprava ' + prods.join(', ') : ''}`, c.telefone, txt, aviso, 'oferta', null, voltar);
   uso('clique', 'oferta: abriu', { pessoa_id:pid });
 }
 
@@ -10350,12 +10357,16 @@ async function clDetalhe(pid, nav){
     const mx = Math.max(1, ...M.map(m=> Number(m.valor) || 0));
     const B = dados.bol || [], R = dados.rt, atr = B.filter(b=> b.situacao === 'em atraso');
     const abas = { prod:`Produtos que comprava (${P.length})`, ped:`Últimos pedidos (${Q.length})`, bol:`Boletos${atr.length ? ' · ' + atr.length + ' em atraso' : ''} (${B.length})`, crm:`Registros no CRM (${A.length})` };
-    let h = (R && Number(R.vencido) > 0 ? `<div class="tb-aviso"><b>Cliente com boleto em atraso</b> (nota ${R.nota ?? '—'} de 10): ${escapeHtml(R.motivo)}. Antes de vender a prazo, combine com o financeiro.</div>` : '')
-      + (R && R.bloqueado ? `<div class="tb-aviso"><b>No Fácil123, este cliente está com o limite de crédito em "Bloquear"</b>${R.limite_credito ? ' (limite de ' + fmtMoney(R.limite_credito) + ')' : ''}. Confirme com o financeiro antes de vender.</div>` : '')
-      + (R && R.obs_restricao ? `<div class="tb-aviso"><b>Observação no cadastro do Fácil123:</b> ${escapeHtml(R.obs_restricao)}</div>` : '')
-      + (R && R.ligado_devedor ? `<div class="tb-aviso"><b>Pode ser o mesmo dono de quem está devendo${R.ligado_forca < 2 ? ' (só nome parecido: confira antes)' : ''}:</b> ${escapeHtml(R.ligado_devedor)}. Confirme com o financeiro antes de vender a prazo.</div>` : '')
+    // um quadro só "Antes de vender a prazo" (05/11, conselho de design: até 6 caixas laranja empilhadas viravam ruído); vermelho se há atraso
+    const avisos = [
+      R && Number(R.vencido) > 0 ? `<b>Boleto em atraso</b> (nota ${R.nota ?? '—'} de 10): ${escapeHtml(R.motivo)}.` : '',
+      R && R.ligado_devedor ? `<b>Pode ser o mesmo dono de quem está devendo${R.ligado_forca < 2 ? ' (só nome parecido: confira)' : ''}:</b> ${escapeHtml(R.ligado_devedor)}.` : '',
+      R && R.bloqueado ? `<b>Limite de crédito em "Bloquear" no Fácil123</b>${R.limite_credito ? ' (limite de ' + fmtMoney(R.limite_credito) + ')' : ''}.` : '',
+      R && R.obs_restricao ? `<b>Observação no cadastro do Fácil123:</b> ${escapeHtml(R.obs_restricao)}` : '',
+      (dados.mud || []).length ? `<b>O endereço do cadastro mudou${dados.mud.length > 1 ? ' ' + dados.mud.length + ' vezes' : ''}:</b> ${dados.mud.slice(0, 2).map(m=> `em ${fmtDate(String(m.em).slice(0, 10))}, de "${escapeHtml(m.antes || '—')}" para "${escapeHtml(m.depois || '—')}"`).join('; ')}.` : ''].filter(Boolean);
+    const grave = R && (Number(R.vencido) > 0 || R.ligado_forca >= 2);
+    let h = (avisos.length ? `<div class="tb-aviso" style="${grave ? 'border-left:4px solid var(--red);background:var(--red-soft)' : ''}"><b>Antes de vender a prazo, combine com o financeiro:</b><ul style="margin:4px 0 0;padding-left:18px">${avisos.map(t=> `<li>${t}</li>`).join('')}</ul></div>` : '')
       + (dados.rede ? `<div class="tb-aviso" style="background:var(--surface-2)"><b>Parou nesta loja, mas a rede ainda compra:</b> ${dados.rede.lojas} outra${dados.rede.lojas > 1 ? 's lojas' : ' loja'} com a mesma raiz de CNPJ comprou${dados.rede.valor_90d != null ? ' ' + fmtMoney(dados.rede.valor_90d) : ''} nos últimos 90 dias (a última em ${fmtDate(dados.rede.ultima_compra)}${dados.rede.exemplo ? ', ' + escapeHtml(dados.rede.exemplo) : ''}). Pode ser que a compra só tenha mudado de CNPJ.</div>` : '')
-      + ((dados.mud || []).length ? `<div class="tb-aviso"><b>O endereço do cadastro mudou${dados.mud.length > 1 ? ' ' + dados.mud.length + ' vezes' : ''}:</b> ${dados.mud.slice(0, 2).map(m=> `em ${fmtDate(String(m.em).slice(0, 10))}, de "${escapeHtml(m.antes || '—')}" para "${escapeHtml(m.depois || '—')}"`).join('; ')}.</div>` : '')
       + `<div class="cl-acoes" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="om-cancel" id="cl-ficha" title="Ficha do cliente: registrar ligação ou visita, próxima ação, funil, propostas e histórico">📝 Registrar contato · ficha completa</button><button class="om-save" id="cl-oferta" title="Mensagem pronta com o que ele comprava e a promoção ativa, para mandar pelo seu WhatsApp">📲 Mandar oferta no WhatsApp</button>${atr.length && ehGestao() ? '<button class="om-cancel" id="cl-cobrar" title="Mensagem pronta com os boletos em atraso, para o financeiro mandar pelo WhatsApp">💬 Cobrar no WhatsApp</button>' : ''}</div>`
       + `<div class="cl-fatos">
         <span>Nota de pagamento ${R ? rtSelo(R) + ' <b>' + escapeHtml(R.motivo || '') + '</b>' : '<b>sem boletos nas empresas que faturam</b>'}</span>
@@ -10383,9 +10394,9 @@ async function clDetalhe(pid, nav){
     h += `<div class="tb-rodape">Vendas da Synthetic pela mesma regra das outras telas. "Tab." usa a tabela de preços de hoje: pedidos antigos podem aparecer mais baixos se a tabela subiu depois.</div>`;
     corpo.innerHTML = h;
     corpo.querySelectorAll('[data-cla]').forEach(b=> b.addEventListener('click', ()=>{ aba = b.dataset.cla; pinta(); }));
-    corpo.querySelector('#cl-oferta')?.addEventListener('click', ()=> waOferta(atual, dados));
+    corpo.querySelector('#cl-oferta')?.addEventListener('click', ()=> waOferta(atual, dados, ()=> clDetalhe(atual, nav)));
     corpo.querySelector('#cl-ficha')?.addEventListener('click', ()=>{ dlgClose(); goToPersonView(atual); });
-    corpo.querySelector('#cl-cobrar')?.addEventListener('click', ()=> waCobrar(atual));
+    corpo.querySelector('#cl-cobrar')?.addEventListener('click', ()=> waCobrar(atual, ()=> clDetalhe(atual, nav)));
   };
   const carrega = async id=>{
     atual = id; const meu = ++seq, i = nav ? nav.ids.indexOf(id) : -1;
@@ -10704,7 +10715,7 @@ async function fiRelatorios(host){
     <div class="cm-resumo" style="margin:12px 0 4px">${FR.nvend ? 'Clientes novos de ' + escapeHtml(FR.nvend) : 'Todos os clientes novos'} (${fmtNum(C.length)})</div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th class="n">Primeira compra</th><th class="n">Valor da primeira</th><th class="n">No período</th><th class="n">Pedidos</th><th>Vendedor da primeira</th><th>Vendedor hoje</th></tr></thead>
     <tbody>${C.slice(0, 400).map(r=> `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" data-uso-linha="cliente novo" ${r.pessoa_id ? `data-pid="${r.pessoa_id}"` : ''}><td class="prod">${escapeHtml(r.cliente || '')}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td class="n">${fmtDate(r.dia)}</td><td class="n">${fmtMoney(r.primeira)}</td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.pedidos}</td><td>${escapeHtml(nomeV(r.vendedor))}</td><td class="${r.vendedor_atual && r.vendedor_atual !== r.vendedor ? 'cm-pend' : ''}">${escapeHtml(nomeV(r.vendedor_atual))}</td></tr>`).join('') || '<tr><td colspan="8" class="vazio">Nenhum cliente.</td></tr>'}</tbody></table></div>
-    <div class="tb-rodape">Cliente novo = primeira venda faturada do cliente cai no período, pela mesma regra das outras telas; o crédito é de quem fez essa primeira venda. Cliente que só foi transferido de um vendedor para outro não conta, e cadastro sem venda também não. As notas da Torre começam em outubro/2024: quem comprou antes disso e ficou mais de um ano parado aparece como novo. O tempo entre o cadastro e a primeira venda depende da data de cadastro, que a leitura do Fácil123 ainda não traz.</div>`;
+    <div class="tb-rodape"><details class="tb-como"><summary>ⓘ Como é calculado</summary>Cliente novo = primeira venda faturada do cliente cai no período, pela mesma regra das outras telas; o crédito é de quem fez essa primeira venda. Cliente que só foi transferido de um vendedor para outro não conta, e cadastro sem venda também não. As notas da Torre começam em outubro/2024: quem comprou antes disso e ficou mais de um ano parado aparece como novo. O tempo entre o cadastro e a primeira venda depende da data de cadastro, que a leitura do Fácil123 ainda não traz.</details></div>`;
   liga();
   host.querySelector('#fr-per').addEventListener('change', e=>{ FR.per = e.target.value; FR.nvend = ''; fiRelatorios(host); });
   host.querySelector('#fr-nv-limpa')?.addEventListener('click', ()=>{ FR.nvend = ''; fiRelatorios(host); });
@@ -10775,7 +10786,7 @@ async function fiInadimplencia(host){
       <td class="prod">${escapeHtml(r.cliente || r.cnpj)}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.empresas || '')}</td>
       <td class="n">${Number(r.em_atraso) ? '<b>' + fmtMoney(r.em_atraso) + '</b>' : '—'}</td><td class="n">${r.boletos_atraso || '—'}</td><td class="n ${d > 30 ? 'cm-pend' : ''}">${d != null ? d + ' dias' : '—'}</td>
       <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td><td class="n">${x ? rtSelo(x) : ''}</td><td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
-    <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados. Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</div>`;
+    <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</details></div>`;
   const re = ()=> fiInadimplencia(host);
   host.querySelectorAll('[data-fifx]').forEach(b=> b.addEventListener('click', ()=>{ FI.faixa = FI.faixa === b.dataset.fifx ? '' : b.dataset.fifx; if(FI.faixa) FI.mostra = 'atraso'; re(); }));
   host.querySelector('#fi-mostra').addEventListener('change', e=>{ FI.mostra = e.target.value; if(FI.mostra !== 'atraso') FI.faixa = ''; re(); });
@@ -10972,7 +10983,7 @@ async function esPlano(box, host, nome){
         ${L.map(c=> `<tr><td><input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}></td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td><small>${escapeHtml(prodTxt(c))}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
     <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes)</div>
     <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-rota" title="Salva e abre o roteiro da semana deste plano, por cidade e bairro">🗺 Ver o roteiro</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
     <div class="tb-rodape">Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra. Um cliente que já está no plano de outro vendedor nesta semana também não. Clique no nome para ver o detalhe do cliente.</div>`;
   const re = ()=> esPlano(box, host, nome);
   box.querySelectorAll('[data-esq]').forEach(i=> i.addEventListener('change', ()=>{ ESP.qtd[i.dataset.esq] = Math.max(0, Math.min(15, Number(i.value) || 0)); }));
@@ -10988,6 +10999,9 @@ async function esPlano(box, host, nome){
     ESP.plano = { ...ESP.plano, id, itens, mensagem }; return id; };
   const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-msg').value); showToast('Mensagem copiada: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie a mensagem:', box.querySelector('#es-msg').value); } };
   box.querySelector('#es-salva').addEventListener('click', async ()=>{ if(await salvar()){ showToast('Plano salvo.'); esVendedor(host); } });
+  box.querySelector('#es-rota').addEventListener('click', async ()=>{ if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; } if(!(await salvar())) return;
+    Object.assign(RO, { aba:'roteiro', sid:ESP.vend.id, nome:ESP.vend.nome, fonte:'plano', semana:ESP.semana, rows:null });
+    const b = document.querySelector('#rail .nav-btn[data-view="rota"]'); if(b) b.click(); });
   box.querySelector('#es-copia').addEventListener('click', copia);
   box.querySelector('#es-envia').addEventListener('click', async ()=>{
     if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
@@ -11063,6 +11077,86 @@ async function esAcompanha(box, host, nome){
     if(er){ showToast(errAmigavel(er)); return; }
     showToast(`Próxima segunda criada com ${falta.length} pendente${falta.length === 1 ? '' : 's'}: ajuste e complete com clientes novos.`);
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
+}
+
+// ---------- ROTEIRIZAÇÃO (05/11/2026, primeira versão: sem mapa e sem mandar endereço para fora) ----------
+// Roteiro da semana: os clientes de uma fonte (plano do Especialista, parados, em risco, carteira) agrupados por cidade e bairro e
+// distribuídos de segunda a sexta, sem misturar cidades num dia quando dá. Área: em quantas cidades cada vendedor atende (espalhado ou concentrado).
+const RO = { aba:'roteiro', sid:null, nome:'', fonte:'parados', semana:null, porDia:8, rows:null, de:'', area:null };
+const RO_FONTES = { plano:'Plano do Especialista na semana', parados:'Parados de 91 dias a 1 ano', risco:'Em risco', carteira:'Carteira toda (com compra)' };
+const RO_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+function roDistribui(L, porDia){
+  // ordem: cidade com mais clientes primeiro, depois bairro e rua; abre dia novo quando enche ou quando a cidade muda com o dia já pela metade
+  const cid = r=> ((r.cidade || '?') + '/' + (r.uf || '')).toUpperCase(), cont = {};
+  L.forEach(r=>{ cont[cid(r)] = (cont[cid(r)] || 0) + 1; });
+  const ord = L.slice().sort((a, b)=> (cont[cid(b)] - cont[cid(a)]) || cid(a).localeCompare(cid(b)) || String(a.bairro || '').localeCompare(String(b.bairro || ''), 'pt-BR') || String(a.logradouro || '').localeCompare(String(b.logradouro || ''), 'pt-BR'));
+  const dias = [[]];
+  ord.forEach(r=>{ const d = dias[dias.length - 1], ult = d[d.length - 1];
+    if(d.length >= porDia || (ult && cid(ult) !== cid(r) && d.length >= porDia / 2)) dias.push([]);
+    dias[dias.length - 1].push(r); });
+  return dias.filter(d=> d.length);
+}
+async function renderRota(){
+  const host = document.getElementById('ro'); if(!host) return;
+  const g = ehGestao(), admin = perfilEfetivo() === 'admin';
+  if(!RO.semana) RO.semana = esSegunda(new Date());
+  if(!g){ RO.sid = window._perfil && window._perfil.seller_id; RO.aba = 'roteiro'; if(RO.fonte === 'plano') RO.fonte = 'plano'; }
+  if(g && !RO.area){ const { data } = await sb.rpc('crm_rota_area'); RO.area = data || []; }
+  if(g && !RO.sid && RO.area.length){ RO.sid = RO.area[0].seller_id; RO.nome = RO.area[0].vendedor; }
+  const abas = g ? `<div class="cm-abas"><button class="cm-aba ${RO.aba === 'roteiro' ? 'on' : ''}" data-roa="roteiro">Roteiro da semana</button><button class="cm-aba ${RO.aba === 'area' ? 'on' : ''}" data-roa="area">Área de cada vendedor</button></div>` : '';
+  const liga = ()=> host.querySelectorAll('[data-roa]').forEach(b=> b.addEventListener('click', ()=>{ RO.aba = b.dataset.roa; renderRota(); }));
+  if(RO.aba === 'area'){
+    const A = RO.area || [];
+    host.innerHTML = abas + `<div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Clientes com compra</th><th class="n">Cidades</th><th class="n">Estados</th><th class="n" title="Quanto as 5 cidades que mais compram pesam nas vendas de 12 meses do vendedor">5 principais cidades</th><th>Principais cidades</th><th>Leitura</th></tr></thead>
+      <tbody>${A.map(r=>{ const esp = r.cidades > 40 || Number(r.pct_top5) < .5;
+        return `<tr class="vd-lin" data-rosid="${r.seller_id}" data-ronome="${escapeHtml(r.vendedor)}" title="Montar o roteiro de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n">${fmtNum(r.clientes)}</td><td class="n">${fmtNum(r.cidades)}</td><td class="n">${r.ufs}</td><td class="n">${Math.round(Number(r.pct_top5) * 100)}%</td><td><small>${escapeHtml(r.principais || '')}</small></td>
+          <td>${esp ? '<span class="rt rt-C">espalhado</span>' : '<span class="rt rt-A">concentrado</span>'}</td></tr>`; }).join('') || '<tr><td colspan="7" class="vazio">Nenhum vendedor ativo.</td></tr>'}</tbody></table></div>
+      <div class="tb-rodape">Espalhado = mais de 40 cidades ou as 5 principais cidades com menos da metade das vendas: muito deslocamento para pouca venda por visita. Vale juntar clientes por região entre vendedores (o Especialista já sugere clientes sem vendedor nas cidades de cada um).</div>`;
+    liga(); host.querySelectorAll('[data-rosid]').forEach(tr=> tr.addEventListener('click', ()=>{ RO.sid = Number(tr.dataset.rosid); RO.nome = tr.dataset.ronome; RO.aba = 'roteiro'; RO.rows = null; renderRota(); }));
+    return;
+  }
+  if(!RO.sid){ host.innerHTML = abas + '<div class="tb-aviso">Seu usuário ainda não está ligado a um vendedor do Fácil123. Peça ao administrador em Acessos.</div>'; liga(); return; }
+  const chave = [RO.sid, RO.fonte, RO.semana].join('|');
+  if(!RO.rows || RO.de !== chave){
+    host.innerHTML = abas + '<div class="tb-rodape">Montando o roteiro…</div>'; liga();
+    const { data, error } = await sb.rpc('crm_rota_clientes', { p_seller:RO.sid, p_fonte:RO.fonte, p_semana:RO.semana });
+    if(error){ host.innerHTML = abas + `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; liga(); return; }
+    RO.rows = data || []; RO.de = chave;
+  }
+  const dias = roDistribui(RO.rows, RO.porDia), nomeV = RO.nome ? nomeBonito(RO.nome) : 'você';
+  const end = r=> [[r.logradouro, r.numero].filter(Boolean).join(', '), r.bairro].filter(Boolean).join(' · ');
+  const cidDia = d=> [...new Set(d.map(r=> nomeBonito(r.cidade || '?')))].join(', ');
+  const copia = ()=> `*Roteiro da semana${RO.nome ? ' · ' + nomeV : ''}* (${esDM(RO.semana)} a ${esDM(esDia(RO.semana, 4))})\n` + dias.map((d, i)=> `\n*${RO_DIAS[i] || 'Dia ' + (i + 1)} · ${cidDia(d)}*\n` + d.map((r, j)=> `${j + 1}. ${r.nome}${end(r) ? ' — ' + end(r) : ''}${r.telefone ? ' · ' + r.telefone : ''}`).join('\n')).join('\n');
+  const sobra = dias.length > 5 ? dias.slice(5).reduce((t, d)=> t + d.length, 0) : 0;
+  host.innerHTML = abas + `
+    <div class="tb-bar">
+      ${g ? `<select id="ro-vend" aria-label="Vendedor">${(RO.area || []).map(r=> `<option value="${r.seller_id}" ${r.seller_id === RO.sid ? 'selected' : ''}>${escapeHtml(nomeBonito(r.vendedor))}</option>`).join('')}</select>` : ''}
+      <select id="ro-fonte" aria-label="Quais clientes">${Object.entries(RO_FONTES).filter(([k])=> k !== 'plano' || admin || !g).map(([k, t])=> `<option value="${k}" ${RO.fonte === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <label style="font-size:13px">Visitas por dia <input id="ro-pd" inputmode="numeric" value="${RO.porDia}" style="width:44px"></label>
+      <span class="tb-esp"></span><button class="om-cancel" id="ro-csv">Exportar</button><button class="om-save" id="ro-copia" title="Copiar o roteiro para mandar no WhatsApp">Copiar roteiro</button>
+    </div>
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Clientes no roteiro</small><b>${fmtNum(RO.rows.length)}</b><span>${escapeHtml(RO_FONTES[RO.fonte])}</span></div>
+      <div class="tb-kpi"><small>Dias de visita</small><b>${dias.length}</b><span>com até ${RO.porDia} visitas por dia${sobra ? ` · ${sobra} ficam para a semana seguinte` : ''}</span></div>
+      <div class="tb-kpi"><small>Cidades</small><b>${new Set(RO.rows.map(r=> (r.cidade || '') + r.uf)).size}</b><span>${RO.rows.filter(r=> !r.logradouro).length} clientes sem endereço no cadastro</span></div>
+    </div>
+    ${dias.slice(0, 5).map((d, i)=> `<div class="cm-resumo" style="margin:12px 0 4px"><b>${RO_DIAS[i]}</b> · ${escapeHtml(cidDia(d))} · ${d.length} cliente${d.length === 1 ? '' : 's'}</div>
+      <div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Cliente</th><th>Endereço</th><th>Cidade</th><th>Telefone</th><th>Por quê</th><th class="n">Comprou em 12 meses</th></tr></thead><tbody>
+      ${d.map((r, j)=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente roteiro"><td class="n">${j + 1}</td><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span></td><td>${escapeHtml(end(r))}</td><td>${escapeHtml(nomeBonito(r.cidade || ''))}${r.uf ? '/' + escapeHtml(r.uf) : ''}</td><td>${escapeHtml(r.telefone || '')}</td><td><small>${escapeHtml(r.motivo || '')}</small></td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td></tr>`).join('')}</tbody></table></div>`).join('') || `<div class="tb-aviso">Nenhum cliente nesta fonte${RO.fonte === 'plano' ? ': o plano desta semana ainda não foi montado no Especialista' : ''}.</div>`}
+    <div class="tb-rodape">Agrupado por cidade e bairro, a cidade com mais clientes primeiro. Clique num cliente para ver tudo sobre ele.<details class="tb-como"><summary>ⓘ Como é montado</summary>O roteiro abre um dia novo quando enche as visitas do dia, ou quando a cidade muda e o dia já tem metade das visitas. O mapa com a ordem das visitas entra quando as coordenadas dos endereços forem ligadas.</details></div>`;
+  liga();
+  const re = ()=>{ RO.rows = null; renderRota(); };
+  host.querySelector('#ro-vend')?.addEventListener('change', e=>{ RO.sid = Number(e.target.value); RO.nome = e.target.options[e.target.selectedIndex].text; re(); });
+  host.querySelector('#ro-fonte').addEventListener('change', e=>{ RO.fonte = e.target.value; re(); });
+  host.querySelector('#ro-pd').addEventListener('change', e=>{ RO.porDia = Math.max(1, Math.min(30, Number(e.target.value) || 8)); renderRota(); });
+  const ids = dias.flat().map(r=> r.pessoa_id), nav = { ids, nomes:Object.fromEntries(RO.rows.map(r=> [r.pessoa_id, r.nome])) };
+  host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', ()=> clDetalhe(tr.dataset.pid, nav)));
+  host.querySelector('#ro-copia').addEventListener('click', async ()=>{ const t = copia(); try{ await navigator.clipboard.writeText(t); showToast('Roteiro copiado: cole no WhatsApp.'); }catch(_){ prompt('Copie o roteiro:', t); } uso('clique', 'rota: copiar'); });
+  host.querySelector('#ro-csv').addEventListener('click', ()=>{
+    csvDownload([['Dia', 'Ordem', 'Cliente', 'Endereço', 'Número', 'Bairro', 'Cidade', 'UF', 'CEP', 'Telefone', 'Por quê', 'Comprou em 12 meses']]
+      .concat(dias.flatMap((d, i)=> d.map((r, j)=> [RO_DIAS[i] || 'Semana seguinte', j + 1, r.nome, r.logradouro, r.numero, r.bairro, r.cidade, r.uf, r.cep, r.telefone, r.motivo, Number(r.fat_12m || 0).toFixed(2).replace('.', ',')]))),
+      'roteiro-' + RO.semana + '.csv'); uso('clique', 'rota: exportar');
+  });
 }
 
 // ---------- PRAZO MÉDIO POR VENDEDOR E POR GERÊNCIA (prioridade 3 do CEO, 27/10/2026) ----------
