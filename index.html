@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-214000">
+<meta name="crm-versao" content="20261105-214533">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11006,7 +11006,7 @@ const ES_EST = {
   orfao:{ t:'Clientes sem vendedor ou de quem saiu', c:'na sua região, da carteira de vendedor que não vende mais ou sem vendedor', q:4 },
   risco:{ t:'Em risco', c:'clientes seus que passaram do ciclo normal de compra', q:1 },
   prospect:{ t:'Clientes novos na região', c:'cadastrados nas suas cidades e que nunca compraram', q:2 } };
-const ESP = { semana:null, vend:null, aba:'plano', cand:null, sel:null, qtd:null, plano:null, res:null };
+const ESP = { semana:null, vend:null, aba:'plano', cand:null, sel:null, ctrl:new Set(), qtd:null, plano:null, res:null };
 const esSegunda = d=>{ const x = new Date(d); x.setHours(12, 0, 0, 0); const w = x.getDay(); x.setDate(x.getDate() - (w === 0 ? 6 : w - 1)); return x.toISOString().slice(0, 10); };
 const esDia = (iso, n)=>{ const x = new Date(iso + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
 const esDM = iso=> fmtDate(iso).slice(0, 5);
@@ -11029,36 +11029,34 @@ function esInteligenciaHtml(I){
     const varp = Number(v.v90a) > 0 ? Number(v.v90) / Number(v.v90a) - 1 : null;
     if(varp != null && varp < -0.2) S.push([Number(v.v90a) - Number(v.v90), '📉', `<b>${nm(v.vendedor)}</b> vendeu ${Math.round(-varp * 100)}% menos nos últimos 90 dias (${fmtMoney(v.v90)} contra ${fmtMoney(v.v90a)}). Converse com ele esta semana e monte o plano com mais reativação: tem ${fmtNum(v.parados)} parados que compravam ${fmtMoney(v.parados_valor)} em 12 meses.`]);
     else if(Number(v.parados) >= 30) S.push([Number(v.parados_valor) * .1, '🔁', `<b>${nm(v.vendedor)}</b> tem ${fmtNum(v.parados)} clientes parados que compravam ${fmtMoney(v.parados_valor)} em 12 meses: dê a ele 5 ou mais reativações por semana.`]);
-    if(v.tabela_media != null && Number(v.tabela_media) < 2.3) S.push([Number(v.v90) * .02, '🏷️', `<b>${nm(v.vendedor)}</b> vende na tabela média ${String(v.tabela_media).replace('.', ',')}, abaixo da meta de 2,3: oriente a usar bonificação em produto no lugar de desconto.`]);
-    if(v.prazo_medio != null && Number(v.prazo_medio) > 60) S.push([Number(v.v90) * .01, '⏳', `<b>${nm(v.vendedor)}</b> vende com prazo médio de ${Math.round(v.prazo_medio)} dias, acima da meta de 60.`]);
     if(v.plano_ant_itens && v.plano_ant_compraram === 0) S.push([5e3, '🧭', `O plano da semana passada de <b>${nm(v.vendedor)}</b> não trouxe nenhuma compra (${v.plano_ant_itens} clientes): mude a estratégia dele, por exemplo mais clientes da própria carteira e menos sem vendedor.`]);
   });
   (I.orfaos || []).slice(0, 3).forEach(o=> S.push([Number(o.fat_12m) * .2, '👥', `<b>${fmtNum(o.clientes)} clientes de ${o.vendedor === 'Sem vendedor' ? 'ninguém (sem vendedor)' : nm(o.vendedor) + ', que não vende mais'}</b> compraram ${fmtMoney(o.fat_12m)} em 12 meses: distribua entre os vendedores das mesmas cidades (eles já entram na estratégia "sem vendedor").`]));
   const semPlano = V.filter(v=> !v.tem_plano).length;
-  const top = S.sort((a, b)=> b[0] - a[0]).slice(0, 8);
+  const top = S.sort((a, b)=> b[0] - a[0]).slice(0, 5);   // só o que muda o plano da semana (conselho de produto, 05/11)
   const C = I.catalogo || {}, sp = I.semana_passada || {};
   return `<details class="cm-recado" open style="margin:8px 0 12px"><summary><b>🧠 O que fazer esta semana</b> · ${top.length} sugestões pelos números${semPlano ? ` · ${semPlano} vendedores ainda sem plano` : ''}</summary>
     <ol class="cm-recado-txt" style="padding-left:20px;margin:6px 0">${top.map(([, ic, t])=> `<li style="margin:4px 0">${ic} ${t}</li>`).join('') || '<li>Nada fora do esperado nos números desta semana.</li>'}
-      ${C.vendidos_12m ? `<li style="margin:4px 0">📦 <b>Catálogo:</b> ${fmtNum(C.faz_80)} produtos fazem 80% das vendas; ${fmtNum(C.vendidos_12m)} venderam em 12 meses e ${fmtNum(C.sem_venda_12m)} dos ${fmtNum(C.cadastrados_ativos)} cadastrados ativos não venderam nada. Proposta: um catálogo enxuto com os que vendem e "sob encomenda" para o resto. <a href="#" id="es-cauda">Ver os ${(C.cauda || []).length} de menor venda</a></li>` : ''}
       ${sp.planos ? `<li style="margin:4px 0">📊 <b>Semana passada:</b> ${sp.planos} planos, ${sp.itens} clientes, <b>${sp.compraram} compraram</b> (${sp.itens ? Math.round(100 * sp.compraram / sp.itens) : 0}%). O efeito medido contra o grupo de controle está no quadro acima.</li>` : ''}
-    </ol><div class="tb-rodape" style="margin:0">Sugestões por regra (queda de venda, parados, tabela média, prazo, carteira sem dono, resultado da semana passada, catálogo). A varredura com IA, que propõe estratégias diferentes toda semana, entra quando a chave de IA estiver ligada.</div></details>`;
+    </ol><div class="tb-rodape" style="margin:0">Sugestões por regra (queda de venda, parados, carteira sem dono e resultado da semana passada). Tabela média, prazo e catálogo têm telas próprias. A varredura com IA, que propõe estratégias diferentes toda semana, entra quando a chave de IA estiver ligada.</div></details>`;
 }
 // Resultado do Especialista (prova para a participação nas vendas): plano contra grupo de controle, 30 dias a partir de cada segunda
 function esEfeitoResumo(E){
-  const L = (E || []).filter(e=> e.efeito != null), hoje = new Date().toISOString().slice(0, 10);
+  const L = (E || []).filter(e=> e.efeito != null);
   if(!L.length) return null;
-  const fech = L.filter(e=> esDia(String(e.semana).slice(0, 10), 30) <= hoje);
+  const fech = L.filter(e=> e.fechado);
   const pn = L.reduce((t, e)=> t + e.plano_n, 0), pc = L.reduce((t, e)=> t + e.plano_compraram, 0), cn = L.reduce((t, e)=> t + e.controle_n, 0), cc = L.reduce((t, e)=> t + e.controle_compraram, 0);
   return { total:L.reduce((t, e)=> t + Number(e.efeito), 0), fechado:fech.reduce((t, e)=> t + Number(e.efeito), 0), desde:String(L[0].semana).slice(0, 10), semanas:L.length, fechadas:fech.length,
-    taxaP:pn ? pc / pn : 0, taxaC:cn ? cc / cn : 0, pn, cn };
+    taxaP:pn ? pc / pn : 0, taxaC:cn ? cc / cn : 0, pn, cn, cnF:fech.reduce((t, e)=> t + e.controle_n, 0) };
 }
+const ES_CONCLUSIVO = 150;   // clientes no controle, em semanas fechadas, para o número valer como prova
 function esEfeitoHtml(E){
   const r = esEfeitoResumo(E);
   if(!r) return `<div class="tb-rodape" style="margin:4px 0 10px">📏 <b>Prova do resultado:</b> cada plano salvo separa um grupo de controle (clientes parecidos que não vão para o vendedor). Depois da primeira semana enviada, aqui aparece quanto o plano vendeu a mais que o controle: é o número para combinar a participação nas vendas.</div>`;
   return `<div class="tb-kpis" style="margin:6px 0 10px">
-    <div class="tb-kpi ${r.total > 0 ? 'rs-kpi-ok' : 'alerta'}"><small>Efeito do Especialista desde ${esDM(r.desde)}</small><b>${fmtMoney(r.total)}</b><span>vendido a mais que o grupo de controle, em ${r.semanas} semana${r.semanas === 1 ? '' : 's'}${r.fechadas < r.semanas ? ` (${r.semanas - r.fechadas} ainda dentro dos 30 dias)` : ''}</span></div>
-    <div class="tb-kpi"><small>Voltaram a comprar em 30 dias</small><b>${Math.round(r.taxaP * 100)}% × ${Math.round(r.taxaC * 100)}%</b><span>plano (${r.pn} clientes) contra controle (${r.cn} clientes)</span></div>
-    <div class="tb-kpi"><small>0,3% sobre o efeito (referência)</small><b>${fmtMoney(r.total * .003)}</b><span>e ${fmtMoney(r.total * .01)} a 1%</span></div></div>`;
+    <div class="tb-kpi ${r.cnF >= ES_CONCLUSIVO ? (r.fechado > 0 ? 'rs-kpi-ok' : 'alerta') : ''}"><small>Efeito do Especialista (semanas fechadas)</small><b>${r.cnF >= ES_CONCLUSIVO ? fmtMoney(r.fechado) : 'medindo'}</b><span>${r.fechadas} semana${r.fechadas === 1 ? '' : 's'} com os 30 dias completos${r.fechadas < r.semanas ? `, ${r.semanas - r.fechadas} em andamento` : ''} · controle com ${r.cnF} clientes; vale como prova a partir de ${ES_CONCLUSIVO}</span></div>
+    <div class="tb-kpi"><small>Voltaram a comprar em 30 dias</small><b>${Math.round(r.taxaP * 100)}% × ${Math.round(r.taxaC * 100)}%</b><span>plano (${r.pn} clientes) contra controle (${r.cn} clientes)</span></div></div>
+    <div class="tb-rodape" style="margin:0 0 10px">Efeito = (quanto cada cliente do plano comprou em 30 dias acima da própria média mensal − o mesmo no controle) × clientes do plano. Cada cliente conta uma vez, na primeira semana em que foi enviado; o controle é sorteado em trios entre clientes do mesmo tamanho.</div>`;
 }
 async function renderEspecialista(){
   const host = document.getElementById('es'); if(!host) return;
@@ -11115,6 +11113,25 @@ async function esVendedor(host){
   if(ESP.aba === 'plano' || !tem){ if(!tem && ESP.aba !== 'plano'){ ESP.aba = 'plano'; return esVendedor(host); } return esPlano(box, host, nome); }   // sem plano salvo, quarta e sexta não têm o que mostrar
   return esAcompanha(box, host, nome);
 }
+// Seleção com grupo de controle honesto: para cada estratégia, os primeiros (por valor em jogo) são divididos em trios na ordem; em cada trio
+// um vai para o controle por sorteio e os outros dois para o plano. Assim plano e controle têm clientes do mesmo tamanho. Nota de pagamento
+// abaixo de 4 não entra na pré-seleção (dá para marcar na mão, e a mensagem avisa "só à vista"). Com o controle já gravado, ele não muda.
+function esSorteia(){
+  const fixo = (ESP.plano.controle || []).length > 0;
+  ESP.sel = new Set(); if(!fixo) ESP.ctrl = new Set();
+  Object.keys(ES_EST).forEach(k=>{
+    const q = ESP.qtd[k] || 0; if(!q) return;
+    const L = ESP.cand.filter(c=> c.estrategia === k && !(c.nota != null && c.nota < 4) && !ESP.sel.has(c.pessoa_id) && !(fixo && ESP.ctrl.has(c.pessoa_id)));
+    if(fixo){ L.slice(0, q).forEach(c=> ESP.sel.add(c.pessoa_id)); return; }
+    const top = L.slice(0, Math.round(q / .7));
+    for(let i = 0; i < top.length; i += 3){
+      const g = top.slice(i, i + 3);
+      if(g.length < 2){ g.forEach(c=> ESP.sel.add(c.pessoa_id)); continue; }
+      const sorteado = g[Math.floor(Math.random() * g.length)];
+      g.forEach(c=> (c === sorteado ? ESP.ctrl : ESP.sel).add(c.pessoa_id));
+    }
+  });
+}
 async function esPlano(box, host, nome){
   const V = ESP.vend, P = ESP.plano;
   if(!ESP.cand){
@@ -11126,52 +11143,58 @@ async function esPlano(box, host, nome){
     const ids = new Set(ESP.cand.map(c=> c.pessoa_id));
     (P.itens || []).filter(i=> !ids.has(i.pessoa_id)).forEach(i=> ESP.cand.unshift({ estrategia:i.estrategia, pessoa_id:i.pessoa_id, nome:i.nome, cidade:i.cidade, telefone:i.telefone, motivo:i.motivo, produtos:(i.oferta || '').split(', ').join(' · '), nota:null }));
     ESP.qtd = Object.fromEntries(Object.entries(ES_EST).map(([k, e])=> [k, e.q]));
-    // plano salvo: marca o que já estava nele; senão, os primeiros de cada estratégia
+    // plano salvo: marca o que já estava nele e o controle gravado; senão, sorteia em trios
     ESP.sel = new Set((P.itens || []).map(i=> i.pessoa_id));
-    if(!ESP.sel.size) Object.keys(ES_EST).forEach(k=> ESP.cand.filter(c=> c.estrategia === k).slice(0, ESP.qtd[k]).forEach(c=> ESP.sel.add(c.pessoa_id)));
+    ESP.ctrl = new Set((P.controle || []).map(i=> i.pessoa_id));
+    if(!ESP.sel.size) esSorteia();
   }
   const C = ESP.cand, porEst = k=> C.filter(c=> c.estrategia === k);
   // um cliente pode aparecer em mais de uma estratégia: fica na primeira em que foi marcado
   const vistos = new Set(), escolhidos = [];
-  Object.keys(ES_EST).forEach(k=> porEst(k).forEach(c=>{ if(ESP.sel.has(c.pessoa_id) && !vistos.has(c.pessoa_id)){ vistos.add(c.pessoa_id); escolhidos.push(c); } }));
-  const prodTxt = c=> (c.produtos || '').split(' · ').slice(0, 2).join(', ');
+  Object.keys(ES_EST).forEach(k=> porEst(k).forEach(c=>{ if(ESP.sel.has(c.pessoa_id) && !ESP.ctrl.has(c.pessoa_id) && !vistos.has(c.pessoa_id)){ vistos.add(c.pessoa_id); escolhidos.push(c); } }));
+  const prodTxt = c=> c.parou || (c.produtos || '').split(' · ').slice(0, 2).join(', ');
   const fone = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.length >= 10 ? `(${d.slice(-11, -9) || d.slice(0, 2)}) ${d.slice(-9, -4)}-${d.slice(-4)}` : (t || ''); };
-  const promo = (WA_PROMOS || []).slice(0, 2).map(x=> `${x.nome}${x.tipo === 'bonificacao' ? ' (bonificação)' : ''}, até ${esDM(x.fim)}`).join('; ');
+  // promoção só quando é de um produto que o cliente levava (código do produto que parou, ou o nome entre os que ele comprava)
+  const promoDe = c=>{ const nomes = (c.produtos || '').toUpperCase();
+    const x = (WA_PROMOS || []).find(pr=> (pr.itens || []).some(i=> (c.parou_codigo && String(i.codigo) === String(c.parou_codigo)) || (i.produto && nomes.includes(String(i.produto).toUpperCase()))));
+    return x ? `${x.nome}${x.tipo === 'bonificacao' ? ' (bonificação)' : ''}, até ${esDM(x.fim)}` : ''; };
+  const mesesSem = c=> c.dias_sem_comprar == null ? '' : c.dias_sem_comprar < 60 ? `${c.dias_sem_comprar} dias sem comprar` : `${Math.round(c.dias_sem_comprar / 30)} meses sem comprar`;
+  const linhaMsg = (c, n)=> [`${n}. ${c.nome}`, c.cidade ? nomeBonito(c.cidade) : '', c.telefone ? fone(c.telefone) : '',
+      c.estrategia === 'prospect' ? 'nunca comprou' : mesesSem(c), c.parou ? 'levava ' + c.parou : '',
+      c.estrategia === 'orfao' && c.vendedor_atual ? 'era do ' + nomeBonito(c.vendedor_atual).split(' ')[0] : '',
+      c.nota != null && c.nota < 4 ? 'só à vista' : '', promoDe(c) ? 'oferta: ' + promoDe(c) : ''].filter(Boolean).join(' · ');
   const msgPadrao = ()=> {
-    let n = 0;
-    const blocos = Object.entries(ES_EST).map(([k, e])=>{ const L = escolhidos.filter(c=> c.estrategia === k); if(!L.length) return '';
-      return `*${e.t} (${L.length})*\n` + L.map(c=> `${++n}. ${c.nome}${c.cidade ? ' (' + nomeBonito(c.cidade) + ')' : ''}${c.telefone ? ' · ' + fone(c.telefone) : ''}\n   ${c.motivo}${prodTxt(c) ? '\n   comprava: ' + prodTxt(c) : ''}`).join('\n'); }).filter(Boolean);
-    return `Bom dia, ${nome}! 🎯 Sua estratégia da semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}).\n\nSão ${escolhidos.length} clientes para você acessar:\n\n${blocos.join('\n\n')}${promo ? `\n\nPromoção para usar na conversa: ${promo}.` : ''}\n\nMeta da semana: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Na quarta eu passo para ver como está; qualquer dúvida, me chama.`; };
+    // por cidade, a cidade com mais clientes primeiro (a mesma lógica do roteiro), sem os nomes internos das estratégias
+    const cid = c=> nomeBonito(c.cidade || 'Sem cidade'), cont = {}; escolhidos.forEach(c=>{ cont[cid(c)] = (cont[cid(c)] || 0) + 1; });
+    const ord = escolhidos.slice().sort((a, b)=> (cont[cid(b)] - cont[cid(a)]) || cid(a).localeCompare(cid(b), 'pt-BR') || Number(b.valor_jogo || 0) - Number(a.valor_jogo || 0));
+    let n = 0, ult = null; const linhas = [];
+    ord.forEach(c=>{ if(cid(c) !== ult){ linhas.push(`\n*${cid(c)}*`); ult = cid(c); } linhas.push(linhaMsg(c, ++n)); });
+    return `Bom dia, ${nome}! 🎯 Seus ${escolhidos.length} clientes da semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}):\n${linhas.join('\n')}\n\nLance cada contato no CRM (ligação ou visita): é isso que eu olho na quarta.\nMeta: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Qualquer dúvida, me chama.`; };
   const msg = P.mensagem && P.id && P.itens && P.itens.length === escolhidos.length && P.itens.every(i=> ESP.sel.has(i.pessoa_id)) ? P.mensagem : msgPadrao();
   box.innerHTML = `
     <div class="tb-bar">${Object.entries(ES_EST).map(([k, e])=> `<label title="${escapeHtml(e.c)}" style="font-size:13px">${escapeHtml(e.t)} <input data-esq="${k}" inputmode="numeric" value="${ESP.qtd[k]}" style="width:48px"> <span class="vazio">de ${porEst(k).length}</span></label>`).join('')}
       <button class="cm-chip" id="es-sug" title="Refaz a seleção com as quantidades ao lado">Sugerir de novo</button></div>
     ${Object.entries(ES_EST).map(([k, e])=>{ const L = porEst(k); return `
       <div class="cm-resumo" style="margin:12px 0 4px">${escapeHtml(e.t)} <span class="vazio">· ${escapeHtml(e.c)}</span></div>
-      ${L.length ? `<div class="tb-wrap" style="min-height:0;max-height:30vh"><table class="tb-tab"><thead><tr><th></th><th>Cliente</th><th>Cidade</th><th>Por quê</th><th>Comprava</th><th class="n">Nota pgto.</th><th>Telefone</th></tr></thead><tbody>
-        ${L.map(c=> `<tr><td><input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}></td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td><small>${escapeHtml(prodTxt(c))}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
-    <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes)</div>
+      ${L.length ? `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th></th><th>Cliente</th><th>Cidade</th><th>Por quê</th><th class="n" title="Quanto ele comprava por mês × a chance de voltar (perto do ciclo de compra vale mais)">R$ em jogo/mês</th><th>Parou de levar</th><th class="n">Nota pgto.</th><th>Telefone</th></tr></thead><tbody>
+        ${L.map(c=> `<tr${ESP.ctrl.has(c.pessoa_id) ? ' style="opacity:.6"' : ''}><td>${ESP.ctrl.has(c.pessoa_id) ? '<span class="rt rt-C" title="Grupo de controle: não vai para o vendedor; é a comparação que prova o resultado do plano">controle</span>' : `<input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}>`}</td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td class="n">${Number(c.valor_jogo) ? fmtMoney(c.valor_jogo) : '—'}</td><td><small>${escapeHtml(c.parou || '')}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
+    <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes) <a href="#" id="es-regera" style="font-size:13px;margin-left:8px" title="Refaz a mensagem com os clientes marcados">refazer a mensagem</a></div>
+    ${escolhidos.length > 12 ? `<div class="tb-aviso">São ${escolhidos.length} clientes: acima de 12 a mensagem fica longa para ler no celular. Desmarque os de menor valor em jogo.</div>` : ''}
     <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px"><button class="om-cancel" id="es-regera" title="Refaz a mensagem com os clientes marcados">Refazer mensagem</button><button class="om-cancel" id="es-rota" title="Salva e abre o roteiro da semana deste plano, por cidade e bairro">🗺 Ver o roteiro</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
-    <div class="tb-rodape">Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra. Um cliente que já está no plano de outro vendedor nesta semana também não. Clique no nome para ver o detalhe do cliente.</div>`;
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center;margin-top:8px"><details class="tb-como" style="margin-right:auto"><summary>Mais opções</summary><span style="display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="om-cancel" id="es-rota" title="Salva e abre o roteiro da semana deste plano, por cidade e bairro">🗺 Ver o roteiro</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button></span></details><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
+    <div class="tb-rodape">Em ordem de valor em jogo por mês. Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra; nota de pagamento abaixo de 4 não vem marcada (se marcar, a mensagem diz "só à vista"). Quem está em outro plano ou no controle de outro plano nos últimos 30 dias também não entra. "controle" = sorteado em trios entre os primeiros de cada estratégia, não vai para o vendedor e prova o resultado. Clique no nome para ver o detalhe do cliente.</div>`;
   const re = ()=> esPlano(box, host, nome);
   box.querySelectorAll('[data-esq]').forEach(i=> i.addEventListener('change', ()=>{ ESP.qtd[i.dataset.esq] = Math.max(0, Math.min(15, Number(i.value) || 0)); }));
-  box.querySelector('#es-sug').addEventListener('click', ()=>{ ESP.sel = new Set(); Object.keys(ES_EST).forEach(k=> porEst(k).filter(c=> !ESP.sel.has(c.pessoa_id)).slice(0, ESP.qtd[k]).forEach(c=> ESP.sel.add(c.pessoa_id))); ESP.plano.mensagem = null; re(); });
+  box.querySelector('#es-sug').addEventListener('click', ()=>{ esSorteia(); ESP.plano.mensagem = null; re(); });
   box.querySelectorAll('[data-esc]').forEach(cb=> cb.addEventListener('change', ()=>{ if(cb.checked) ESP.sel.add(cb.dataset.esc); else ESP.sel.delete(cb.dataset.esc); ESP.plano.mensagem = null; re(); }));
   box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
-  box.querySelector('#es-regera').addEventListener('click', ()=>{ box.querySelector('#es-msg').value = msgPadrao(); });
+  box.querySelector('#es-regera').addEventListener('click', e=>{ e.preventDefault(); box.querySelector('#es-msg').value = msgPadrao(); });
   const salvar = async ()=>{
     const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c) }));
     const mensagem = box.querySelector('#es-msg').value;
-    // grupo de controle (prova do resultado): na primeira gravação, ~30% do tamanho de cada estratégia, sorteados entre os candidatos que
-    // ficaram de fora; eles não vão para o vendedor e servem de comparação (quem volta sozinho)
+    // grupo de controle (prova do resultado): gravado na primeira vez, o sorteado em trios (esSorteia); depois não muda
     let controle = null;
-    if(!(ESP.plano.controle || []).length){
-      const usados = new Set(itens.map(i=> i.pessoa_id)); controle = [];
-      Object.keys(ES_EST).forEach(k=>{ const n = itens.filter(i=> i.estrategia === k).length; if(!n) return;
-        const fora = ESP.cand.filter(c=> c.estrategia === k && !usados.has(c.pessoa_id)).sort(()=> Math.random() - .5).slice(0, Math.max(1, Math.round(n * .3)));
-        fora.forEach(c=>{ usados.add(c.pessoa_id); controle.push({ pessoa_id:c.pessoa_id, estrategia:k }); }); });
-    }
+    if(!(ESP.plano.controle || []).length) controle = ESP.cand.filter(c=> ESP.ctrl.has(c.pessoa_id)).filter((c, i, a)=> a.findIndex(x=> x.pessoa_id === c.pessoa_id) === i).map(c=> ({ pessoa_id:c.pessoa_id, estrategia:c.estrategia }));
     const { data: id, error } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:itens, p_mensagem:mensagem, p_controle:controle });
     if(controle) ESP.plano.controle = controle;
     if(error){ showToast(errAmigavel(error)); return null; }
@@ -12155,7 +12178,7 @@ async function renderResumo(){
       ${kpi('rank', 'Vendido no mês', fmtMoney(vMesSerie || vMes), varMes == null ? 'até hoje' : `<span class="rs-var ${varMes >= 0 ? 'up' : 'down'}">${pct(varMes)}</span> contra o mesmo período do mês passado`)}
       ${proj != null ? kpi('rank', 'Projeção do mês', fmtMoney(proj), `no ritmo de ${String(uPass).replace('.', ',')} de ${uMes} dias úteis${mesAntSerie ? ` · mês passado fechou em ${fmtMoney(mesAntSerie)}` : ''}`, mesAntSerie && proj < mesAntSerie ? 'alerta' : 'rs-kpi-ok') : ''}
       ${kpi('rank', 'Vendido no ano', fmtMoney(ytd), ytdAnt && h.getMonth() > 0 ? `<span class="rs-var ${ytdF >= ytdAnt ? 'up' : 'down'}">${pct(ytdF / ytdAnt - 1)}</span> de janeiro a ${['', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro'][h.getMonth()]} contra ${ano - 1}` : `desde janeiro de ${ano}`)}
-      ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r ? kpi('rank', 'Especialista comercial', fmtMoney(r.total), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.total > 0 ? 'rs-kpi-ok' : '') : ''; })()}
+      ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r && r.cnF >= ES_CONCLUSIVO ? kpi('rank', 'Especialista comercial', fmtMoney(r.fechado), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.fechado > 0 ? 'rs-kpi-ok' : '') : ''; })()}
       ${F && libLivre('fin-inad') ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
     <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">Ranking dos vendedores no mês</h3><span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
