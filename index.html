@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-215808">
+<meta name="crm-versao" content="20261106-070544">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -511,7 +511,7 @@
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="vendedores" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
-    <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
+    <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada segunda)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn" data-view="sugestoes" title="Sugestões: ideias, problemas e dúvidas sobre o sistema, e o que foi feito com cada uma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg><span>Sugestões</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-atender" data-view="atender" title="Atender um cliente: inteligência, abordagem, conversa e proposta, passo a passo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><span>Atender</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn active" data-view="hoje" title="Hoje: quem ligar agora, em ordem de prioridade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg><span>Hoje</span></button>
@@ -806,7 +806,7 @@
     <div id="view-sugestoes" class="view">
       <div class="pg" style="max-width:none">
         <div class="pg-head"><h2>💡 Sugestões de melhoria</h2><span class="sub">Ideias, problemas e pedidos para o sistema. Tudo fica registrado no histórico.</span></div>
-        <div class="tb-aviso" style="margin:0 0 10px">📅 <b>Como funcionam as entregas:</b> As melhorias do sistema saem <b>toda sexta-feira, até o fim do dia</b>. O que é <b>urgente</b> (algo não funciona e impede usar o sistema) é resolvido em <b>até 48 horas</b>: marque "Urgente" ao enviar.</div>
+        <div class="tb-aviso" style="margin:0 0 10px">📅 <b>Como funcionam as entregas:</b> A versão nova do sistema sai <b>toda segunda-feira</b>, com o que vocês sugeriram na semana anterior. O que é <b>urgente</b> (algo não funciona e impede usar o sistema) é resolvido em <b>até 48 horas</b>: marque "Urgente" ao enviar.</div>
         <div class="es-box">
           <div class="sg-row" style="margin-bottom:8px"><span class="ql" style="margin:0">Registrando como</span><b id="sg-who" title="Nome do seu usuário no CRM"></b></div>
           <textarea id="sg-text" rows="4" placeholder="Escreva livremente, ou clique em 🎤 e narre a sua ideia. Dá para colar um print (Ctrl+V) ou arrastar arquivos para cá."></textarea>
@@ -814,7 +814,7 @@
           <div class="sg-row" style="margin-top:8px">
             <button id="sg-mic" class="om-cancel">🎤 Gravar / ditar</button><button id="sg-attach" class="om-cancel">📎 Anexar print / PDF / áudio / vídeo</button><input type="file" id="sg-file" multiple accept="image/*,.pdf,audio/*,video/*,.doc,.docx,.xls,.xlsx,.txt" hidden><span id="sg-mic-st" style="font-size:12px;color:var(--red)"></span>
             <select id="sg-tipo"></select><select id="sg-tela"></select>
-            <select id="sg-prio" aria-label="Urgência"><option value="normal">Melhoria: entra na entrega de sexta</option><option value="urgente">Urgente: algo não funciona e impede o uso (até 48 h)</option></select>
+            <select id="sg-prio" aria-label="Urgência"><option value="normal">Melhoria: entra na versão de segunda</option><option value="urgente">Urgente: algo não funciona e impede o uso (até 48 h)</option></select>
             <span style="flex:1"></span><button id="sg-send" class="om-save">Enviar sugestão</button>
           </div>
           <audio id="sg-audio-prev" controls hidden style="margin-top:8px;width:100%"></audio>
@@ -8741,7 +8741,7 @@ document.getElementById('sg-send').addEventListener('click', async ()=>{
       prioridade:document.getElementById('sg-prio').value, audio_path, status:'nova', historico:[{em:new Date().toISOString(), por:autor, de:'nova', para:'nova', nota:'Sugestão registrada'}] });
     if(error) throw error;
     ta.value = ''; SG.files = []; sgRenderFiles(); SG.audioBlob = null; SG.voz = false; const p = document.getElementById('sg-audio-prev'); p.hidden = true; p.removeAttribute('src');
-    showToast(document.getElementById('sg-prio').value === 'urgente' ? 'Registrada como urgente: resolvemos em até 48 horas.' : 'Sugestão registrada, obrigado! As melhorias saem às sextas.'); renderSugestoes();
+    showToast(document.getElementById('sg-prio').value === 'urgente' ? 'Registrada como urgente: resolvemos em até 48 horas.' : 'Sugestão registrada, obrigado! As melhorias entram na versão de segunda.'); renderSugestoes();
   }catch(e){ showToast('Erro: '+errMsg(e)); }
   btn.disabled = false; btn.textContent = 'Enviar sugestão';
 });
@@ -9388,9 +9388,9 @@ setInterval(libConfere, 10*60000);
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
   { id:'rotas-mapa-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
-  { id:'entregas-sexta', dia:'2026-11-06', tela:'sugestoes', titulo:'Toda sexta tem novidade na Torre', txt:'As melhorias saem toda sexta-feira, até o fim do dia, com o que vocês sugerirem na semana: de segunda a quinta a gente recolhe, na reunião de quinta conversa e na sexta entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
-  { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-06', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
-  { id:'export-cliente-1106', lib:'export-cliente', dia:'2026-11-06', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
+  { id:'entregas-segunda', dia:'2026-11-09', tela:'sugestoes', titulo:'Toda segunda tem versão nova na Torre', txt:'A versão nova sai toda segunda-feira, com o que vocês sugerirem: de segunda a quarta a gente recolhe as sugestões, na reunião de quinta conversa sobre elas e na segunda seguinte entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
+  { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-09', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
+  { id:'export-cliente-1106', lib:'export-cliente', dia:'2026-11-09', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
   { id:'rotas-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
   { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção do mês, o ano contra o ano passado, o ranking dos vendedores (com "copiar para o grupo") e o que pede atenção na venda. Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. As letras ficaram maiores.' },
   { id:'cliente-unico-lib', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
@@ -9756,7 +9756,7 @@ async function acompEnvia(ev){
       contexto:{ via:'balao', motivo:ACOMP.motivo, pergunta:ACOMP.pergunta, rota:usoRota(USO.tela), view:USO.tela, largura:innerWidth, ultimos:USO.ultimos.slice(-20) } });
     if(error) throw error;
     clearTimeout(ACOMP.timer); uso('balao', ACOMP.motivo, { evento:'fechou', resposta:'enviou' }); ACOMP.aberto = 'feito';
-    c.innerHTML = `<p class="ac-texto ac-ok">Anotado! ${escapeHtml(ACOMP_RESPONSAVEL.charAt(0).toUpperCase() + ACOMP_RESPONSAVEL.slice(1))} já recebeu. ${ACOMP.tipo === 'urgente' ? 'Como é urgente, resolvemos em até 48 horas.' : 'As melhorias saem às sextas.'} 🙌</p>`;
+    c.innerHTML = `<p class="ac-texto ac-ok">Anotado! ${escapeHtml(ACOMP_RESPONSAVEL.charAt(0).toUpperCase() + ACOMP_RESPONSAVEL.slice(1))} já recebeu. ${ACOMP.tipo === 'urgente' ? 'Como é urgente, resolvemos em até 48 horas.' : 'As melhorias entram na versão de segunda.'} 🙌</p>`;
     setTimeout(()=>{ if(ACOMP.aberto === 'feito'){ ACOMP.aberto = null; c.hidden = true; c.innerHTML = ''; } }, 3500);
     usoEnvia();
   }catch(e){ b.disabled = false; b.textContent = 'Enviar'; c.querySelector('#ac-mic-st').textContent = 'Não consegui enviar agora. Tente de novo.'; console.warn(e); }
@@ -11359,11 +11359,11 @@ async function renderAnaliseProdutos(){
 }
 
 // ---------- ENTREGAS (05/11/2026): o calendário das melhorias, só para o Administrador ----------
-// Regra do negócio: o time recebe uma entrega por semana, na sexta (chega na segunda com novidade). A quinta é a reunião com o time:
-// valida o que entra na sexta e mostra ao vivo o que mexe em regra. O que depende de quem ainda não entra fica sem data.
+// Regra do negócio (06/11/2026): a versão nova sai toda segunda. Sugestões de segunda a quarta, reunião com o time na quinta (valida o que
+// entra e mostra ao vivo o que mexe em regra), trabalho na quinta e na sexta. O que depende de quem ainda não entra fica sem data.
 const EN_SEM = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const enDia = d=> { const x = new Date(d + 'T12:00:00'); return `${EN_SEM[x.getDay()]}, ${d.slice(8, 10)}/${d.slice(5, 7)}`; };
-function enProxSextas(n){ const r = [], x = new Date(); x.setHours(12, 0, 0, 0); while(r.length < n){ if(x.getDay() === 5) r.push(diaLocal(x)); x.setDate(x.getDate() + 1); } return r; }
+function enProxSegundas(n){ const r = [], x = new Date(); x.setHours(12, 0, 0, 0); while(r.length < n){ if(x.getDay() === 1) r.push(diaLocal(x)); x.setDate(x.getDate() + 1); } return r; }
 async function renderEntregas(){
   const host = document.getElementById('en'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Carregando o calendário…</div>';
@@ -11372,7 +11372,7 @@ async function renderEntregas(){
   const L = data || [], hoje = diaLocal(new Date());
   LIB.lista = L; LIB.datas = Object.fromEntries(L.map(l=> [l.chave, l.libera_em]));
   const saiu = L.filter(l=> l.libera_em && l.libera_em <= hoje), vem = L.filter(l=> l.libera_em && l.libera_em > hoje), espera = L.filter(l=> !l.libera_em);
-  const datas = [...new Set(vem.map(l=> l.libera_em))].sort(), sextas = enProxSextas(8);
+  const datas = [...new Set(vem.map(l=> l.libera_em))].sort(), sextas = enProxSegundas(8);
   const btnNome = v=> { const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b ? (b.querySelector('span') || b).textContent : v; };
   const linha = l=> `<tr data-en="${escapeHtml(l.chave)}"><td class="prod"><b>${escapeHtml(l.titulo)}</b><br><small class="vazio">${escapeHtml(l.descricao || '')}</small></td>
       <td>${escapeHtml(l.pedido_por || '')}</td>
@@ -11382,17 +11382,17 @@ async function renderEntregas(){
         ${[...new Set([hoje, ...sextas, l.libera_em].filter(Boolean))].sort().map(d=> `<option value="${d}" ${d === l.libera_em ? 'selected' : ''}>${d === hoje ? 'Hoje · ' : ''}${enDia(d)}</option>`).join('')}</select></td></tr>`;
   const tabela = rs=> `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Entrega</th><th>Quem pediu</th><th>Onde fica</th><th>Situação</th><th>Quando sai</th></tr></thead><tbody>${rs.map(linha).join('')}</tbody></table></div>`;
   const recado = d=> { const it = vem.filter(l=> l.libera_em === d);
-    return `Bom dia, pessoal! Saiu hoje a entrega da semana na Torre de Controle - Synthetic:\n` + it.map(l=> `• ${l.titulo}${l.pedido_por ? ' (pedido: ' + l.pedido_por + ')' : ''}`).join('\n')
-      + `\n\nComo funciona daqui para a frente: de segunda a quinta a gente recolhe as sugestões de vocês, na reunião de quinta conversa sobre elas e toda sexta, até o fim do dia, sai uma melhoria nova. Se algo não funciona e impede o uso, marque "Urgente" e resolvemos em até 48 horas.`
-      + `\n\nEntrem, usem e contem o que acharam pelo botão Sugestões ou pelo balão 💬 no canto da tela: é assim que a próxima sexta é escolhida. Se aparecer a faixa "Saiu uma versão nova", é só clicar em Atualizar.`; };
+    return `Bom dia, pessoal! Saiu hoje a versão da semana da Torre de Controle - Synthetic:\n` + it.map(l=> `• ${l.titulo}${l.pedido_por ? ' (pedido: ' + l.pedido_por + ')' : ''}`).join('\n')
+      + `\n\nComo funciona daqui para a frente: de segunda a quarta a gente recolhe as sugestões de vocês, na reunião de quinta conversa sobre elas e toda segunda sai a versão nova. Se algo não funciona e impede o uso, marque "Urgente" e resolvemos em até 48 horas.`
+      + `\n\nEntrem, usem e contem o que acharam pelo botão Sugestões ou pelo balão 💬 no canto da tela: é assim que a próxima versão é escolhida. Se aparecer a faixa "Saiu uma versão nova", é só clicar em Atualizar.`; };
   host.innerHTML = `
     <div class="tb-kpis">
       <div class="tb-kpi"><small>Próxima entrega</small><b>${datas[0] ? escapeHtml(enDia(datas[0])) : '—'}</b><span>${datas[0] ? vem.filter(l=> l.libera_em === datas[0]).length + ' melhoria(s)' : 'nada agendado'}</span></div>
-      <div class="tb-kpi"><small>Agendadas</small><b>${vem.length}</b><span>em ${datas.length} sexta(s)</span></div>
+      <div class="tb-kpi"><small>Agendadas</small><b>${vem.length}</b><span>em ${datas.length} segunda(s)</span></div>
       <div class="tb-kpi"><small>Aguardando</small><b>${espera.length}</b><span>dependem de acesso ou de dado da Synthetic</span></div>
       <div class="tb-kpi"><small>O time já vê</small><b>${saiu.length}</b><span>liberadas pelo calendário</span></div>
     </div>
-    <div class="tb-aviso" style="background:var(--surface-2)"><b>Regra:</b> o time recebe uma entrega por semana, na sexta, e chega na segunda com novidade. Na reunião de quinta você valida o que sai na sexta e mostra ao vivo o que mexe em regra (prévia). Correção de erro sai na hora. No sistema, o que só você vê tem <span class="so-voce" style="padding:1px 6px" data-sv="">borda roxa tracejada</span> e 🔒.</div>
+    <div class="tb-aviso" style="background:var(--surface-2)"><b>Regra:</b> a versão nova sai toda segunda. Sugestões de segunda a quarta; na reunião de quinta você valida o que entra e mostra ao vivo o que mexe em regra (prévia); quinta e sexta são de trabalho. Correção de erro sai na hora. No sistema, o que só você vê tem <span class="so-voce" style="padding:1px 6px" data-sv="">borda roxa tracejada</span> e 🔒.</div>
     ${datas.map(d=> `<div class="en-dia"><b>${escapeHtml(enDia(d))}</b><span class="en-sit ag">${vem.filter(l=> l.libera_em === d).length} melhoria(s)</span><button class="om-cancel" data-enrec="${d}" title="Mensagem pronta para o grupo do time no dia da entrega">Copiar recado para o grupo</button></div>${tabela(vem.filter(l=> l.libera_em === d))}`).join('')}
     ${espera.length ? `<div class="en-dia"><b>Aguardando</b><span class="en-sit es">sem data</span></div>${tabela(espera)}` : ''}
     ${saiu.length ? `<div class="en-dia"><b>O time já vê</b></div>${tabela(saiu.slice().reverse())}` : ''}
@@ -12237,7 +12237,7 @@ function renderSobre(){
   const rotina = [
     ['Todo dia', 'Cada pessoa abre a própria tela e vê os números que dependem dela, no computador ou no celular.'],
     ['Toda semana', 'A reunião de resultado usa os números daqui: o que saiu do esperado, por quê e quem faz o quê.'],
-    ['No caminho', 'A Capacity Case acompanha o uso, ouve as sugestões do balão 💬 e ajusta a torre junto com o time. As melhorias saem toda sexta-feira, até o fim do dia; o que é urgente (algo não funciona e impede o uso) é resolvido em até 48 horas.']];
+    ['No caminho', 'A Capacity Case acompanha o uso, ouve as sugestões do balão 💬 e ajusta a torre junto com o time. A versão nova sai toda segunda-feira, com as sugestões da semana anterior; o que é urgente (algo não funciona e impede o uso) é resolvido em até 48 horas.']];
   const princ = [
     ['Não é bala de prata.', 'A Synthetic já sabe vender. A Torre não ensina a roda a girar: faz ela girar mais rápido.'],
     ['Um dado, uma fonte.', 'O que existe no Fácil123 vem de lá, lido a cada 30 minutos. O que ainda não existe é lançado uma vez, aqui. Ninguém digita duas vezes.'],
