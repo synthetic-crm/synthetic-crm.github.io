@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-211220">
+<meta name="crm-versao" content="20261105-211709">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -500,6 +500,7 @@
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="comissoes" data-grupo="vendedores" title="Comissões: quanto cada vendedor ganha no ciclo, item a item, pela regra de desconto de cada produto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg><span>Comissões</span></button>
     <button class="nav-grp" data-grp="vendas" title="Vendas: o mês, a projeção, o ranking dos vendedores e o Planejamento 2027"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg><span>Vendas</span></button>
     <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="plano27" data-grupo="vendas" title="Planejamento Estratégico 2027"><span>Planejamento</span></button>
+    <button data-perfis="master" class="nav-btn nav-membro" data-view="anprod" data-grupo="vendas" title="Análise de produtos: faturamento, quantidade e margem de cada produto, para decidir o catálogo"><span>Análise de produtos</span></button>
     <button class="nav-grp" data-grp="clientes" title="Clientes: a carteira na linha do tempo e os parados há mais de 90 dias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Clientes</span></button>
     <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
     <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
@@ -536,6 +537,7 @@
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
     <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
+    <div id="view-anprod" class="view"><div class="tb" id="ap"></div></div>
     <div id="view-ajustes" class="view"><div class="pg">
       <div class="pg-head"><h2>Ajustes</h2><span class="sub">Ferramentas de administração do CRM. Só o Master vê este menu.</span></div>
       <div class="aj-grade">
@@ -3981,6 +3983,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'especialista') renderEspecialista();
     if(v === 'rota') renderRota();
     if(v === 'entregas') renderEntregas();
+    if(v === 'anprod') renderAnaliseProdutos();
     if(v === 'plano27'){ const h = document.getElementById('p27'); if(h) fiPlanejamento(h); }
     if(v === 'operacao') renderOperacao();
     if(v === 'hoje') renderHoje();
@@ -4055,7 +4058,7 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin,master,gerente,analista', especialista:'admin', entregas:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin,master,gerente,analista', especialista:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
@@ -4068,7 +4071,7 @@ const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) 
 const svC = k=> libSoVoce(k) ? ' so-voce' : '';
 const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
 const LIB_VIEW = { operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
-const SO_ADMIN_VIEW = { especialista:1, entregas:1 };
+const SO_ADMIN_VIEW = { especialista:1, entregas:1, anprod:1 };
 const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
 async function libCarrega(){
   try{ const { data, error } = await sb.rpc('crm_liberacoes_pendentes'); if(error) throw error; LIB.pend = libPend(data); }
@@ -4111,7 +4114,7 @@ function menuLiberado(view, p){
 // ---- Menu pela jornada de quem usa (05/11/2026): o CEO entra em Vendas, depois Clientes, Vendedores, Produtos e Financeiro;
 // o financeiro entra no Financeiro; o vendedor, na própria carteira. Telas irmãs viram abas de um botão só (as telas não mudam).
 const NAV_GRUPOS = {
-  vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês'], ['plano27', 'Planejamento 2027']] },
+  vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
   clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões'], ['especialista', 'Especialista comercial']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
@@ -9469,7 +9472,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState 
 // ---------- PEÇA 2 · REGISTRO DE USO (onde o usuário tem dúvida) ----------
 // Grava só: tela aberta, rótulo do que foi clicado, 1ª célula da linha clicada, filtro escolhido, mensagens do sistema e erros.
 // NUNCA o que é digitado nos campos. O app só insere em uso_eventos; ninguém lê pelo app.
-const TELAS_NOME = { entregas:'Entregas', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
+const TELAS_NOME = { entregas:'Entregas', anprod:'Análise de produtos', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
   indicadores:'Painel', comercial:'Painel · metas', vendedores:'Painel · vendedores', regioes:'Painel · regiões', margens:'Painel · margens',
   concorrentes:'Painel · concorrentes', estoque:'Painel · estoque', mapa:'Estratégia', equipe:'Acessos', ajustes:'Ajustes',
   conhecimento:'Base de conhecimento', sugestoes:'Sugestões', parados:'Clientes parados', ata:'Ata do projeto', reunioes:'Conversas registradas' };
@@ -11229,6 +11232,90 @@ async function esAcompanha(box, host, nome){
     if(er){ showToast(errAmigavel(er)); return; }
     showToast(`Próxima segunda: plano aberto com os pendentes (se ela já existia, ficou como estava). Ajuste e complete com clientes novos.`);
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
+}
+
+// ---------- ANÁLISE DE PRODUTOS (05/11/2026, só o Administrador): o catálogo vale a pena inteiro? ----------
+// Cada produto que vendeu no período: faturamento, quantidade, clientes, meses com venda e margem bruta (receita − quantidade × custo atual
+// do Fácil123). Curva ABC pelo faturamento (A = os que somam 80%, B = até 95%, C = o resto) e uma sugestão para a conversa com o CEO.
+const AP = { per:'ano', rows:null, de:'', filtro:'', q:'', curva:'' };
+const AP_SUG = {
+  empurrar:['Manter e empurrar', 'rt-A', 'Curva A com margem na média ou acima: é aqui que o vendedor deve concentrar o esforço.'],
+  preco:['Manter, rever preço ou custo', 'rt-B', 'Vende muito, mas a margem está abaixo da média da linha (ou do piso): renegociar custo ou subir a tabela.'],
+  manter:['Manter', 'rt-B', 'Curva B com margem boa ou crescendo.'],
+  avaliar:['Avaliar', 'rt-C', 'Curva B com margem abaixo da média e sem crescimento.'],
+  encomenda:['Só sob encomenda', 'rt-C', 'Vende pouco, mas com margem boa e mais de 3 clientes: sai do estoque e da tabela do vendedor, atende quando pedirem.'],
+  sair:['Candidato a sair do catálogo', 'rt-D', 'Vende pouco, com margem abaixo da média ou até 3 clientes: ocupa estoque, tabela e atenção do vendedor.'],
+  custo:['Conferir o custo', 'rt-D', 'Sem custo no Fácil123, margem negativa ou acima de 90%: o número de margem não é confiável.'] };
+function apClassifica(L){
+  const tot = L.reduce((t, r)=> t + Number(r.faturamento), 0);
+  // régua da margem: a média da própria linha (pesada pelo faturamento), com 5 pontos de folga, ou o piso da linha quando existe
+  const ok = r=> r._mg != null && r._mg >= 0 && r._mg <= .9, LM = {};
+  L.filter(ok).forEach(r=>{ const k = r.linha || '?', x = LM[k] || (LM[k] = { f:0, m:0 }); x.f += Number(r.faturamento); x.m += Number(r.faturamento) * r._mg; });
+  Object.values(LM).forEach(x=>{ x.mg = x.f ? x.m / x.f : null; });
+  const vf = L.filter(ok), med = vf.length ? vf.reduce((t, r)=> t + Number(r.faturamento) * r._mg, 0) / vf.reduce((t, r)=> t + Number(r.faturamento), 0) : null;
+  let acc = 0;
+  L.forEach(r=>{
+    const f = Number(r.faturamento); acc += f; r._parte = tot ? f / tot : 0;
+    r._curva = acc - f < tot * .8 ? 'A' : acc - f < tot * .95 ? 'B' : 'C';
+    const mg = r._mg, cresce = Number(r.fat_ano_ant) > 0 ? f / Number(r.fat_ano_ant) - 1 : null; r._cresce = cresce;
+    const lm = (LM[r.linha || '?'] || {}).mg; r._lmg = lm;
+    const baixa = mg != null && ((r.piso != null && mg < Number(r.piso)) || (lm != null && mg < lm - .05));
+    r._sug = mg == null || mg < 0 || mg > .9 ? 'custo'
+      : r._curva === 'A' ? (baixa ? 'preco' : 'empurrar')
+      : r._curva === 'B' ? (!baixa || (cresce != null && cresce > .1) ? 'manter' : 'avaliar')
+      : (!baixa && Number(r.clientes) > 3 ? 'encomenda' : 'sair');
+  });
+  return { tot, med };
+}
+async function renderAnaliseProdutos(){
+  const host = document.getElementById('ap'); if(!host) return;
+  const hoje = new Date(), fim = diaLocal(hoje);
+  const ini = AP.per === 'ano' ? hoje.getFullYear() + '-01-01' : diaLocal(new Date(hoje.getFullYear() - 1, hoje.getMonth(), hoje.getDate() + 1));
+  const rot = AP.per === 'ano' ? `${hoje.getFullYear()} até hoje` : 'últimos 12 meses';
+  if(!AP.rows || AP.de !== ini){
+    host.innerHTML = '<div class="tb-rodape">Somando as vendas e a margem de cada produto…</div>';
+    const { data, error } = await sb.rpc('crm_analise_produtos', { p_ini:ini, p_fim:fim });
+    if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+    AP.rows = (data || []).map(r=> ({ ...r, _mg: r.custo_total != null && Number(r.faturamento) > 0 ? 1 - Number(r.custo_total) / Number(r.faturamento) : null })); AP.de = ini;
+  }
+  const L = AP.rows, { tot, med } = apClassifica(L);
+  const mgR = r=> r._mg == null ? null : Number(r.faturamento) * r._mg, soma = (rs, fn)=> rs.reduce((t, r)=> t + (fn(r) || 0), 0);
+  const mgTot = soma(L, mgR), pct = (v, d = 0)=> v == null ? '—' : (v * 100).toLocaleString('pt-BR', { maximumFractionDigits:d, minimumFractionDigits:d }) + '%';
+  const nC = L.filter(r=> r._curva === 'A').length, sai = L.filter(r=> r._sug === 'sair'), enc = L.filter(r=> r._sug === 'encomenda');
+  const fica = L.filter(r=> !['sair', 'encomenda'].includes(r._sug));
+  const cont = {}; L.forEach(r=>{ cont[r._sug] = (cont[r._sug] || 0) + 1; });
+  const q = AP.q.toLowerCase();
+  const M = L.filter(r=> (!AP.filtro || r._sug === AP.filtro) && (!AP.curva || r._curva === AP.curva) && (!q || [r.codigo, r.produto, r.linha].join(' ').toLowerCase().includes(q)));
+  host.innerHTML = `
+    <div class="tb-aviso so-voce" data-sv="" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> Base para a conversa com o CEO sobre enxugar o catálogo: o vendedor com menos produtos para oferecer fica mais concentrado e mais certeiro.</div>
+    <div class="tb-bar"><select id="ap-per" aria-label="Período"><option value="ano" ${AP.per === 'ano' ? 'selected' : ''}>${hoje.getFullYear()} até hoje</option><option value="12m" ${AP.per === '12m' ? 'selected' : ''}>Últimos 12 meses</option></select>
+      <input id="ap-q" placeholder="Buscar produto, código ou linha" value="${escapeHtml(AP.q)}" style="width:240px">
+      <span class="tb-esp"></span><button class="om-cancel" id="ap-csv">Exportar a análise</button></div>
+    <div class="tb-kpis">
+      <div class="tb-kpi"><small>Produtos que venderam</small><b>${fmtNum(L.length)}</b><span>${escapeHtml(rot)} · ${fmtMoney(tot)}</span></div>
+      <div class="tb-kpi"><small>Fazem 80% do faturamento</small><b>${fmtNum(nC)}</b><span>${pct(nC / (L.length || 1))} dos produtos (curva A)</span></div>
+      <div class="tb-kpi"><small>Margem bruta</small><b>${pct(tot ? mgTot / tot : null, 1)}</b><span>${fmtMoney(mgTot)} no período</span></div>
+      <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(sai, mgR) / mgTot : 0, 1)} da margem</span></div>
+      <div class="tb-kpi rs-kpi-ok"><small>Catálogo enxuto proposto</small><b>${fmtNum(fica.length)}</b><span>produtos de linha (+${enc.length} sob encomenda) com ${pct(soma(fica, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(fica, mgR) / mgTot : 0, 1)} da margem</span></div>
+    </div>
+    <div class="cm-chips" style="margin:8px 0">${['', 'A', 'B', 'C'].map(c=> `<button class="cm-chip ${AP.curva === c ? 'on' : ''}" data-apc="${c}">${c ? 'Curva ' + c : 'Todas as curvas'}</button>`).join('')}
+      <span style="width:12px"></span>${Object.entries(AP_SUG).map(([k, [t]])=> `<button class="cm-chip ${AP.filtro === k ? 'on' : ''}" data-aps="${k}" title="${escapeHtml(AP_SUG[k][2])}">${t} <b>${cont[k] || 0}</b></button>`).join('')}</div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th>Linha</th><th class="n">Curva</th><th class="n">Faturamento</th><th class="n">Parte</th><th class="n">Quantidade</th><th class="n">Clientes</th><th class="n" title="Em quantos meses do período o produto vendeu">Meses</th><th class="n" title="Faturamento contra o mesmo período do ano anterior">Contra ano ant.</th><th class="n" title="Margem bruta: receita menos quantidade × custo atual do Fácil123">Margem</th><th class="n">Margem R$</th><th>Sugestão</th></tr></thead>
+    <tbody>${M.map(r=>{ const sg = AP_SUG[r._sug];
+      return `<tr><td class="n">${L.indexOf(r) + 1}</td><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td>${escapeHtml(r.linha || '')}</td><td class="n"><b>${r._curva}</b></td>
+        <td class="n">${fmtMoney(r.faturamento)}</td><td class="n">${pct(r._parte, 2)}</td><td class="n">${fmtNum(Math.round(Number(r.quantidade)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${fmtNum(r.clientes)}</td><td class="n">${r.meses}</td>
+        <td class="n">${r._cresce == null ? '<span class="vazio">novo</span>' : `<span style="color:${r._cresce < -.1 ? 'var(--red)' : r._cresce > .1 ? 'var(--green, #16a34a)' : 'inherit'}">${r._cresce >= 0 ? '+' : ''}${pct(r._cresce)}</span>`}</td>
+        <td class="n" title="${r._lmg != null ? 'Margem da linha: ' + pct(r._lmg, 1) : ''}">${pct(r._mg, 1)}</td><td class="n">${mgR(r) == null ? '—' : fmtMoney(mgR(r))}</td><td><span class="rt ${sg[1]}" title="${escapeHtml(sg[2])}">${sg[0]}</span></td></tr>`; }).join('') || '<tr><td colspan="13" class="vazio">Nenhum produto neste filtro.</td></tr>'}</tbody></table></div>
+    <div class="tb-rodape">Vendas pela mesma regra das outras telas; margem bruta = faturamento − quantidade × custo atual do Fácil123 (sem impostos, comissão e frete). Curva A = os produtos que somam os primeiros 80% do faturamento; B = até 95%; C = o resto. Margem "abaixo da média" = mais de 5 pontos abaixo da margem da própria linha (cada linha tem seu patamar) ou abaixo do piso da linha.<details class="tb-como"><summary>ⓘ Como é a sugestão</summary>${Object.values(AP_SUG).map(([t, , d])=> `<b>${t}:</b> ${d}`).join('<br>')}<br>É ponto de partida para a conversa: produto estratégico (complemento de linha, cliente grande, lançamento) pode ficar mesmo vendendo pouco.</details></div>`;
+  host.querySelector('#ap-per').addEventListener('change', e=>{ AP.per = e.target.value; AP.rows = null; renderAnaliseProdutos(); });
+  host.querySelector('#ap-q').addEventListener('input', e=>{ AP.q = e.target.value; clearTimeout(AP.t); AP.t = setTimeout(()=>{ renderAnaliseProdutos(); const i = document.getElementById('ap-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 300); });
+  host.querySelectorAll('[data-apc]').forEach(b=> b.addEventListener('click', ()=>{ AP.curva = b.dataset.apc; renderAnaliseProdutos(); }));
+  host.querySelectorAll('[data-aps]').forEach(b=> b.addEventListener('click', ()=>{ AP.filtro = AP.filtro === b.dataset.aps ? '' : b.dataset.aps; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); }));
+  host.querySelector('#ap-csv').addEventListener('click', ()=>{
+    const n = v=> v == null ? '' : Number(v).toFixed(2).replace('.', ',');
+    csvDownload([['Posição', 'Código', 'Produto', 'Linha', 'Curva', 'Faturamento', 'Parte do faturamento', 'Quantidade', 'Unidade', 'Clientes', 'Pedidos', 'Meses com venda', 'Última venda', 'Faturamento ano anterior', 'Custo unitário atual', 'Margem bruta %', 'Margem bruta R$', 'Sugestão']]
+      .concat(L.map((r, i)=> [i + 1, r.codigo, r.produto, r.linha, r._curva, n(r.faturamento), n(r._parte * 100), n(r.quantidade), r.unidade, r.clientes, r.pedidos, r.meses, fmtDate(r.ultima_venda), n(r.fat_ano_ant), n(r.custo_unit), r._mg == null ? '' : n(r._mg * 100), n(mgR(r)), AP_SUG[r._sug][0]])),
+      'analise-produtos-' + fim + '.csv'); uso('clique', 'análise de produtos: exportar'); });
 }
 
 // ---------- ENTREGAS (05/11/2026): o calendário das melhorias, só para o Administrador ----------
