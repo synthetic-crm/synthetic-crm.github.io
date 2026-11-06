@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-214533">
+<meta name="crm-versao" content="20261105-214829">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11282,90 +11282,76 @@ async function esAcompanha(box, host, nome){
     ESP.semana = esDia(ESP.semana, 7); ESP.plano = null; ESP.cand = null; ESP.sel = null; ESP.aba = 'plano'; ESP.intel = null; esVendedor(host); });
 }
 
-// ---------- ANÁLISE DE PRODUTOS (05/11/2026, só o Administrador): o catálogo vale a pena inteiro? ----------
-// Cada produto que vendeu no período: faturamento, quantidade, clientes, meses com venda e margem bruta (receita − quantidade × custo atual
-// do Fácil123). Curva ABC pelo faturamento (A = os que somam 80%, B = até 95%, C = o resto) e uma sugestão para a conversa com o CEO.
-const AP = { per:'ano', rows:null, de:'', filtro:'', q:'', curva:'' };
-const AP_SUG = {
-  empurrar:['Manter e empurrar', 'rt-A', 'Curva A com margem na média ou acima: é aqui que o vendedor deve concentrar o esforço.'],
-  preco:['Manter, rever preço ou custo', 'rt-B', 'Vende muito, mas a margem está abaixo da média da linha (ou do piso): renegociar custo ou subir a tabela.'],
-  manter:['Manter', 'rt-B', 'Curva B com margem boa ou crescendo.'],
-  avaliar:['Avaliar', 'rt-C', 'Curva B com margem abaixo da média e sem crescimento.'],
-  encomenda:['Só sob encomenda', 'rt-C', 'Vende pouco, mas com margem boa e mais de 3 clientes: sai do estoque e da tabela do vendedor, atende quando pedirem.'],
-  sair:['Candidato a sair do catálogo', 'rt-D', 'Vende pouco, com margem abaixo da média ou até 3 clientes: ocupa estoque, tabela e atenção do vendedor.'],
-  custo:['Conferir o custo', 'rt-D', 'Sem custo no Fácil123, margem negativa ou acima de 90%: o número de margem não é confiável.'] };
-function apClassifica(L){
-  const tot = L.reduce((t, r)=> t + Number(r.faturamento), 0);
-  // régua da margem: a média da própria linha (pesada pelo faturamento), com 5 pontos de folga, ou o piso da linha quando existe
-  const ok = r=> r._mg != null && r._mg >= 0 && r._mg <= .9, LM = {};
-  L.filter(ok).forEach(r=>{ const k = r.linha || '?', x = LM[k] || (LM[k] = { f:0, m:0 }); x.f += Number(r.faturamento); x.m += Number(r.faturamento) * r._mg; });
-  Object.values(LM).forEach(x=>{ x.mg = x.f ? x.m / x.f : null; });
-  const vf = L.filter(ok), med = vf.length ? vf.reduce((t, r)=> t + Number(r.faturamento) * r._mg, 0) / vf.reduce((t, r)=> t + Number(r.faturamento), 0) : null;
-  let acc = 0;
-  L.forEach(r=>{
-    const f = Number(r.faturamento); acc += f; r._parte = tot ? f / tot : 0;
-    r._curva = acc - f < tot * .8 ? 'A' : acc - f < tot * .95 ? 'B' : 'C';
-    const mg = r._mg, cresce = Number(r.fat_ano_ant) > 0 ? f / Number(r.fat_ano_ant) - 1 : null; r._cresce = cresce;
-    const lm = (LM[r.linha || '?'] || {}).mg; r._lmg = lm;
-    const baixa = mg != null && ((r.piso != null && mg < Number(r.piso)) || (lm != null && mg < lm - .05));
-    r._sug = mg == null || mg < 0 || mg > .9 ? 'custo'
-      : r._curva === 'A' ? (baixa ? 'preco' : 'empurrar')
-      : r._curva === 'B' ? (!baixa || (cresce != null && cresce > .1) ? 'manter' : 'avaliar')
-      : (!baixa && Number(r.clientes) > 3 ? 'encomenda' : 'sair');
-  });
-  return { tot, med };
-}
+// ---------- ANÁLISE DE PRODUTOS (05/11/2026, só o Administrador; refeita pela auditoria do catálogo) ----------
+// Decide por PRODUTO-BASE (o mesmo óleo em 1, 5, 20, 60 e 200 L soma junto; de-para em crm_produto_base), só produto acabado, volume e
+// clientes em 12 meses, margem a custo atual só desde abril/2026 (o custo do Fácil123 é uma foto de out/2026 e os preços subiram em abril),
+// "margem baixa" contra a margem REAL da linha (não o piso), com proteções: novo, cliente grande, sem custo, sem venda recente.
+// Régua e números: documentos/Auditoria_catalogo_2026-11-05.md. Funções: crm_analise_catalogo e crm_estoque_liquidar.
+const AP = { aba:'catalogo', rows:null, est:null, filtro:'', q:'', curva:'' };
+const AP_CLS = {
+  nucleo:['Núcleo do catálogo', 'rt-A', 'Curvas A e B por produto-base: os que somam 95% da venda. É neles que o vendedor concentra.'],
+  sob_encomenda:['Sob encomenda', 'rt-B', 'Curva C com margem na média da linha e mais de 3 clientes: sai da tabela do vendedor e é atendido quando pedirem.'],
+  candidato:['Candidato a sair', 'rt-D', 'Curva C com até 3 clientes em 12 meses ou margem mais de 5 pontos abaixo da própria linha.'],
+  sem_venda_abril:['Sem venda desde abril', 'rt-D', 'Curva C que não vendeu nada desde abril/2026.'],
+  novo:['Novo: acompanhar', 'rt-C', 'Primeira venda há menos de 12 meses: cedo para decidir.'],
+  cliente_grande:['Cliente grande depende', 'rt-C', 'Um cliente do top 50 compra metade ou mais do produto: conversar antes de tirar.'],
+  conferir_custo:['Conferir o custo', 'rt-C', 'Sem custo no Fácil123: a margem não dá para medir.'] };
 async function renderAnaliseProdutos(){
   const host = document.getElementById('ap'); if(!host) return;
-  const hoje = new Date(), fim = diaLocal(hoje);
-  const ini = AP.per === 'ano' ? hoje.getFullYear() + '-01-01' : diaLocal(new Date(hoje.getFullYear() - 1, hoje.getMonth(), hoje.getDate() + 1));
-  const rot = AP.per === 'ano' ? `${hoje.getFullYear()} até hoje` : 'últimos 12 meses';
-  if(!AP.rows || AP.de !== ini){
-    host.innerHTML = '<div class="tb-rodape">Somando as vendas e a margem de cada produto…</div>';
-    const { data, error } = await sb.rpc('crm_analise_produtos', { p_ini:ini, p_fim:fim });
-    if(error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
-    AP.rows = (data || []).map(r=> ({ ...r, _mg: r.custo_total != null && Number(r.faturamento) > 0 ? 1 - Number(r.custo_total) / Number(r.faturamento) : null })); AP.de = ini;
+  if(!AP.rows){
+    host.innerHTML = '<div class="tb-rodape">Somando as vendas por produto-base, a margem desde abril e o estoque…</div>';
+    const [c, e] = await Promise.all([sb.rpc('crm_analise_catalogo'), sb.rpc('crm_estoque_liquidar')]);
+    if(c.error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(c.error))}</div>`; return; }
+    AP.rows = c.data || []; AP.est = (e && !e.error && e.data) || [];
   }
-  const L = AP.rows, { tot, med } = apClassifica(L);
-  const mgR = r=> r._mg == null ? null : Number(r.faturamento) * r._mg, soma = (rs, fn)=> rs.reduce((t, r)=> t + (fn(r) || 0), 0);
-  const mgTot = soma(L, mgR), pct = (v, d = 0)=> v == null ? '—' : (v * 100).toLocaleString('pt-BR', { maximumFractionDigits:d, minimumFractionDigits:d }) + '%';
-  const nC = L.filter(r=> r._curva === 'A').length, sai = L.filter(r=> r._sug === 'sair'), enc = L.filter(r=> r._sug === 'encomenda');
-  const fica = L.filter(r=> !['sair', 'encomenda'].includes(r._sug));
-  const cont = {}; L.forEach(r=>{ cont[r._sug] = (cont[r._sug] || 0) + 1; });
-  const q = AP.q.toLowerCase();
-  const M = L.filter(r=> (!AP.filtro || r._sug === AP.filtro) && (!AP.curva || r._curva === AP.curva) && (!q || [r.codigo, r.produto, r.linha].join(' ').toLowerCase().includes(q)));
-  host.innerHTML = `
-    <div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> Base para a conversa com o CEO sobre enxugar o catálogo: o vendedor com menos produtos para oferecer fica mais concentrado e mais certeiro.</div>
-    <div class="tb-bar"><select id="ap-per" aria-label="Período"><option value="ano" ${AP.per === 'ano' ? 'selected' : ''}>${hoje.getFullYear()} até hoje</option><option value="12m" ${AP.per === '12m' ? 'selected' : ''}>Últimos 12 meses</option></select>
-      <select id="ap-curva" aria-label="Curva">${['', 'A', 'B', 'C'].map(c=> `<option value="${c}" ${AP.curva === c ? 'selected' : ''}>${c ? 'Curva ' + c : 'Todas as curvas'}</option>`).join('')}</select>
-      <select id="ap-sug" aria-label="Sugestão"><option value="">Todas as sugestões</option>${Object.entries(AP_SUG).map(([k, [t]])=> `<option value="${k}" ${AP.filtro === k ? 'selected' : ''}>${t} (${cont[k] || 0})</option>`).join('')}</select>
-      <input id="ap-q" placeholder="Buscar produto, código ou linha" value="${escapeHtml(AP.q)}" style="width:240px">
-      <span class="tb-esp"></span><button class="om-cancel" id="ap-csv">Exportar a análise</button></div>
-    <div class="tb-kpis">
-      <div class="tb-kpi"><small>Produtos que venderam</small><b>${fmtNum(L.length)}</b><span>${escapeHtml(rot)} · ${fmtMoney(tot)}</span></div>
-      <div class="tb-kpi"><small>Fazem 80% do faturamento</small><b>${fmtNum(nC)}</b><span>${pct(nC / (L.length || 1))} dos produtos (curva A)</span></div>
-      <div class="tb-kpi"><small>Margem bruta</small><b>${pct(tot ? mgTot / tot : null, 1)}</b><span>${fmtMoney(mgTot)} no período</span></div>
-      <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(sai, mgR) / mgTot : 0, 1)} da margem</span></div>
-      <div class="tb-kpi rs-kpi-ok"><small>Catálogo enxuto proposto</small><b>${fmtNum(fica.length)}</b><span>produtos de linha (+${enc.length} sob encomenda) com ${pct(soma(fica, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(fica, mgR) / mgTot : 0, 1)} da margem</span></div>
-    </div>
-    <div class="cm-chips" style="margin:8px 0">${['sair', 'encomenda', 'custo'].map(k=> `<button class="cm-chip ${AP.filtro === k ? 'on' : ''}" data-aps="${k}" title="${escapeHtml(AP_SUG[k][2])}">${AP_SUG[k][0]} <b>${cont[k] || 0}</b></button>`).join('')}</div>
-    <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="n sec">#</th><th class="prod">Produto</th><th>Sugestão</th><th class="sec">Linha</th><th class="n">Curva</th><th class="n">Faturamento</th><th class="n sec">Parte</th><th class="n">Quantidade</th><th class="n">Clientes</th><th class="n sec" title="Em quantos meses do período o produto vendeu">Meses</th><th class="n" title="Faturamento contra o mesmo período do ano anterior">Contra ano ant.</th><th class="n" title="Margem bruta: receita menos quantidade × custo atual do Fácil123">Margem</th><th class="n sec">Margem R$</th></tr></thead>
-    <tbody>${M.map(r=>{ const sg = AP_SUG[r._sug];
-      return `<tr><td class="n sec">${L.indexOf(r) + 1}</td><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td><span class="rt ${sg[1]}" title="${escapeHtml(sg[2])}">${sg[0]}</span></td><td class="sec">${escapeHtml(r.linha || '')}</td><td class="n"><b>${r._curva}</b></td>
-        <td class="n">${fmtMoney(r.faturamento)}</td><td class="n sec">${pct(r._parte, 2)}</td><td class="n">${fmtNum(Math.round(Number(r.quantidade)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${fmtNum(r.clientes)}</td><td class="n sec">${r.meses}</td>
-        <td class="n">${r._cresce == null ? '<span class="vazio">novo</span>' : `<span style="color:${r._cresce < -.1 ? 'var(--red)' : r._cresce > .1 ? 'var(--green, #16a34a)' : 'inherit'}">${r._cresce >= 0 ? '+' : ''}${pct(r._cresce)}</span>`}</td>
-        <td class="n" title="${r._lmg != null ? 'Margem da linha: ' + pct(r._lmg, 1) : ''}">${pct(r._mg, 1)}</td><td class="n sec">${mgR(r) == null ? '—' : fmtMoney(mgR(r))}</td></tr>`; }).join('') || '<tr><td colspan="13" class="vazio">Nenhum produto neste filtro.</td></tr>'}</tbody></table></div>
-    <div class="tb-rodape">Vendas pela mesma regra das outras telas; margem bruta = faturamento − quantidade × custo atual do Fácil123 (sem impostos, comissão e frete). Curva A = os produtos que somam os primeiros 80% do faturamento; B = até 95%; C = o resto. Margem "abaixo da média" = mais de 5 pontos abaixo da margem da própria linha (cada linha tem seu patamar) ou abaixo do piso da linha.<details class="tb-como"><summary>ⓘ Como é a sugestão</summary>${Object.values(AP_SUG).map(([t, , d])=> `<b>${t}:</b> ${d}`).join('<br>')}<br>É ponto de partida para a conversa: produto estratégico (complemento de linha, cliente grande, lançamento) pode ficar mesmo vendendo pouco.</details></div>`;
-  host.querySelector('#ap-per').addEventListener('change', e=>{ AP.per = e.target.value; AP.rows = null; renderAnaliseProdutos(); });
-  host.querySelector('#ap-q').addEventListener('input', e=>{ AP.q = e.target.value; clearTimeout(AP.t); AP.t = setTimeout(()=>{ renderAnaliseProdutos(); const i = document.getElementById('ap-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 300); });
-  host.querySelector('#ap-curva').addEventListener('change', e=>{ AP.curva = e.target.value; renderAnaliseProdutos(); });
-  host.querySelector('#ap-sug').addEventListener('change', e=>{ AP.filtro = e.target.value; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); });
-  host.querySelectorAll('[data-aps]').forEach(b=> b.addEventListener('click', ()=>{ AP.filtro = AP.filtro === b.dataset.aps ? '' : b.dataset.aps; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); }));
-  host.querySelector('#ap-csv').addEventListener('click', ()=>{
-    const n = v=> v == null ? '' : Number(v).toFixed(2).replace('.', ',');
-    csvDownload([['Posição', 'Código', 'Produto', 'Linha', 'Curva', 'Faturamento', 'Parte do faturamento', 'Quantidade', 'Unidade', 'Clientes', 'Pedidos', 'Meses com venda', 'Última venda', 'Faturamento ano anterior', 'Custo unitário atual', 'Margem bruta %', 'Margem bruta R$', 'Sugestão']]
-      .concat(L.map((r, i)=> [i + 1, r.codigo, r.produto, r.linha, r._curva, n(r.faturamento), n(r._parte * 100), n(r.quantidade), r.unidade, r.clientes, r.pedidos, r.meses, fmtDate(r.ultima_venda), n(r.fat_ano_ant), n(r.custo_unit), r._mg == null ? '' : n(r._mg * 100), n(mgR(r)), AP_SUG[r._sug][0]])),
-      'analise-produtos-' + fim + '.csv'); uso('clique', 'análise de produtos: exportar'); });
+  const L = AP.rows, E = AP.est, soma = (rs, k)=> rs.reduce((t, r)=> t + Number(r[k] || 0), 0);
+  const pct = (v, d = 0)=> v == null ? '—' : (Number(v) * 100).toLocaleString('pt-BR', { maximumFractionDigits:d, minimumFractionDigits:d }) + '%';
+  const de = k=> L.filter(r=> r.classe === k), cont = {}; L.forEach(r=>{ cont[r.classe] = (cont[r.classe] || 0) + 1; });
+  const nucleo = de('nucleo'), sai = de('candidato').concat(de('sem_venda_abril')), enc = de('sob_encomenda');
+  const mgMed = rs=>{ const f = rs.filter(r=> r.margem_desde_abril != null), fa = soma(f, 'fat_desde_abril'); return fa ? f.reduce((t, r)=> t + Number(r.fat_desde_abril) * Number(r.margem_desde_abril), 0) / fa : null; };
+  const exc = E.filter(r=> r.situacao === 'excesso'), par = E.filter(r=> r.situacao === 'parado');
+  const abas = `<div class="cm-abas"><button class="cm-aba ${AP.aba === 'catalogo' ? 'on' : ''}" data-apa="catalogo">Catálogo por produto</button><button class="cm-aba ${AP.aba === 'estoque' ? 'on' : ''}" data-apa="estoque">Estoque a liquidar</button></div>`;
+  const kpis = `<div class="tb-kpis">
+      <div class="tb-kpi"><small>Produtos que venderam</small><b>${fmtNum(L.length)}</b><span>produtos-base (${fmtNum(soma(L, 'n_codigos'))} códigos) em 12 meses · ${fmtMoney(soma(L, 'faturamento_12m'))}</span></div>
+      <div class="tb-kpi rs-kpi-ok"><small>Núcleo (curvas A e B)</small><b>${fmtNum(nucleo.length)}</b><span>${pct(soma(nucleo, 'parte'), 1)} da venda · margem desde abril ${pct(mgMed(nucleo), 1)}</span></div>
+      <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, 'parte'), 2)} da venda (${fmtMoney(soma(sai, 'faturamento_12m'))}) · margem ${pct(mgMed(de('candidato')), 1)}</span></div>
+      <div class="tb-kpi"><small>Sob encomenda</small><b>${fmtNum(enc.length)}</b><span>${pct(soma(enc, 'parte'), 1)} da venda: saem da tabela do vendedor</span></div>
+      <div class="tb-kpi alerta"><small>Estoque acabado a liquidar</small><b>${fmtMoney(soma(exc, 'valor_custo') + soma(par, 'valor_custo'))}</b><span>${exc.length} em excesso e ${par.length} parados · contar antes de citar</span></div>
+    </div>`;
+  const aviso = `<div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> O que esta análise mostra: o ganho de enxugar o catálogo é <b>foco do vendedor e cadastro limpo</b>, não margem nem estoque. Os candidatos a sair têm margem acima da média e quase nenhum estoque. O estoque parado de verdade está em poucos itens que ainda vendem: o caminho para eles é liquidar, não cortar.</div>`;
+  if(AP.aba === 'estoque'){
+    host.innerHTML = abas + aviso + kpis + `
+      <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="prod">Produto</th><th>Situação</th><th class="n">Saldo</th><th class="n">Valor a custo</th><th class="n" title="Saldo ÷ média mensal vendida nos últimos 12 meses">Cobertura</th><th class="n">Última venda</th><th class="n">Clientes 12m</th><th title="Outro código do mesmo produto-base com saldo negativo: sinal de produção ou venda lançada no código errado">Conferir</th></tr></thead>
+      <tbody>${E.map(r=> `<tr><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td><span class="rt ${r.situacao === 'parado' ? 'rt-D' : 'rt-C'}">${r.situacao === 'parado' ? 'Parado há 180 dias ou mais' : 'Excesso (mais de 6 meses)'}</span></td>
+        <td class="n">${fmtNum(Math.round(Number(r.saldo)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${r.valor_custo == null ? '<span class="vazio">sem custo</span>' : fmtMoney(r.valor_custo)}</td><td class="n">${r.meses_cobertura == null ? '—' : String(r.meses_cobertura).replace('.', ',') + ' meses'}</td>
+        <td class="n">${r.ultima_venda ? fmtDate(r.ultima_venda) : '<span class="vazio">nunca</span>'}</td><td class="n">${fmtNum(r.clientes_12m)}</td><td>${r.irmao_negativo ? '⚠ código irmão negativo' : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="vazio">Nenhum produto acabado parado ou em excesso.</td></tr>'}</tbody></table></div>
+      <div class="tb-rodape">Só produto acabado (fora óleo básico, aditivo, embalagem, rótulo e uso e consumo). Parado = saldo com última venda há 180 dias ou mais; excesso = saldo acima de 6 meses da venda média dos últimos 12 meses. O saldo é o do Fácil123 (um depósito, sem inventário): conte fisicamente antes de levar qualquer valor ao CEO. "Código irmão negativo" = outro código do mesmo produto com saldo negativo (ex.: o 200 L positivo e o 1 L negativo), sinal de produção lançada no código errado.</div>`;
+  } else {
+    const q = AP.q.toLowerCase();
+    const M = L.filter(r=> (!AP.filtro || r.classe === AP.filtro) && (!AP.curva || r.curva === AP.curva) && (!q || [r.base, r.codigos, r.linha].join(' ').toLowerCase().includes(q)));
+    host.innerHTML = abas + aviso + kpis + `
+      <div class="tb-bar"><select id="ap-cls" aria-label="Classe"><option value="">Todas as classes</option>${Object.entries(AP_CLS).map(([k, [t]])=> `<option value="${k}" ${AP.filtro === k ? 'selected' : ''}>${t} (${cont[k] || 0})</option>`).join('')}</select>
+        <select id="ap-curva" aria-label="Curva">${['', 'A', 'B', 'C'].map(c=> `<option value="${c}" ${AP.curva === c ? 'selected' : ''}>${c ? 'Curva ' + c : 'Todas as curvas'}</option>`).join('')}</select>
+        <input id="ap-q" placeholder="Buscar produto, código ou linha" value="${escapeHtml(AP.q)}" style="width:240px">
+        <span class="tb-esp"></span><button class="om-cancel" id="ap-csv">Exportar a análise</button></div>
+      <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="prod">Produto-base</th><th>Classe</th><th>Por quê</th><th class="sec">Linha</th><th class="n">Curva</th><th class="n">Vendeu em 12 meses</th><th class="n sec">Parte</th><th class="n">Clientes</th><th class="n" title="Margem bruta a custo atual, nas vendas desde abril/2026">Margem desde abril</th><th class="n sec">Margem da linha</th><th class="n sec">Estoque acabado</th><th class="n sec">Última venda</th></tr></thead>
+      <tbody>${M.map(r=>{ const c = AP_CLS[r.classe] || [r.classe, '', ''];
+        return `<tr><td class="prod"><b>${escapeHtml(r.base || '')}</b><br><small class="vazio">${escapeHtml(r.codigos || '')}</small></td><td><span class="rt ${c[1]}" title="${escapeHtml(c[2])}">${c[0]}</span></td><td><small>${escapeHtml(r.motivo || '')}</small></td><td class="sec">${escapeHtml(r.linha || '')}</td><td class="n"><b>${r.curva}</b></td>
+          <td class="n">${fmtMoney(r.faturamento_12m)}</td><td class="n sec">${pct(r.parte, 2)}</td><td class="n">${fmtNum(r.clientes_12m)}</td><td class="n">${pct(r.margem_desde_abril, 1)}</td><td class="n sec">${pct(r.margem_linha, 1)}</td>
+          <td class="n sec">${Number(r.estoque_acabado_valor) ? fmtMoney(r.estoque_acabado_valor) : '—'}</td><td class="n sec">${r.ultima_venda ? fmtDate(r.ultima_venda) : '—'}</td></tr>`; }).join('') || '<tr><td colspan="12" class="vazio">Nenhum produto neste filtro.</td></tr>'}</tbody></table></div>
+      <div class="tb-rodape">Produto-base = o mesmo óleo em todas as embalagens, somado (os códigos aparecem embaixo do nome). Curva por produto-base nos últimos 12 meses: A = os primeiros 80% da venda, B = até 95%, C = o resto.<details class="tb-como"><summary>ⓘ Como é a régua</summary>${Object.values(AP_CLS).map(([t, , d])=> `<b>${t}:</b> ${d}`).join('<br>')}<br><br>Margem bruta = faturamento − quantidade × custo atual do Fácil123, só nas vendas de abril/2026 em diante. "Margem baixa" compara com a margem real da linha no mesmo período (o piso de margem cadastrado para Transmissão, 50%, está acima do que a linha faz, 48%). Só produto acabado entra. Ainda depende da Synthetic: como o custo é formado (inclui o envasador?), quais códigos são o mesmo produto (de-para a validar) e quais produtos são estratégicos mesmo vendendo pouco.</details></div>`;
+    host.querySelector('#ap-cls').addEventListener('change', e=>{ AP.filtro = e.target.value; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); });
+    host.querySelector('#ap-curva').addEventListener('change', e=>{ AP.curva = e.target.value; renderAnaliseProdutos(); });
+    host.querySelector('#ap-q').addEventListener('input', e=>{ AP.q = e.target.value; clearTimeout(AP.t); AP.t = setTimeout(()=>{ renderAnaliseProdutos(); const i = document.getElementById('ap-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 300); });
+    host.querySelector('#ap-csv').addEventListener('click', ()=>{
+      const n = v=> v == null ? '' : Number(v).toFixed(2).replace('.', ',');
+      csvDownload([['Produto-base', 'Códigos (embalagem)', 'Classe', 'Por quê', 'Linha', 'Curva', 'Faturamento 12 meses', 'Parte %', 'Quantidade 12 meses', 'Clientes 12 meses', 'Primeira venda', 'Última venda', 'Faturamento desde abril', 'Margem desde abril %', 'Margem da linha %', 'Maior cliente %', 'Maior cliente no top 50', 'Estoque acabado a custo', 'Cobertura (meses)']]
+        .concat(L.map(r=> [r.base, r.codigos, (AP_CLS[r.classe] || [r.classe])[0], r.motivo, r.linha, r.curva, n(r.faturamento_12m), n(Number(r.parte) * 100), n(r.quantidade_12m), r.clientes_12m, fmtDate(r.primeira_venda), fmtDate(r.ultima_venda), n(r.fat_desde_abril), r.margem_desde_abril == null ? '' : n(r.margem_desde_abril * 100), r.margem_linha == null ? '' : n(r.margem_linha * 100), r.maior_cliente_parte == null ? '' : n(r.maior_cliente_parte * 100), r.maior_cliente_top50 ? 'sim' : '', n(r.estoque_acabado_valor), r.meses_cobertura == null ? '' : n(r.meses_cobertura)]))
+        .concat([[], ['Estoque acabado a liquidar'], ['Código', 'Produto', 'Situação', 'Saldo', 'Unidade', 'Valor a custo', 'Cobertura (meses)', 'Última venda', 'Clientes 12 meses', 'Código irmão negativo']])
+        .concat(E.map(r=> [r.codigo, r.produto, r.situacao, n(r.saldo), r.unidade, n(r.valor_custo), r.meses_cobertura == null ? '' : n(r.meses_cobertura), fmtDate(r.ultima_venda), r.clientes_12m, r.irmao_negativo ? 'sim' : ''])),
+        'analise-catalogo-' + diaLocal(new Date()) + '.csv'); uso('clique', 'análise de produtos: exportar'); });
+  }
+  host.querySelectorAll('[data-apa]').forEach(b=> b.addEventListener('click', ()=>{ AP.aba = b.dataset.apa; renderAnaliseProdutos(); }));
 }
 
 // ---------- ENTREGAS (05/11/2026): o calendário das melhorias, só para o Administrador ----------
