@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-213218">
+<meta name="crm-versao" content="20261105-214000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -51,10 +51,14 @@
   .tb-bar .tb-esp{ flex:1;}
   .tb-wrap{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:auto; max-height:calc(100vh - 250px); min-height:320px;}
   .tb-tab{ width:100%; border-collapse:collapse; font-size:clamp(14px, .8vw, 16px);}
-  .tb-tab th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font:600 12.5px 'Barlow',sans-serif; text-transform:none; color:var(--ink-soft); padding:7px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer;}
+  .tb-tab th{ position:sticky; top:0; background:var(--surface-2); text-align:left; font:600 14px 'Barlow',sans-serif; text-transform:none; color:var(--ink-soft); padding:7px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer;}
   .tb-tab td{ padding:6px 8px; border-bottom:1px solid var(--border-soft); white-space:nowrap;}
   .tb-tab td.n, .tb-tab th.n{ text-align:right; font-variant-numeric:tabular-nums;}
   .tb-tab td.prod{ white-space:normal; min-width:220px;}
+  /* tabelas largas (conselho de design, 05/11): o nome do produto fica parado ao rolar para o lado; no celular saem as colunas secundárias */
+  .tb-tab.fixa td.prod{ position:sticky; left:0; background:var(--surface); z-index:1;} .tb-tab.fixa th.prod{ position:sticky; left:0; z-index:3;}
+  @media (max-width:820px){ .tb-tab .sec{ display:none;} .tb-tab.fixa td.prod{ min-width:160px;} }
+  .pl-ipca{ display:inline-flex; gap:6px; align-items:baseline; padding:6px 12px; border:1px solid var(--border); border-radius:999px; font-size:14px; white-space:nowrap; background:var(--surface);} .pl-ipca b{ font:inherit; font-weight:700;}
   /* notebook (05/11/2026, reunião: o cliente arrastava a tabela para o lado): até 1600 px o texto quebra linha e só número e data ficam numa linha */
   @media (max-width:1600px){
     .tb-tab th{ white-space:normal; line-height:1.25;}
@@ -9383,22 +9387,22 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
-  { id:'rotas-mapa', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
+  { id:'rotas-mapa-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
   { id:'entregas-sexta', dia:'2026-11-06', tela:'sugestoes', titulo:'Toda sexta tem novidade na Torre', txt:'As melhorias saem toda sexta-feira, até o fim do dia, com o que vocês sugerirem na semana: de segunda a quinta a gente recolhe, na reunião de quinta conversa e na sexta entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
-  { id:'financeiro', lib:'fin-inad', dia:'2026-11-06', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Rian na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
-  { id:'export-cliente', lib:'export-cliente', dia:'2026-11-06', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
-  { id:'rotas', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
+  { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-06', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
+  { id:'export-cliente-1106', lib:'export-cliente', dia:'2026-11-06', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
+  { id:'rotas-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
   { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção do mês, o ano contra o ano passado, o ranking dos vendedores (com "copiar para o grupo") e o que pede atenção na venda. Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. As letras ficaram maiores.' },
-  { id:'cliente-unico', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
-  { id:'desconto', lib:'fin-desc', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
-  { id:'promo-bonificacao', lib:'promo-bonif', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
-  { id:'promo-vendas', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
+  { id:'cliente-unico-lib', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
+  { id:'desconto-lib', lib:'fin-desc', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
+  { id:'promo-bonif-lib', lib:'promo-bonif', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
+  { id:'promo-vendas-lib', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
   { id:'whatsapp', dia:'2026-11-05', tela:'parados', titulo:'Mensagem pronta no WhatsApp: oferta e cobrança', txt:'No detalhe do cliente, "Mandar oferta" monta a mensagem com o que ele comprava e a promoção ativa; o financeiro tem "Cobrar" com os boletos em atraso. Você revisa e manda pelo seu WhatsApp.' },
   { id:'rede', dia:'2026-11-05', tela:'parados', titulo:'Parados: "rede compra"', txt:'Marca o cliente que parou nesta loja, mas outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias.' },
-  { id:'devedor-cnpj', lib:'nota', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
-  { id:'relatorios', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
-  { id:'rating', lib:'nota', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
-  { id:'carteira', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
+  { id:'devedor-cnpj-lib', lib:'nota', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
+  { id:'relatorios-lib', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
+  { id:'rating-lib', lib:'nota', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
+  { id:'carteira-lib', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
   { id:'parados-faixas', dia:'2026-11-04', tela:'parados', titulo:'Parados: os mais fáceis de recuperar em destaque', txt:'O quadro principal separa quem parou há 91 a 180 dias (mais fácil de trazer de volta) de quem parou há mais tempo.' },
   { id:'cliente-detalhe', dia:'2026-11-04', tela:'parados', titulo:'Clique no cliente parado para ver o que ele comprava e quando parou', txt:'Abre as compras mês a mês, os produtos que ele comprava e quando comprou cada um pela última vez, os últimos pedidos (vendedor, tabela e prazo) e o que foi registrado no CRM. ‹ › passa para o próximo da lista.' },
   { id:'parados', dia:'2026-11-03', tela:'parados', titulo:'Clientes parados há mais de 90 dias', txt:'Nova tela com quem comprava e parou, por vendedor, com o que cada cliente comprou em 12 meses. A cada semana ela destaca quem acabou de entrar na lista. Sugestão da equipe.' },
@@ -10314,7 +10318,7 @@ async function renderParados(){
                                      rtCarrega().catch(()=> null), pdRedeCarrega().catch(()=> null)]); }
     catch(e){ host.innerHTML = `<div class="tb-aviso">Não consegui buscar: ${escapeHtml(errAmigavel(e))}</div>`; return; }
   }
-  const rt = r=> RT_MAPA && RT_MAPA.get(r.pessoa_id), deve = r=> { const x = rt(r); return !!x && (Number(x.vencido) > 0 || x.ligado_forca >= 2); };
+  const rt = r=> RT_MAPA && libLivre('nota') && RT_MAPA.get(r.pessoa_id), deve = r=> { const x = rt(r); return !!x && (Number(x.vencido) > 0 || x.ligado_forca >= 2); };
   const [lo, hi] = PDS.faixa.split('-').map(x=> x === '' ? Infinity : Number(x));
   const nomeV = r=> nomeBonito(r.vendedor || '') || 'Sem vendedor';
   const nova = r=> Number(r.dias_sem_comprar) <= 97;   // passou dos 90 dias nos últimos 7 dias (91 a 97)
@@ -10342,7 +10346,7 @@ async function renderParados(){
       <div class="cm-chips" style="margin:0"><button class="cm-chip ${PDS.aba === 'clientes' ? 'on' : ''}" data-praba="clientes">Clientes</button><button class="cm-chip ${PDS.aba === 'vend' ? 'on' : ''}" data-praba="vend">Por vendedor</button></div>
       <select id="pr-faixa" aria-label="Tempo sem comprar">${PDS_FAIXAS.map(([k, t])=> `<option value="${k}" ${PDS.faixa === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
       ${vendedores.length > 1 ? `<select id="pr-vend" aria-label="Vendedor"><option value="">Todos os vendedores</option>${vendedores.map(v=> `<option ${PDS.vend === v ? 'selected' : ''}>${escapeHtml(v)}</option>`).join('')}</select>` : ''}
-      ${RT_MAPA ? `<select id="pr-pg" aria-label="Pagamento" title="Rating de pagamento pelos boletos das empresas que faturam"><option value="">Pagamento: todos</option><option value="ok" ${PDS.pg === 'ok' ? 'selected' : ''}>Sem atraso e sem ligação a quem deve (pode vender)</option><option value="atraso" ${PDS.pg === 'atraso' ? 'selected' : ''}>Em atraso ou ligado a quem deve (${fmtNum(devendo.length)})</option></select>` : ''}
+      ${RT_MAPA && libLivre('nota') ? `<select id="pr-pg" aria-label="Pagamento" title="Rating de pagamento pelos boletos das empresas que faturam"><option value="">Pagamento: todos</option><option value="ok" ${PDS.pg === 'ok' ? 'selected' : ''}>Sem atraso e sem ligação a quem deve (pode vender)</option><option value="atraso" ${PDS.pg === 'atraso' ? 'selected' : ''}>Em atraso ou ligado a quem deve (${fmtNum(devendo.length)})</option></select>` : ''}
       <input id="pr-q" class="ca-inp" placeholder="Buscar cliente ou cidade" value="${escapeHtml(PDS.q)}" style="min-width:180px">
       <span class="tb-esp"></span><button class="om-cancel" id="pr-csv" title="Baixar a lista para mandar aos vendedores">Exportar</button>
     </div>
@@ -10352,9 +10356,9 @@ async function renderParados(){
     : `
     ${devendo.length && PDS.pg !== 'ok' ? (()=>{ const lig = devendo.filter(r=> !(Number(rt(r).vencido) > 0)).length;
       return `<div class="tb-aviso"><b>${fmtNum(devendo.length - lig)} destes clientes têm boleto em atraso</b> (${fmtMoney(devendo.reduce((t, r)=> t + Number(rt(r).vencido || 0), 0))})${lig ? ` e <b>${fmtNum(lig)} parecem ser do mesmo dono de quem deve</b> (mesmo CNPJ raiz, telefone, e-mail ou endereço)` : ''}. Antes de ligar para vender, combine com o financeiro. Para tirá-los da lista, use o filtro de pagamento.</div>`; })() : ''}
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th>${RT_MAPA ? '<th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th>' : ''}<th>Telefone</th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Cidade</th><th>Vendedor</th><th class="n">Última compra</th><th class="n">Dias parado</th><th class="n">Comprou em 12 meses</th><th class="n">Pedidos 12m</th><th class="n">Por mês</th>${RT_MAPA && libLivre('nota') ? '<th class="n" title="Nota de pagamento de 0 a 10 pelos boletos (passe o mouse na nota para ver o porquê); — = pouco histórico">Nota pgto.</th>' : ''}<th>Telefone</th></tr></thead>
     <tbody>${mostra.map(r=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente parado" title="Clique para ver o que ${escapeHtml(r.nome || 'o cliente')} comprava e quando parou"><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span>${nova(r) ? '<span class="pr-nova" title="Passou dos 90 dias sem comprar nos últimos 7 dias">nova</span>' : ''}${PD_REDE && PD_REDE.get(r.pessoa_id) ? `<span class="pr-nova" style="background:var(--border-soft);color:var(--ink-soft)" title="Outra loja da mesma rede (mesma raiz de CNPJ) comprou${PD_REDE.get(r.pessoa_id).valor_90d != null ? ' ' + escapeHtml(fmtMoney(PD_REDE.get(r.pessoa_id).valor_90d)) : ''} nos últimos 90 dias: a compra pode só ter mudado de CNPJ">rede compra</span>` : ''}</td><td>${escapeHtml([r.cidade, r.uf].filter(Boolean).join('/'))}</td><td>${escapeHtml(nomeV(r))}</td>
-      <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td>${RT_MAPA ? `<td class="n">${rtSelo(rt(r))}</td>` : ''}<td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>'}</tbody></table></div>`}
+      <td class="n">${fmtDate(r.ultima_compra)}</td><td class="n">${fmtNum(r.dias_sem_comprar)}</td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td><td class="n">${r.pedidos_12m || '—'}</td><td class="n">${r.valor_mensal ? fmtMoney(r.valor_mensal) : '—'}</td>${RT_MAPA && libLivre('nota') ? `<td class="n">${rtSelo(rt(r))}</td>` : ''}<td>${escapeHtml(r.telefone || '')}</td></tr>`).join('') || `<tr><td colspan="${RT_MAPA && libLivre('nota') ? 10 : 9}" class="vazio">Nenhum cliente parado com esses filtros.</td></tr>`}</tbody></table></div>`}
     <div class="tb-rodape">${L.length > MAX && PDS.aba === 'clientes' ? `Mostrando os ${MAX} que mais compravam de ${fmtNum(L.length)}; use os filtros ou Exportar para ver todos. ` : ''}Clique num cliente para ver o que ele comprava, mês a mês, e quando parou.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Parado = cliente que já comprou e está há mais de 90 dias sem comprar, pela última nota faturada da Synthetic (compras feitas por outra empresa do grupo não entram). "nova" = passou dos 90 dias nos últimos 7 dias: é a lista da semana para o vendedor ligar. "rede compra" = outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias. "Por mês" = o que comprou em 12 meses dividido por 12. Os maiores primeiro.</details></div>`;
   const re = ()=> renderParados();
   host.querySelectorAll('[data-prso]').forEach(k=> k.addEventListener('click', ()=>{ PDS.so = PDS.so === k.dataset.prso ? '' : k.dataset.prso; re(); }));
@@ -10547,7 +10551,13 @@ function plIpcaTxt(cresc){
   if(!x) return `IPCA previsto para ${PL.ano}: indisponível agora`;
   const pct = v=> (v * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
   const real = cresc == null ? null : (1 + cresc) / (1 + x.v) - 1;
-  return `IPCA previsto para ${PL.ano}: <b>${pct(x.v)}</b> <small>(Focus/BC, ${x.em.slice(8, 10)}/${x.em.slice(5, 7)})</small>${real == null ? '' : ` · crescimento real necessário: <b>${real >= 0 ? '+' : ''}${pct(real)}</b>`}`;
+  return `IPCA ${PL.ano}: <b>${pct(x.v)}</b> <small>(Focus/BC, ${x.em.slice(8, 10)}/${x.em.slice(5, 7)})</small>`;
+}
+// crescimento real: quanto a meta cresce acima da inflação prevista (vai no KPI "Crescimento necessário")
+function plRealTxt(cresc){
+  const x = PL.ipca; if(!x || cresc == null) return '';
+  const real = (1 + cresc) / (1 + x.v) - 1;
+  return ` · real, acima da inflação: <b style="display:inline;font:inherit;font-weight:700">${real >= 0 ? '+' : ''}${(real * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 })}%</b>`;
 }
 async function fiPlanejamento(host){
   if(!PL.vm){
@@ -10594,6 +10604,7 @@ async function fiPlanejamento(host){
   const totTop = PL.top.reduce((t, p)=> t + Number(p.parte), 0), pode = ['admin', 'master'].includes(perfilEfetivo());
   const mbAno = PL.top.reduce((t, p)=>{ const mb = plMb(p); return t + (mb == null ? 0 : PL.meta * Number(p.parte) * mb); }, 0);
   const mcAno = PL.top.reduce((t, p)=>{ const mb = plMb(p); return t + (mb == null ? 0 : PL.meta * Number(p.parte) * (mb - PL.premPct)); }, 0);
+  const metaComMg = PL.top.reduce((t, p)=> t + (plMb(p) == null ? 0 : PL.meta * Number(p.parte)), 0) || 1;
   // ponte: de onde podem vir os R$ que faltam (premissas simples e visíveis, para discutir com a diretoria)
   const gap = Math.max(0, PL.meta - estAno);
   const alav = [
@@ -10605,13 +10616,13 @@ async function fiPlanejamento(host){
     <table class="tb-tab" style="margin-top:6px"><tbody>${alav.map(([t, v, c])=> `<tr><td class="prod"><b>${t}</b><br><small class="vazio">${escapeHtml(c)}</small></td><td class="n"><b>${fmtMoney(v)}</b></td><td class="n">${Math.round(100 * v / gap)}%</td></tr>`).join('')}
     <tr class="tm-grupo"><td class="prod"><b>${falta ? 'Falta decidir' : 'As alavancas cobrem a meta'}</b><br><small class="vazio">${falta ? 'linhas novas (ex.: transmissão no Nordeste, venda pela internet), novas regiões, equipe, reajuste de preço' : 'sobra margem para escolher onde apostar'}</small></td><td class="n"><b>${fmtMoney(falta)}</b></td><td class="n">${Math.round(100 * falta / gap)}%</td></tr></tbody></table></div>` : '';
   host.innerHTML = `
-    <div class="tb-bar"><label style="font-size:14px" title="Ponto de partida para a diretoria decidir: mude o número e o plano recalcula na hora">Meta proposta para ${PL.ano} (para discutir): R$ <input id="pl-meta" inputmode="decimal" value="${PL.meta.toLocaleString('pt-BR')}" style="width:150px;font-weight:700" ${pode ? '' : 'disabled'}></label>${pode ? '<button class="om-save" id="pl-salva">Salvar meta</button>' : ''}<span id="pl-ipca" class="tb-kpi" style="padding:6px 12px;min-height:0;font-size:13px" title="Mediana das projeções do mercado para o IPCA (Relatório Focus do Banco Central). O crescimento real é o que sobra acima da inflação.">${plIpcaTxt(cresc)}</span><span class="tb-esp"></span><button class="om-cancel" id="pl-csv">Exportar o plano (mês a mês e por produto)</button></div>
+    <div class="tb-bar"><label style="font-size:14px" title="Ponto de partida para a diretoria decidir: mude o número e o plano recalcula na hora">Meta proposta para ${PL.ano} (para discutir): R$ <input id="pl-meta" inputmode="decimal" value="${PL.meta.toLocaleString('pt-BR')}" style="width:150px;font-weight:700" ${pode ? '' : 'disabled'}></label>${pode ? '<button class="om-save" id="pl-salva">Salvar meta</button>' : ''}<span id="pl-ipca" class="pl-ipca" title="Mediana das projeções do mercado para o IPCA (Relatório Focus do Banco Central). O crescimento real é o que sobra acima da inflação.">${plIpcaTxt(cresc)}</span><span class="tb-esp"></span><button class="om-cancel" id="pl-csv">Exportar o plano (mês a mês e por produto)</button></div>
     <div class="tb-kpis">
       <div class="tb-kpi"><small>Meta ${PL.ano}</small><b>${fmtMoney(PL.meta)}</b><span>média de ${fmtMoney(PL.meta / 12)} por mês</span></div>
       <div class="tb-kpi"><small>${yA} deve fechar em</small><b>${fmtMoney(estAno)}</b><span>${mesesReais.length} meses vendidos + ${12 - mesesReais.length} estimados pela sazonalidade</span></div>
-      <div class="tb-kpi ${cresc != null && cresc > .3 ? 'alerta' : ''}"><small>Crescimento necessário</small><b>${cresc == null ? '—' : (cresc >= 0 ? '+' : '') + Math.round(cresc * 100) + '%'}</b><span>sobre ${yA}${cresc != null && cresc > .3 ? ': precisa de estratégia nova (clientes, mix e preço), não só do ritmo atual' : ''}</span></div>
+      <div class="tb-kpi ${cresc != null && cresc > .3 ? 'alerta' : ''}"><small>Crescimento necessário</small><b>${cresc == null ? '—' : (cresc >= 0 ? '+' : '') + Math.round(cresc * 100) + '%'}</b><span>sobre ${yA}<span id="pl-real">${plRealTxt(cresc)}</span>${cresc != null && cresc > .3 ? ': precisa de estratégia nova (clientes, mix e preço), não só do ritmo atual' : ''}</span></div>
       <div class="tb-kpi"><small>Curvas A e B: ${PL.top.length} produtos</small><b>${Math.round(totTop * 100)}%</b><span>do faturamento dos últimos 12 meses (${PL.top.filter(p=> p.curva === 'A').length} na curva A, ${PL.top.filter(p=> p.curva === 'B').length} na B): é neles que a meta se distribui</span></div>
-      <div class="tb-kpi"><small>Margem de contribuição em ${PL.ano}</small><b>${fmtMoney(mcAno)}</b><span>${plPct(mcAno / (PL.meta * totTop || 1))} da meta destes produtos (margem bruta ${plPct(mbAno / (PL.meta * totTop || 1))} − premissas ${plPct(PL.premPct)})</span></div>
+      <div class="tb-kpi"><small>Margem de contribuição em ${PL.ano}</small><b>${fmtMoney(mcAno)}</b><span>${plPct(mcAno / metaComMg)} da meta destes produtos (margem bruta ${plPct(mbAno / metaComMg)}, medida nas vendas desde abril, − premissas ${plPct(PL.premPct)})</span></div>
     </div>
     ${ponte}
     <h3 style="font-size:15px;margin:8px 0">Vendas mês a mês e a meta de ${PL.ano} pela sazonalidade</h3>
@@ -10620,18 +10631,18 @@ async function fiPlanejamento(host){
     <tbody>${M3.map((m, k)=>{ const ul = anos.length ? T[anos[anos.length - 1]][k + 1] : null; return `<tr><td>${m}</td>${anos.map(y=> `<td class="n">${T[y][k + 1] != null ? fmtMoney(T[y][k + 1]) : '—'}</td>`).join('')}<td class="n">${ind[k].toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}</td><td class="n"><b>${fmtMoney(proj[k])}</b></td><td class="n">${ul ? (proj[k] / ul - 1 >= 0 ? '+' : '') + Math.round((proj[k] / ul - 1) * 100) + '%' : '—'}</td></tr>`; }).join('')}
       <tr class="tm-grupo"><td>Ano</td>${anos.map(y=> `<td class="n">${fmtMoney(Object.values(T[y]).reduce((a, c)=> a + c, 0))}</td>`).join('')}<td></td><td class="n"><b>${fmtMoney(PL.meta)}</b></td><td></td></tr></tbody></table></div>
     <h3 style="font-size:15px;margin:16px 0 8px">Quanto cada produto precisa vender em ${PL.ano}: as curvas A e B (${PL.top.length} produtos, ${Math.round(totTop * 100)}% do faturamento)</h3>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th class="n">Curva</th><th class="n">Vendeu em 12 meses</th><th class="n">Quantidade em 12 meses</th><th class="n" title="Parte do produto no faturamento dos últimos 12 meses">Parte</th><th class="n">Meta ${PL.ano}</th><th class="n">Quantidade em ${PL.ano}</th>
-      <th class="n" title="Margem bruta: faturamento menos quantidade × custo atual do Fácil123">Margem bruta</th><th class="n" title="Margem de contribuição: margem bruta menos impostos, comissão, frete e taxas financeiras sobre a venda (premissas da tela de margens: ${plPct(PL.premPct)})">Margem de contribuição</th><th class="n">Contribuição em ${PL.ano}</th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="n sec">#</th><th class="prod">Produto</th><th class="n">Curva</th><th class="n">Vendeu em 12 meses</th><th class="n sec">Quantidade em 12 meses</th><th class="n sec" title="Parte do produto no faturamento dos últimos 12 meses">Parte</th><th class="n">Meta ${PL.ano}</th><th class="n">Quantidade em ${PL.ano}</th>
+      <th class="n sec" title="Margem bruta: faturamento menos quantidade × custo atual do Fácil123, nas vendas desde abril/2026">Margem bruta</th><th class="n" title="Margem de contribuição: margem bruta menos impostos, comissão, frete e taxas financeiras sobre a venda (premissas da tela de margens: ${plPct(PL.premPct)})">Margem de contribuição</th><th class="n">Contribuição em ${PL.ano}</th></tr></thead>
     <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null, mb = plMb(p), mc = mb == null ? null : mb - PL.premPct;
-      return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n"><b>${p.curva}</b></td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${tbQtd(Math.round(Number(p.qtd_12m)))}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td>
-        <td class="n">${mb == null ? '<span class="vazio" title="Sem custo no Fácil123 ou custo fora do normal">—</span>' : plPct(mb)}</td><td class="n" style="${mc != null && mc < .2 ? 'color:var(--red)' : ''}">${mc == null ? '—' : plPct(mc)}</td><td class="n">${mc == null ? '—' : fmtMoney(mp * mc)}</td></tr>`; }).join('')}
-      <tr class="tm-grupo"><td></td><td class="prod">Resto do catálogo (curva C)</td><td></td><td class="n">—</td><td></td><td class="n">${(Math.max(0, 1 - totTop) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n">${fmtMoney(PL.meta * Math.max(0, 1 - totTop))}</td><td colspan="4" class="vazio">fica fora do plano produto a produto (ver Análise de produtos)</td></tr></tbody></table></div>
-    <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Produtos: as curvas A e B dos últimos 12 meses (os que somam os primeiros 95% do faturamento; A = os primeiros 80%). Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Margem bruta = faturamento − quantidade × custo atual do Fácil123 (o custo tem histórico só desde out/2026: número em conferência); margem de contribuição = margem bruta − ${PL.prem.map(x=> ({ imposto:'impostos', comissao:'comissão', frete:'frete', financeiro:'taxas financeiras' }[x.chave]) + ' ' + plPct(Number(x.valor))).join(', ') || 'premissas'} (tela de margens). Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
+      return `<tr><td class="n sec">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n"><b>${p.curva}</b></td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n sec">${tbQtd(Math.round(Number(p.qtd_12m)))}</td><td class="n sec">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td>
+        <td class="n sec">${mb == null ? '<span class="vazio" title="Sem custo no Fácil123 ou custo fora do normal">—</span>' : plPct(mb)}</td><td class="n" style="${mc != null && mc < .2 ? 'color:var(--red)' : ''}">${mc == null ? '—' : plPct(mc)}</td><td class="n">${mc == null ? '—' : fmtMoney(mp * mc)}</td></tr>`; }).join('')}
+      <tr class="tm-grupo"><td class="sec"></td><td class="prod">Resto do catálogo (curva C)</td><td></td><td class="n">—</td><td class="sec"></td><td class="n sec">${(Math.max(0, 1 - totTop) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n">${fmtMoney(PL.meta * Math.max(0, 1 - totTop))}</td><td class="n vazio">—</td><td colspan="3" class="vazio">fica fora do plano produto a produto</td></tr></tbody></table></div>
+    <div class="tb-rodape">Meta do mês pela sazonalidade dos anos anteriores; meta de cada produto pela parte dele nos últimos 12 meses; margem de contribuição = margem bruta − impostos, comissão, frete e taxas.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Produtos: as curvas A e B dos últimos 12 meses (os que somam os primeiros 95% do faturamento; A = os primeiros 80%). Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Margem bruta = faturamento − quantidade × custo atual do Fácil123, medida só nas vendas de abril/2026 em diante (os preços subiram 30% a 50% em abril e o custo do Fácil123 só tem histórico desde out/2026); margem de contribuição = margem bruta − ${PL.prem.map(x=> ({ imposto:'impostos', comissao:'comissão', frete:'frete', financeiro:'taxas financeiras' }[x.chave]) + ' ' + plPct(Number(x.valor))).join(', ') || 'premissas'} (tela de margens). Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</details></div>`;
   if(PL.ipca === undefined){ PL.ipca = null;   // busca uma vez a inflação prevista (Focus, Banco Central: dado público, nada sai daqui)
     fetch(`https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=${encodeURIComponent(`Indicador eq 'IPCA' and DataReferencia eq '${PL.ano}' and baseCalculo eq 0`)}&$orderby=Data%20desc&$top=1&$format=json&$select=Data,Mediana`)
       .then(r=> r.json()).then(j=>{ const x = (j.value || [])[0]; PL.ipca = x ? { v:Number(x.Mediana) / 100, em:x.Data } : false; })
       .catch(()=>{ PL.ipca = false; })
-      .finally(()=>{ const el = document.getElementById('pl-ipca'); if(el) el.innerHTML = plIpcaTxt(cresc); }); }
+      .finally(()=>{ const el = document.getElementById('pl-ipca'); if(el) el.innerHTML = plIpcaTxt(cresc); const rr = document.getElementById('pl-real'); if(rr) rr.innerHTML = plRealTxt(cresc); }); }
   host.querySelector('#pl-salva')?.addEventListener('click', async ()=>{ const v = plDinheiro(host.querySelector('#pl-meta').value); if(!(v > 0)){ showToast('Informe a meta em reais.'); return; }
     const { error } = await sb.rpc('crm_planejamento_salvar', { p_ano:PL.ano, p_meta:v }); if(error){ showToast(errAmigavel(error)); return; }
     PL.meta = v; showToast('Meta salva.'); uso('clique', 'planejamento: meta salva'); fiPlanejamento(host); });
@@ -10918,12 +10929,12 @@ async function fiInadimplencia(host){
       <input id="fi-q" class="ca-inp" placeholder="Buscar cliente ou CNPJ" value="${escapeHtml(FI.q)}" style="min-width:180px">
       <span class="tb-esp"></span><button class="om-cancel" id="fi-csv" title="Baixar a lista para acompanhar a cobrança">Exportar</button>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th>${RT_MAPA ? '<th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th>' : ''}<th></th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th>${RT_MAPA && libLivre('nota') ? '<th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th>' : ''}<th></th></tr></thead>
     <tbody>${mostra.map(r=>{ const d = diasDe(r.mais_antigo), x = RT_MAPA && r.pessoa_id && RT_MAPA.get(r.pessoa_id);
       return `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" ${r.pessoa_id ? `data-pid="${r.pessoa_id}" data-uso-linha="cliente financeiro" title="Ver compras e boletos de ${escapeHtml(r.cliente || 'o cliente')}"` : 'title="Cliente sem cadastro no CRM com este CNPJ"'}>
       <td class="prod">${escapeHtml(r.cliente || r.cnpj)}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.empresas || '')}</td>
       <td class="n">${Number(r.em_atraso) ? '<b>' + fmtMoney(r.em_atraso) + '</b>' : '—'}</td><td class="n">${r.boletos_atraso || '—'}</td><td class="n ${d > 30 ? 'cm-pend' : ''}">${d != null ? d + ' dias' : '—'}</td>
-      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td>${RT_MAPA ? `<td class="n">${x ? rtSelo(x) : ''}</td>` : ''}<td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
+      <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td>${RT_MAPA && libLivre('nota') ? `<td class="n">${x ? rtSelo(x) : ''}</td>` : ''}<td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</details></div>`;
   const re = ()=> fiInadimplencia(host);
   host.querySelectorAll('[data-fifx]').forEach(b=> b.addEventListener('click', ()=>{ FI.faixa = FI.faixa === b.dataset.fifx ? '' : b.dataset.fifx; if(FI.faixa) FI.mostra = 'atraso'; re(); }));
@@ -11301,8 +11312,10 @@ async function renderAnaliseProdutos(){
   const q = AP.q.toLowerCase();
   const M = L.filter(r=> (!AP.filtro || r._sug === AP.filtro) && (!AP.curva || r._curva === AP.curva) && (!q || [r.codigo, r.produto, r.linha].join(' ').toLowerCase().includes(q)));
   host.innerHTML = `
-    <div class="tb-aviso so-voce" data-sv="" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> Base para a conversa com o CEO sobre enxugar o catálogo: o vendedor com menos produtos para oferecer fica mais concentrado e mais certeiro.</div>
+    <div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> Base para a conversa com o CEO sobre enxugar o catálogo: o vendedor com menos produtos para oferecer fica mais concentrado e mais certeiro.</div>
     <div class="tb-bar"><select id="ap-per" aria-label="Período"><option value="ano" ${AP.per === 'ano' ? 'selected' : ''}>${hoje.getFullYear()} até hoje</option><option value="12m" ${AP.per === '12m' ? 'selected' : ''}>Últimos 12 meses</option></select>
+      <select id="ap-curva" aria-label="Curva">${['', 'A', 'B', 'C'].map(c=> `<option value="${c}" ${AP.curva === c ? 'selected' : ''}>${c ? 'Curva ' + c : 'Todas as curvas'}</option>`).join('')}</select>
+      <select id="ap-sug" aria-label="Sugestão"><option value="">Todas as sugestões</option>${Object.entries(AP_SUG).map(([k, [t]])=> `<option value="${k}" ${AP.filtro === k ? 'selected' : ''}>${t} (${cont[k] || 0})</option>`).join('')}</select>
       <input id="ap-q" placeholder="Buscar produto, código ou linha" value="${escapeHtml(AP.q)}" style="width:240px">
       <span class="tb-esp"></span><button class="om-cancel" id="ap-csv">Exportar a análise</button></div>
     <div class="tb-kpis">
@@ -11312,18 +11325,18 @@ async function renderAnaliseProdutos(){
       <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(sai, mgR) / mgTot : 0, 1)} da margem</span></div>
       <div class="tb-kpi rs-kpi-ok"><small>Catálogo enxuto proposto</small><b>${fmtNum(fica.length)}</b><span>produtos de linha (+${enc.length} sob encomenda) com ${pct(soma(fica, r=> r._parte), 1)} do faturamento e ${pct(mgTot ? soma(fica, mgR) / mgTot : 0, 1)} da margem</span></div>
     </div>
-    <div class="cm-chips" style="margin:8px 0">${['', 'A', 'B', 'C'].map(c=> `<button class="cm-chip ${AP.curva === c ? 'on' : ''}" data-apc="${c}">${c ? 'Curva ' + c : 'Todas as curvas'}</button>`).join('')}
-      <span style="width:12px"></span>${Object.entries(AP_SUG).map(([k, [t]])=> `<button class="cm-chip ${AP.filtro === k ? 'on' : ''}" data-aps="${k}" title="${escapeHtml(AP_SUG[k][2])}">${t} <b>${cont[k] || 0}</b></button>`).join('')}</div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th>Linha</th><th class="n">Curva</th><th class="n">Faturamento</th><th class="n">Parte</th><th class="n">Quantidade</th><th class="n">Clientes</th><th class="n" title="Em quantos meses do período o produto vendeu">Meses</th><th class="n" title="Faturamento contra o mesmo período do ano anterior">Contra ano ant.</th><th class="n" title="Margem bruta: receita menos quantidade × custo atual do Fácil123">Margem</th><th class="n">Margem R$</th><th>Sugestão</th></tr></thead>
+    <div class="cm-chips" style="margin:8px 0">${['sair', 'encomenda', 'custo'].map(k=> `<button class="cm-chip ${AP.filtro === k ? 'on' : ''}" data-aps="${k}" title="${escapeHtml(AP_SUG[k][2])}">${AP_SUG[k][0]} <b>${cont[k] || 0}</b></button>`).join('')}</div>
+    <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="n sec">#</th><th class="prod">Produto</th><th>Sugestão</th><th class="sec">Linha</th><th class="n">Curva</th><th class="n">Faturamento</th><th class="n sec">Parte</th><th class="n">Quantidade</th><th class="n">Clientes</th><th class="n sec" title="Em quantos meses do período o produto vendeu">Meses</th><th class="n" title="Faturamento contra o mesmo período do ano anterior">Contra ano ant.</th><th class="n" title="Margem bruta: receita menos quantidade × custo atual do Fácil123">Margem</th><th class="n sec">Margem R$</th></tr></thead>
     <tbody>${M.map(r=>{ const sg = AP_SUG[r._sug];
-      return `<tr><td class="n">${L.indexOf(r) + 1}</td><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td>${escapeHtml(r.linha || '')}</td><td class="n"><b>${r._curva}</b></td>
-        <td class="n">${fmtMoney(r.faturamento)}</td><td class="n">${pct(r._parte, 2)}</td><td class="n">${fmtNum(Math.round(Number(r.quantidade)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${fmtNum(r.clientes)}</td><td class="n">${r.meses}</td>
+      return `<tr><td class="n sec">${L.indexOf(r) + 1}</td><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td><span class="rt ${sg[1]}" title="${escapeHtml(sg[2])}">${sg[0]}</span></td><td class="sec">${escapeHtml(r.linha || '')}</td><td class="n"><b>${r._curva}</b></td>
+        <td class="n">${fmtMoney(r.faturamento)}</td><td class="n sec">${pct(r._parte, 2)}</td><td class="n">${fmtNum(Math.round(Number(r.quantidade)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${fmtNum(r.clientes)}</td><td class="n sec">${r.meses}</td>
         <td class="n">${r._cresce == null ? '<span class="vazio">novo</span>' : `<span style="color:${r._cresce < -.1 ? 'var(--red)' : r._cresce > .1 ? 'var(--green, #16a34a)' : 'inherit'}">${r._cresce >= 0 ? '+' : ''}${pct(r._cresce)}</span>`}</td>
-        <td class="n" title="${r._lmg != null ? 'Margem da linha: ' + pct(r._lmg, 1) : ''}">${pct(r._mg, 1)}</td><td class="n">${mgR(r) == null ? '—' : fmtMoney(mgR(r))}</td><td><span class="rt ${sg[1]}" title="${escapeHtml(sg[2])}">${sg[0]}</span></td></tr>`; }).join('') || '<tr><td colspan="13" class="vazio">Nenhum produto neste filtro.</td></tr>'}</tbody></table></div>
+        <td class="n" title="${r._lmg != null ? 'Margem da linha: ' + pct(r._lmg, 1) : ''}">${pct(r._mg, 1)}</td><td class="n sec">${mgR(r) == null ? '—' : fmtMoney(mgR(r))}</td></tr>`; }).join('') || '<tr><td colspan="13" class="vazio">Nenhum produto neste filtro.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">Vendas pela mesma regra das outras telas; margem bruta = faturamento − quantidade × custo atual do Fácil123 (sem impostos, comissão e frete). Curva A = os produtos que somam os primeiros 80% do faturamento; B = até 95%; C = o resto. Margem "abaixo da média" = mais de 5 pontos abaixo da margem da própria linha (cada linha tem seu patamar) ou abaixo do piso da linha.<details class="tb-como"><summary>ⓘ Como é a sugestão</summary>${Object.values(AP_SUG).map(([t, , d])=> `<b>${t}:</b> ${d}`).join('<br>')}<br>É ponto de partida para a conversa: produto estratégico (complemento de linha, cliente grande, lançamento) pode ficar mesmo vendendo pouco.</details></div>`;
   host.querySelector('#ap-per').addEventListener('change', e=>{ AP.per = e.target.value; AP.rows = null; renderAnaliseProdutos(); });
   host.querySelector('#ap-q').addEventListener('input', e=>{ AP.q = e.target.value; clearTimeout(AP.t); AP.t = setTimeout(()=>{ renderAnaliseProdutos(); const i = document.getElementById('ap-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 300); });
-  host.querySelectorAll('[data-apc]').forEach(b=> b.addEventListener('click', ()=>{ AP.curva = b.dataset.apc; renderAnaliseProdutos(); }));
+  host.querySelector('#ap-curva').addEventListener('change', e=>{ AP.curva = e.target.value; renderAnaliseProdutos(); });
+  host.querySelector('#ap-sug').addEventListener('change', e=>{ AP.filtro = e.target.value; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); });
   host.querySelectorAll('[data-aps]').forEach(b=> b.addEventListener('click', ()=>{ AP.filtro = AP.filtro === b.dataset.aps ? '' : b.dataset.aps; uso('clique', 'análise de produtos: ' + AP.filtro); renderAnaliseProdutos(); }));
   host.querySelector('#ap-csv').addEventListener('click', ()=>{
     const n = v=> v == null ? '' : Number(v).toFixed(2).replace('.', ',');
@@ -11403,28 +11416,35 @@ function roMunicipios(){
 }
 async function roGeoExterno(cep, mun){
   let b = null;
-  try{ const r = await fetch('https://brasilapi.com.br/api/cep/v2/' + cep); if(r.ok) b = await r.json(); }catch(_){}
+  try{ const r = await fetch('https://brasilapi.com.br/api/cep/v2/' + cep); if(r.ok) b = await r.json(); else if(r.status !== 404) return null; }catch(_){ return null; }   // null = falhou agora: não grava, tenta de outra vez
   if(!b) return { precisao:'nada' };
   const cid = mpNorm(b.city), g = mun[(b.state || '') + '|' + cid];
   const photon = async (q, tipo)=>{
     try{
       const r = await fetch('https://photon.komoot.io/api/?limit=5&q=' + encodeURIComponent(q) + (g ? `&lat=${g[2]}&lon=${g[3]}` : ''));
-      if(!r.ok) return null;
+      if(!r.ok) return 'falhou';
       const f = ((await r.json()).features || []).find(x=>{ const pr = x.properties || {};
         if(pr.countrycode && pr.countrycode !== 'BR') return false;
         if(mpNorm(pr.city || pr.county || '') !== cid && mpNorm(pr.name || '') !== cid) return false;
         return tipo === 'rua' ? (pr.osm_key === 'highway' || pr.type === 'street') : true; });
       if(!f) return null;
       const [lon, lat] = f.geometry.coordinates; return { lat, lon, precisao:tipo };
-    }catch(_){ return null; }
+    }catch(_){ return 'falhou'; }
   };
   let p = b.street ? await photon(b.street + ', ' + b.city + ', ' + b.state, 'rua') : null;
+  if(p === 'falhou') return null;
   if(!p && b.neighborhood) p = await photon(b.neighborhood + ', ' + b.city + ', ' + b.state, 'bairro');
+  if(p === 'falhou') return null;
   const c = b.location && b.location.coordinates;
   if(!p && c && c.latitude && c.longitude) p = { lat:Number(c.latitude), lon:Number(c.longitude), precisao:'cep' };
   return p || { precisao:'nada' };
 }
 async function roGeo(rows, progresso){
+  if(RO.geoP && RO.geoPde === RO.de) return RO.geoP;
+  RO.geoPde = RO.de; RO.geoP = roGeoFaz(rows, progresso).finally(()=>{ RO.geoP = null; });
+  return RO.geoP;
+}
+async function roGeoFaz(rows, progresso){
   const mun = await roMunicipios();
   const ceps = [...new Set(rows.map(r=> roCep(r.cep)).filter(Boolean))], falta = ceps.filter(c=> !RO_GEO.has(c));
   if(falta.length){
@@ -11433,7 +11453,7 @@ async function roGeo(rows, progresso){
   }
   // busca fora o que não tem (e o que não achou há mais de 30 dias), 3 de cada vez; grava no banco de 20 em 20
   const velho = Date.now() - 30 * 864e5;
-  const busca = ceps.filter(c=>{ const x = RO_GEO.get(c); return !x || (x.precisao === 'nada' && new Date(x.em).getTime() < velho); });
+  const busca = ceps.filter(c=>{ const x = RO_GEO.get(c); return !x || (x.precisao === 'nada' && new Date(x.em).getTime() < velho); }).slice(0, 150);   // teto por abertura: o resto vem na próxima
   let feito = 0, lote = [];
   const grava = async ()=>{ if(!lote.length) return; const l = lote; lote = []; try{ await sb.rpc('crm_cep_geo_grava', { p_itens:l }); }catch(_){} };
   if(busca.length && progresso) progresso(0, busca.length);
@@ -11441,8 +11461,9 @@ async function roGeo(rows, progresso){
   await Promise.all([0, 1, 2].map(async ()=>{
     while(fila.length){
       const cep = fila.shift(), x = await roGeoExterno(cep, mun);
-      RO_GEO.set(cep, { ...x, em:new Date().toISOString() }); lote.push({ cep, lat:x.lat ?? null, lon:x.lon ?? null, precisao:x.precisao });
+      if(x){ RO_GEO.set(cep, { ...x, em:new Date().toISOString() }); lote.push({ cep, lat:x.lat ?? null, lon:x.lon ?? null, precisao:x.precisao }); }
       feito++; if(progresso) progresso(feito, busca.length);
+      await new Promise(r=> setTimeout(r, 250));   // serviços públicos e gratuitos: sem rajada
       if(lote.length >= 20) await grava();
     }
   }));
