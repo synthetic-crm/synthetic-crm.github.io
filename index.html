@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261106-072052">
+<meta name="crm-versao" content="20261106-072600">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11416,7 +11416,7 @@ async function renderEntregas(){
 // ---------- ROTEIRIZAÇÃO (05/11/2026; mapa por CEP ligado no mesmo dia) ----------
 // Roteiro da semana: os clientes de uma fonte (plano do Especialista, parados, em risco, carteira) agrupados por cidade e bairro e
 // distribuídos de segunda a sexta, sem misturar cidades num dia quando dá. Área: em quantas cidades cada vendedor atende (espalhado ou concentrado).
-const RO = { aba:'roteiro', sid:null, nome:'', fonte:'parados', semana:null, porDia:8, rows:null, de:'', area:null, geoDe:'', map:null, mun:null };
+const RO = { aba:'roteiro', sid:null, nome:'', fonte:'parados', semana:null, porDia:5, nDias:5, volta:true, raio:80, alcance:250, base:'', rows:null, de:'', area:null, geoDe:'', map:null, mun:null, baseLL:null };
 const RO_CORES = ['#2563eb', '#16a34a', '#ea580c', '#9333ea', '#0891b2'];
 // Coordenadas por CEP. Para fora vai só o CEP (BrasilAPI) e a rua/bairro que o próprio CEP devolve (Photon, do OpenStreetMap):
 // nunca nome do cliente, número ou telefone. O que acha fica em crm_cep_geo e serve para todos; sem CEP, o centro da cidade.
@@ -11489,6 +11489,49 @@ async function roGeoFaz(rows, progresso){
   });
   if(busca.length) uso('clique', 'rota: localizou ' + busca.length + ' CEPs');
 }
+// ---- Rota inteligente (06/11/2026): cada dia nasce em volta do cliente que mais vale e junta os mais próximos dele; dentro do dia,
+// o caminho mais curto saindo da cidade-base (vizinho mais próximo + 2-opt). Distância em linha reta × 1,3 (a estrada não é reta).
+const RO_KM = (a, b)=>{ const t = Math.PI / 180, dLa = (b._lat - a._lat) * t, dLo = (b._lon - a._lon) * t;
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(a._lat * t) * Math.cos(b._lat * t) * Math.sin(dLo / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(x)) * 1.3; };
+function roCaminho(base, L, volta){
+  if(!L.length) return { ord:[], km:0 };
+  const tot = o=> o.reduce((t, r, i)=> t + RO_KM(i ? o[i - 1] : base, r), 0) + (volta ? RO_KM(o[o.length - 1], base) : 0);
+  let ord = [], resto = L.slice(), at = base;
+  while(resto.length){ let bi = 0, bd = Infinity; resto.forEach((r, i)=>{ const d = RO_KM(at, r); if(d < bd){ bd = d; bi = i; } }); at = resto.splice(bi, 1)[0]; ord.push(at); }
+  let melhor = tot(ord), mudou = true, n = 0;
+  while(mudou && n++ < 40){ mudou = false;
+    for(let i = 0; i < ord.length - 1; i++) for(let k = i + 1; k < ord.length; k++){
+      const c = ord.slice(0, i).concat(ord.slice(i, k + 1).reverse(), ord.slice(k + 1)), v = tot(c);
+      if(v < melhor - .01){ ord = c; melhor = v; mudou = true; } } }
+  return { ord, km:melhor };
+}
+function roInteligente(rows, base){
+  // só entra quem dá para visitar e voltar no dia (até RO.alcance km da saída); o resto fica para contato por telefone
+  const P0 = rows.filter(r=> r._lat != null), P = P0.filter(r=> RO_KM(base, r) <= RO.alcance), val = r=> Number(r.fat_12m) || 0, mx = Math.max(1, ...P.map(val));
+  const livres = new Set(P), dias = [];
+  for(let d = 0; d < RO.nDias && livres.size; d++){
+    // o dia nasce onde há mais valor junto: o cliente que, somado aos vizinhos dentro do raio, vale mais (não o maior cliente isolado)
+    let semente = null, pot = -1;
+    livres.forEach(c=>{ const viz = []; livres.forEach(o=>{ if(o !== c && RO_KM(c, o) <= RO.raio) viz.push(val(o)); });
+      const v = val(c) + viz.sort((a, b)=> b - a).slice(0, RO.porDia - 1).reduce((a, b)=> a + b, 0); if(v > pot){ pot = v; semente = c; } });
+    const g = [semente]; livres.delete(semente);
+    while(g.length < RO.porDia && livres.size){
+      // o próximo é o mais perto do grupo, com um empurrão para quem vale mais (até 15 km de vantagem para o maior cliente)
+      let best = null, bs = Infinity, bd = 0;
+      livres.forEach(r=>{ const dm = Math.min(...g.map(x=> RO_KM(x, r))), sc = dm - 15 * val(r) / mx; if(sc < bs){ bs = sc; best = r; bd = dm; } });
+      if(bd > RO.raio) break;
+      g.push(best); livres.delete(best);
+    }
+    dias.push(roCaminho(base, g, RO.volta));
+  }
+  // comparação: os mesmos números de visitas escolhidos só pelo valor, visitados nessa ordem, sem juntar por proximidade
+  const n = dias.reduce((t, d)=> t + d.ord.length, 0), top = P.slice().sort((a, b)=> val(b) - val(a)).slice(0, n);
+  let ingenuo = 0; for(let i = 0; i < top.length; i += RO.porDia){ const o = top.slice(i, i + RO.porDia);
+    ingenuo += o.reduce((t, r, j)=> t + RO_KM(j ? o[j - 1] : base, r), 0) + (RO.volta && o.length ? RO_KM(o[o.length - 1], base) : 0); }
+  return { dias, sobra:rows.length - n, semCoord:rows.length - P0.length, fora:P0.length - P.length, ingenuo };
+}
+const roHoras = (km, n)=> (n * 40 + km / 50 * 60) / 60;   // 40 min por visita + estrada a 50 km/h
+const roHorasTxt = h=> `${Math.floor(h)}h${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
 // dentro do dia, a ordem é a do vizinho mais próximo (começa pelo cliente mais afastado do centro do dia)
 function roOrdena(d){
   const c = d.filter(r=> r._lat != null); if(c.length < 3) return d;
@@ -11499,8 +11542,10 @@ function roOrdena(d){
     resto.forEach(r=>{ if(!prox || km(atual, r) < km(atual, prox)) prox = r; }); atual = prox; }
   return ord.concat(d.filter(r=> r._lat == null));
 }
-const roGoogle = d=>{ const p = d.filter(r=> r._lat != null && r._pr !== 'cidade').slice(0, 10).map(r=> r._lat.toFixed(5) + ',' + r._lon.toFixed(5));
-  return p.length < 2 ? null : 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + p[0] + '&destination=' + p[p.length - 1] + (p.length > 2 ? '&waypoints=' + encodeURIComponent(p.slice(1, -1).join('|')) : ''); };
+const roGoogle = d=>{ const ll = r=> r._lat.toFixed(5) + ',' + r._lon.toFixed(5), p = d.filter(r=> r._lat != null).slice(0, 9).map(ll);
+  if(!p.length) return null;
+  const b = RO.baseLL ? ll(RO.baseLL) : p.shift(), dest = RO.volta && RO.baseLL ? b : p.pop(); if(!dest) return null;
+  return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + b + '&destination=' + dest + (p.length ? '&waypoints=' + encodeURIComponent(p.join('|')) : ''); };
 // Mapa das Rotas (06/11/2026): aparece na hora. Quem ainda não tem o CEP localizado vai no centro da cidade e o mapa se refina quando os CEPs
 // chegam (só da primeira vez; depois fica guardado em crm_cep_geo). No fundo, a carteira do vendedor por cidade: o tamanho do círculo é o que
 // a cidade comprou em 12 meses.
@@ -11540,9 +11585,11 @@ function roDesenha(el, dias, nav, mun, cart){
       L.circleMarker([x.lat, x.lon], { radius:4 + 16 * Math.sqrt(x.fat / mx), color:'#475569', weight:1, fillColor:'#64748b', fillOpacity:.22 })
         .addTo(map).bindTooltip(`<b>${escapeHtml(x.nome)}</b><br>${fmtNum(x.n)} cliente${x.n === 1 ? '' : 's'} com compra · ${escapeHtml(fmtMoney(x.fat))} em 12 meses`); });
   }
-  const pts = [], cont = { rua:0, bairro:0, cep:0, cidade:0, sem:0 };
-  dias.slice(0, 5).forEach((d, i)=>{
-    const cor = RO_CORES[i], linha = [];
+  const pts = [], cont = { rua:0, bairro:0, cep:0, cidade:0, sem:0 }, B = RO.baseLL;
+  if(B) L.marker([B._lat, B._lon], { icon:L.divIcon({ className:'', html:'<div style="font-size:22px;line-height:22px">🏠</div>', iconSize:[22, 22], iconAnchor:[11, 11] }), zIndexOffset:1000 })
+    .addTo(map).bindTooltip(`<b>Saída: ${escapeHtml(B.nome || '')}</b><br>de onde o vendedor sai todo dia`);
+  dias.slice(0, 6).forEach((d, i)=>{
+    const cor = RO_CORES[i % RO_CORES.length], linha = B ? [[B._lat, B._lon]] : [];
     d.forEach((r, j)=>{
       if(r._lat == null){ cont.sem++; return; }
       cont[r._pr] = (cont[r._pr] || 0) + 1;
@@ -11551,12 +11598,13 @@ function roDesenha(el, dias, nav, mun, cart){
       pts.push(ll); linha.push(ll);
       const aprox = r._pr === 'cidade' || r._pr === 'cep';
       L.marker(ll, { icon:L.divIcon({ className:'', html:`<div class="ro-pin${aprox ? ' aprox' : ''}" style="background:${cor}">${j + 1}</div>`, iconSize:[24, 24], iconAnchor:[12, 12] }), title:r.nome || '' })
-        .addTo(map).bindTooltip(`<b>${escapeHtml(RO_DIAS[i])} · ${j + 1}. ${escapeHtml(r.nome || '')}</b><br>${escapeHtml([r.logradouro, r.numero].filter(Boolean).join(', '))}${r.bairro ? ' · ' + escapeHtml(r.bairro) : ''}${aprox ? '<br><i>posição aproximada (' + (r._pr === 'cidade' ? 'centro da cidade' : 'pelo CEP') + ')</i>' : ''}`)
+        .addTo(map).bindTooltip(`<b>${escapeHtml(RO_DIAS[i] || 'Dia ' + (i + 1))} · ${j + 1}. ${escapeHtml(r.nome || '')}</b><br>${escapeHtml([r.logradouro, r.numero].filter(Boolean).join(', '))}${r.bairro ? ' · ' + escapeHtml(r.bairro) : ''}${aprox ? '<br><i>posição aproximada (' + (r._pr === 'cidade' ? 'centro da cidade' : 'pelo CEP') + ')</i>' : ''}`)
         .on('click', ()=> clDetalhe(r.pessoa_id, nav));
     });
-    if(linha.length > 1) L.polyline(linha, { color:cor, weight:3, opacity:.55, dashArray:'6 6' }).addTo(map);
+    if(B && RO.volta && linha.length > 1) linha.push([B._lat, B._lon]);
+    if(linha.length > 1) L.polyline(linha, { color:cor, weight:3, opacity:.6, dashArray:'6 6' }).addTo(map);
   });
-  const caixa = pts.length ? pts : fundo;
+  const caixa = pts.length ? pts.concat(B ? [[B._lat, B._lon]] : []) : fundo;
   if(caixa.length) map.fitBounds(caixa, { padding:[24, 24], maxZoom:13 }); else map.setView([-22.3, -48.6], 6);   // sem pontos: o estado de São Paulo
   setTimeout(()=> map.invalidateSize(), 60);
   return cont;
@@ -11578,7 +11626,7 @@ async function roMapa(host, dias, nav){
   if(RO.de !== chave || !document.body.contains(el)) return;
   RO.geoDe = chave; renderRota();   // de novo, agora com a ordem pelo mapa e os pontos na rua
 }
-const RO_FONTES = { plano:'Plano do Especialista na semana', parados:'Parados de 91 dias a 1 ano', risco:'Em risco', carteira:'Carteira toda (com compra)' };
+const RO_FONTES = { plano:'Plano do Especialista na semana', parados:'Parados de 91 dias a 1 ano', risco:'Em risco', carteira:'Todos os clientes (com compra)' };
 const RO_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
 function roDistribui(L, porDia){
   // ordem: cidade com mais clientes primeiro, depois bairro e rua; abre dia novo quando enche ou quando a cidade muda com o dia já pela metade
@@ -11607,7 +11655,7 @@ async function renderRota(){
         return `<tr class="vd-lin" data-rosid="${r.seller_id}" data-ronome="${escapeHtml(r.vendedor)}" title="Montar o roteiro de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n">${fmtNum(r.clientes)}</td><td class="n">${fmtNum(r.cidades)}</td><td class="n">${r.ufs}</td><td class="n">${Math.round(Number(r.pct_top5) * 100)}%</td><td><small>${escapeHtml(r.principais || '')}</small></td>
           <td>${esp ? '<span class="rt rt-C">espalhado</span>' : '<span class="rt rt-A">concentrado</span>'}</td></tr>`; }).join('') || '<tr><td colspan="7" class="vazio">Nenhum vendedor ativo.</td></tr>'}</tbody></table></div>
       <div class="tb-rodape">Espalhado = mais de 40 cidades ou as 5 principais cidades com menos da metade das vendas: muito deslocamento para pouca venda por visita. Vale juntar clientes por região entre vendedores (o Especialista já sugere clientes sem vendedor nas cidades de cada um).</div>`;
-    liga(); host.querySelectorAll('[data-rosid]').forEach(tr=> tr.addEventListener('click', ()=>{ RO.sid = Number(tr.dataset.rosid); RO.nome = tr.dataset.ronome; RO.aba = 'roteiro'; RO.rows = null; renderRota(); }));
+    liga(); host.querySelectorAll('[data-rosid]').forEach(tr=> tr.addEventListener('click', ()=>{ RO.sid = Number(tr.dataset.rosid); RO.nome = tr.dataset.ronome; RO.aba = 'roteiro'; RO.fonte = 'carteira'; RO.rows = null; uso('clique', 'rota: vendedor pela área'); renderRota(); }));
     return;
   }
   if(!RO.sid){ host.innerHTML = abas + '<div class="tb-aviso">Seu usuário ainda não está ligado a um vendedor do Fácil123. Peça ao administrador em Acessos.</div>'; liga(); return; }
@@ -11616,43 +11664,71 @@ async function renderRota(){
     host.innerHTML = abas + '<div class="tb-rodape">Montando o roteiro…</div>'; liga();
     const { data, error } = await sb.rpc('crm_rota_clientes', { p_seller:RO.sid, p_fonte:RO.fonte, p_semana:RO.semana });
     if(error){ host.innerHTML = abas + `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; liga(); return; }
-    RO.rows = data || []; RO.de = chave;
+    RO.rows = data || []; RO.de = chave; RO.base = '';
   }
-  const dias = roDistribui(RO.rows, RO.porDia).map(d=> RO.geoDe === RO.de ? roOrdena(d) : d), nomeV = RO.nome ? nomeBonito(RO.nome) : 'você';
+  // coordenadas: as já guardadas pelo CEP ou o centro da cidade (o mapa refina depois); saída = a cidade com mais clientes, ou a escolhida
+  const mun = await roMunicipios(); roPreenche(RO.rows, mun);
+  const cidK = r=> (r.uf || '') + '|' + mpNorm(r.cidade || ''), contC = {};
+  RO.rows.forEach(r=>{ if(r.cidade && mun[cidK(r)]) contC[cidK(r)] = (contC[cidK(r)] || 0) + 1; });
+  const cidades = Object.keys(contC).sort((a, b)=> contC[b] - contC[a]);
+  if(!RO.base || !mun[RO.base]) RO.base = cidades[0] || '';
+  const gb = mun[RO.base]; RO.baseLL = gb ? { _lat:gb[2], _lon:gb[3], nome:gb[1] + '/' + RO.base.split('|')[0] } : null;
+  const plano = RO.baseLL ? roInteligente(RO.rows, RO.baseLL) : null;
+  const dias = plano ? plano.dias.map(d=> d.ord) : roDistribui(RO.rows, RO.porDia).slice(0, RO.nDias), nomeV = RO.nome ? nomeBonito(RO.nome) : 'você';
+  const kmDia = i=> plano ? plano.dias[i].km : null, kmTot = plano ? plano.dias.reduce((t, d)=> t + d.km, 0) : null;
+  let kml = 10, preco = 6; try{ kml = Number(localStorage.getItem('ro_kml')) || 10; preco = Number(localStorage.getItem('ro_preco')) || 6; }catch(_){}
+  const custo = km=> km / kml * preco, economia = plano ? Math.max(0, plano.ingenuo - kmTot) : 0;
   const end = r=> [[r.logradouro, r.numero].filter(Boolean).join(', '), r.bairro].filter(Boolean).join(' · ');
   const cidDia = d=> [...new Set(d.map(r=> nomeBonito(r.cidade || '?')))].join(', ');
-  const copia = ()=> `*Roteiro da semana${RO.nome ? ' · ' + nomeV : ''}* (${esDM(RO.semana)} a ${esDM(esDia(RO.semana, 4))})\n` + dias.map((d, i)=> `\n*${RO_DIAS[i] || 'Dia ' + (i + 1)} · ${cidDia(d)}*\n` + d.map((r, j)=> `${j + 1}. ${r.nome}${end(r) ? ' — ' + end(r) : ''}${r.telefone ? ' · ' + r.telefone : ''}`).join('\n')).join('\n');
-  const sobra = dias.length > 5 ? dias.slice(5).reduce((t, d)=> t + d.length, 0) : 0;
+  const copia = ()=> `*Roteiro da semana${RO.nome ? ' · ' + nomeV : ''}* (${esDM(RO.semana)} a ${esDM(esDia(RO.semana, 4))})${RO.baseLL ? ' · saída de ' + RO.baseLL.nome : ''}\n` + dias.map((d, i)=> `\n*${RO_DIAS[i] || 'Dia ' + (i + 1)} · ${cidDia(d)}*${kmDia(i) != null ? ` (~${Math.round(kmDia(i))} km)` : ''}\n` + d.map((r, j)=> `${j + 1}. ${r.nome}${end(r) ? ' — ' + end(r) : ''}${r.telefone ? ' · ' + r.telefone : ''}`).join('\n')).join('\n') + (RO.baseLL ? `\n\nAbra o caminho de cada dia no Google Maps pelo sistema (Rotas).` : '');
+  const sobra = plano ? plano.sobra : Math.max(0, RO.rows.length - dias.reduce((t, d)=> t + d.length, 0));
   host.innerHTML = abas + `
     <div class="tb-bar">
       ${g ? `<select id="ro-vend" aria-label="Vendedor">${(RO.area || []).map(r=> `<option value="${r.seller_id}" ${r.seller_id === RO.sid ? 'selected' : ''}>${escapeHtml(nomeBonito(r.vendedor))}</option>`).join('')}</select>` : ''}
       <select id="ro-fonte" aria-label="Quais clientes">${Object.entries(RO_FONTES).filter(([k])=> k !== 'plano' || admin || !g).map(([k, t])=> `<option value="${k}" ${RO.fonte === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
       <label style="font-size:13px">Visitas por dia <input id="ro-pd" inputmode="numeric" value="${RO.porDia}" style="width:44px"></label>
+      <label style="font-size:13px">Dias <select id="ro-nd">${[1, 2, 3, 4, 5].map(n=> `<option ${RO.nDias === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      ${cidades.length ? `<label style="font-size:13px">Saída <select id="ro-base" aria-label="Cidade de onde o vendedor sai">${cidades.slice(0, 40).map(k=> `<option value="${escapeHtml(k)}" ${k === RO.base ? 'selected' : ''}>${escapeHtml(mun[k][1])}/${escapeHtml(k.split('|')[0])} (${contC[k]})</option>`).join('')}</select></label>` : ''}
+      <label style="font-size:13px" title="A rota conta a volta para a cidade de saída no fim de cada dia"><input type="checkbox" id="ro-volta" ${RO.volta ? 'checked' : ''}> volta no fim do dia</label>
       <span class="tb-esp"></span><button class="om-cancel" id="ro-csv">Exportar</button><button class="om-save" id="ro-copia" title="Copiar o roteiro para mandar no WhatsApp">Copiar roteiro</button>
     </div>
     <div class="tb-kpis">
-      <div class="tb-kpi"><small>Clientes no roteiro</small><b>${fmtNum(RO.rows.length)}</b><span>${escapeHtml(RO_FONTES[RO.fonte])}</span></div>
-      <div class="tb-kpi"><small>Dias de visita</small><b>${dias.length}</b><span>com até ${RO.porDia} visitas por dia${sobra ? ` · ${sobra} ficam para a semana seguinte` : ''}</span></div>
-      <div class="tb-kpi"><small>Cidades</small><b>${new Set(RO.rows.map(r=> (r.cidade || '') + r.uf)).size}</b><span>${RO.rows.filter(r=> !r.logradouro).length} clientes sem endereço no cadastro</span></div>
+      <div class="tb-kpi"><small>Visitas na semana</small><b>${fmtNum(RO.rows.length - sobra)} de ${fmtNum(RO.rows.length)}</b><span>${escapeHtml(RO_FONTES[RO.fonte])}${sobra ? ` · ${fmtNum(sobra - (plano ? plano.fora : 0))} ficam para as próximas semanas` : ''}${plano && plano.fora ? ` · ${fmtNum(plano.fora)} a mais de ${RO.alcance} km da saída: contato por telefone` : ''}</span></div>
+      ${plano ? `<div class="tb-kpi"><small>Rota da semana</small><b>${fmtNum(Math.round(kmTot))} km</b><span>~${roHorasTxt(dias.reduce((t, d, i)=> t + roHoras(kmDia(i), d.length), 0))} entre estrada e visitas · ${fmtMoney(custo(kmTot))} de combustível</span></div>
+      <div class="tb-kpi ${economia > 0 ? 'rs-kpi-ok' : ''}"><small>Economia da rota inteligente</small><b>${fmtNum(Math.round(economia))} km</b><span>${fmtMoney(custo(economia))} de combustível na semana, contra visitar os clientes de maior valor na ordem do valor (${fmtNum(Math.round(plano.ingenuo))} km)</span></div>` : ''}
+      <div class="tb-kpi"><small>Cidades</small><b>${new Set(RO.rows.map(r=> (r.cidade || '') + r.uf)).size}</b><span>${RO.rows.filter(r=> !r.logradouro).length} clientes sem endereço no cadastro${plano && plano.semCoord ? ` · ${plano.semCoord} sem cidade reconhecida` : ''}</span></div>
     </div>
-    ${RO.rows.length ? `<div id="ro-mapa" class="ro-mapa"></div><div class="ro-leg">${dias.slice(0, 5).map((d, i)=> `<span><i style="background:${RO_CORES[i]}"></i>${RO_DIAS[i]}</span>`).join('')}<span><i style="background:#64748b;opacity:.35;border:1px solid #475569"></i>Carteira do vendedor (por cidade)</span></div><div class="tb-rodape" id="ro-mapa-st">Localizando os clientes no mapa…</div>` : ''}
-    ${dias.slice(0, 5).map((d, i)=> { const gm = roGoogle(d); return `<div class="cm-resumo" style="margin:12px 0 4px"><i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${RO_CORES[i]};margin-right:6px;vertical-align:-1px"></i><b>${RO_DIAS[i]}</b> · ${escapeHtml(cidDia(d))} · ${d.length} cliente${d.length === 1 ? '' : 's'}${gm ? `<a class="ro-dia-mapa" href="${gm}" target="_blank" rel="noopener">🧭 Abrir o caminho do dia no Google Maps</a>` : ''}</div>
+    <details class="tb-como" style="display:block;margin:0 0 6px"><summary>⛽ Combustível e regras da rota</summary><span style="display:inline-flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:13px">
+      <label>Consumo <input id="ro-kml" inputmode="decimal" value="${String(kml).replace('.', ',')}" style="width:52px"> km/l</label>
+      <label>Combustível R$ <input id="ro-preco" inputmode="decimal" value="${preco.toFixed(2).replace('.', ',')}" style="width:62px"> /l</label>
+      <label title="Num mesmo dia, o próximo cliente fica a no máximo esta distância de algum do dia">Raio do dia <input id="ro-raio" inputmode="numeric" value="${RO.raio}" style="width:52px"> km</label>
+      <label title="Cliente mais longe que isso da cidade de saída não entra na rota (vira contato por telefone)">Alcance da visita <input id="ro-alc" inputmode="numeric" value="${RO.alcance}" style="width:58px"> km</label></span></details>
+    ${RO.rows.length ? `<div id="ro-mapa" class="ro-mapa"></div><div class="ro-leg">${RO.baseLL ? '<span>🏠 Saída</span>' : ''}${dias.slice(0, 5).map((d, i)=> `<span><i style="background:${RO_CORES[i]}"></i>${RO_DIAS[i]}</span>`).join('')}<span><i style="background:#64748b;opacity:.35;border:1px solid #475569"></i>Carteira do vendedor (por cidade)</span></div><div class="tb-rodape" id="ro-mapa-st">Localizando os clientes no mapa…</div>` : ''}
+    ${dias.slice(0, 5).map((d, i)=> { const gm = roGoogle(d); return `<div class="cm-resumo" style="margin:12px 0 4px"><i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${RO_CORES[i]};margin-right:6px;vertical-align:-1px"></i><b>${RO_DIAS[i]}</b> · ${escapeHtml(cidDia(d))} · ${d.length} cliente${d.length === 1 ? '' : 's'}${kmDia(i) != null ? ` · ~${fmtNum(Math.round(kmDia(i)))} km · ~${roHorasTxt(roHoras(kmDia(i), d.length))}` : ''}${gm ? `<a class="ro-dia-mapa" href="${gm}" target="_blank" rel="noopener">🧭 Abrir o caminho do dia no Google Maps</a>` : ''}</div>
       <div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Cliente</th><th>Endereço</th><th>Cidade</th><th>Telefone</th><th>Por quê</th><th class="n">Comprou em 12 meses</th></tr></thead><tbody>
       ${d.map((r, j)=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente roteiro"><td class="n">${j + 1}</td><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span></td><td>${escapeHtml(end(r))}</td><td>${escapeHtml(nomeBonito(r.cidade || ''))}${r.uf ? '/' + escapeHtml(r.uf) : ''}</td><td>${escapeHtml(r.telefone || '')}</td><td><small>${escapeHtml(r.motivo || '')}</small></td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td></tr>`).join('')}</tbody></table></div>`; }).join('') || `<div class="tb-aviso">Nenhum cliente nesta fonte${RO.fonte === 'plano' ? ': o plano desta semana ainda não foi montado no Especialista' : ''}.</div>`}
-    <div class="tb-rodape">Agrupado por cidade e bairro, a cidade com mais clientes primeiro. Clique num cliente para ver tudo sobre ele.<details class="tb-como"><summary>ⓘ Como é montado</summary>O roteiro abre um dia novo quando enche as visitas do dia, ou quando a cidade muda e o dia já tem metade das visitas. Dentro do dia, a ordem vai de um cliente para o mais próximo. O ponto no mapa vem do CEP: para localizar, o sistema manda só o CEP e o nome da rua dele a serviços públicos (BrasilAPI e OpenStreetMap), nunca o nome do cliente, o número ou o telefone, e guarda o resultado para as próximas vezes. Sem CEP, o cliente fica no centro da cidade. O botão do Google Maps leva só as coordenadas.</details></div>`;
+    <div class="tb-rodape">Rota inteligente: cada dia cai onde há mais venda junta e reúne os clientes mais próximos; dentro do dia, o caminho mais curto saindo da cidade de saída. Clique num cliente para ver tudo sobre ele.<details class="tb-como"><summary>ⓘ Como é montado</summary>Para cada dia: abre o dia o cliente que, somado aos vizinhos dentro do raio, vale mais entre os que faltam (assim o dia cai onde há mais venda junta, e não num cliente grande isolado); quem está a mais que o alcance da visita da cidade de saída fica de fora e vira contato por telefone; entra a seguir o mais perto de algum cliente do dia (quem vale mais ganha até 15 km de vantagem), até completar as visitas ou passar do raio do dia. A ordem das visitas é a do caminho mais curto saindo da cidade de saída (e voltando, se marcado). Distância em linha reta × 1,3, porque a estrada não é reta; tempo = 40 minutos por visita + estrada a 50 km/h. A economia compara com visitar os mesmos números de clientes de maior valor na ordem do valor, sem juntar por proximidade. Enquanto o CEP de um cliente não foi localizado, ele conta pelo centro da cidade. O ponto no mapa vem do CEP: para localizar, o sistema manda só o CEP e o nome da rua dele a serviços públicos (BrasilAPI e OpenStreetMap), nunca o nome do cliente, o número ou o telefone, e guarda o resultado para as próximas vezes. Sem CEP, o cliente fica no centro da cidade. O botão do Google Maps leva só as coordenadas.</details></div>`;
   liga();
   const re = ()=>{ RO.rows = null; renderRota(); };
   host.querySelector('#ro-vend')?.addEventListener('change', e=>{ RO.sid = Number(e.target.value); RO.nome = e.target.options[e.target.selectedIndex].text; re(); });
   host.querySelector('#ro-fonte').addEventListener('change', e=>{ RO.fonte = e.target.value; re(); });
-  host.querySelector('#ro-pd').addEventListener('change', e=>{ RO.porDia = Math.max(1, Math.min(30, Number(e.target.value) || 8)); renderRota(); });
+  host.querySelector('#ro-pd').addEventListener('change', e=>{ RO.porDia = Math.max(1, Math.min(15, Number(e.target.value) || 5)); uso('clique', 'rota: visitas por dia ' + RO.porDia); renderRota(); });
+  host.querySelector('#ro-nd').addEventListener('change', e=>{ RO.nDias = Number(e.target.value) || 5; renderRota(); });
+  host.querySelector('#ro-base')?.addEventListener('change', e=>{ RO.base = e.target.value; uso('clique', 'rota: saída'); renderRota(); });
+  host.querySelector('#ro-volta').addEventListener('change', e=>{ RO.volta = e.target.checked; renderRota(); });
+  const num = v=> Number(String(v).replace(',', '.'));
+  host.querySelector('#ro-kml').addEventListener('change', e=>{ try{ localStorage.setItem('ro_kml', String(Math.max(1, num(e.target.value) || 10))); }catch(_){} renderRota(); });
+  host.querySelector('#ro-preco').addEventListener('change', e=>{ try{ localStorage.setItem('ro_preco', String(Math.max(.5, num(e.target.value) || 6))); }catch(_){} renderRota(); });
+  host.querySelector('#ro-raio').addEventListener('change', e=>{ RO.raio = Math.max(5, Math.min(500, num(e.target.value) || 80)); renderRota(); });
+  host.querySelector('#ro-alc').addEventListener('change', e=>{ RO.alcance = Math.max(20, Math.min(3000, num(e.target.value) || 250)); renderRota(); });
   const ids = dias.flat().map(r=> r.pessoa_id), nav = { ids, nomes:Object.fromEntries(RO.rows.map(r=> [r.pessoa_id, r.nome])) };
   host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', ()=> clDetalhe(tr.dataset.pid, nav)));
   host.querySelectorAll('.ro-dia-mapa').forEach(a=> a.addEventListener('click', ()=> uso('clique', 'rota: abrir no google maps')));
   if(RO.rows.length) roMapa(host, dias, nav);
   host.querySelector('#ro-copia').addEventListener('click', async ()=>{ const t = copia(); try{ await navigator.clipboard.writeText(t); showToast('Roteiro copiado: cole no WhatsApp.'); }catch(_){ prompt('Copie o roteiro:', t); } uso('clique', 'rota: copiar'); });
   host.querySelector('#ro-csv').addEventListener('click', ()=>{
-    csvDownload([['Dia', 'Ordem', 'Cliente', 'Endereço', 'Número', 'Bairro', 'Cidade', 'UF', 'CEP', 'Telefone', 'Por quê', 'Comprou em 12 meses']]
-      .concat(dias.flatMap((d, i)=> d.map((r, j)=> [RO_DIAS[i] || 'Semana seguinte', j + 1, r.nome, r.logradouro, r.numero, r.bairro, r.cidade, r.uf, r.cep, r.telefone, r.motivo, Number(r.fat_12m || 0).toFixed(2).replace('.', ',')]))),
+    csvDownload([['Dia', 'Km do dia', 'Ordem', 'Cliente', 'Endereço', 'Número', 'Bairro', 'Cidade', 'UF', 'CEP', 'Telefone', 'Por quê', 'Comprou em 12 meses']]
+      .concat(dias.flatMap((d, i)=> d.map((r, j)=> [RO_DIAS[i] || 'Dia ' + (i + 1), kmDia(i) != null ? Math.round(kmDia(i)) : '', j + 1, r.nome, r.logradouro, r.numero, r.bairro, r.cidade, r.uf, r.cep, r.telefone, r.motivo, Number(r.fat_12m || 0).toFixed(2).replace('.', ',')]))),
       'roteiro-' + RO.semana + '.csv'); uso('clique', 'rota: exportar');
   });
 }
