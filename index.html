@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-204608">
+<meta name="crm-versao" content="20261105-211220">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10534,6 +10534,15 @@ async function renderFinanceiro(){
 const PL = { ano:2027, meta:null, vm:null, top:null, n:100 };
 // dinheiro digitado: "50.000.000", "50 milhões" ou "50.000.000,00" (o tbNum trata ponto como decimal quando não há vírgula)
 const plDinheiro = t=>{ let x = String(t || '').toLowerCase().trim(); const mi = /mi/.test(x); x = x.replace(/[^\d,.]/g, ''); if(x.includes(',')) x = x.replace(/\./g, '').replace(',', '.'); else if((x.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(x)) x = x.replace(/\./g, ''); const v = Number(x); return isFinite(v) && v > 0 ? (mi && v < 1e4 ? v * 1e6 : v) : null; };
+// inflação prevista para o ano do plano (IPCA, mediana do Focus) e o crescimento real: quanto a meta cresce acima da inflação
+function plIpcaTxt(cresc){
+  const x = PL.ipca;
+  if(x === undefined || x === null) return `IPCA previsto para ${PL.ano}: buscando no Banco Central…`;
+  if(!x) return `IPCA previsto para ${PL.ano}: indisponível agora`;
+  const pct = v=> (v * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
+  const real = cresc == null ? null : (1 + cresc) / (1 + x.v) - 1;
+  return `IPCA previsto para ${PL.ano}: <b>${pct(x.v)}</b> <small>(Focus/BC, ${x.em.slice(8, 10)}/${x.em.slice(5, 7)})</small>${real == null ? '' : ` · crescimento real necessário: <b>${real >= 0 ? '+' : ''}${pct(real)}</b>`}`;
+}
 async function fiPlanejamento(host){
   if(!PL.vm){
     host.innerHTML = '<div class="tb-rodape">Somando as vendas mês a mês e os produtos que mais vendem…</div>';
@@ -10584,7 +10593,7 @@ async function fiPlanejamento(host){
     <table class="tb-tab" style="margin-top:6px"><tbody>${alav.map(([t, v, c])=> `<tr><td class="prod"><b>${t}</b><br><small class="vazio">${escapeHtml(c)}</small></td><td class="n"><b>${fmtMoney(v)}</b></td><td class="n">${Math.round(100 * v / gap)}%</td></tr>`).join('')}
     <tr class="tm-grupo"><td class="prod"><b>${falta ? 'Falta decidir' : 'As alavancas cobrem a meta'}</b><br><small class="vazio">${falta ? 'linhas novas (ex.: transmissão no Nordeste, venda pela internet), novas regiões, equipe, reajuste de preço' : 'sobra margem para escolher onde apostar'}</small></td><td class="n"><b>${fmtMoney(falta)}</b></td><td class="n">${Math.round(100 * falta / gap)}%</td></tr></tbody></table></div>` : '';
   host.innerHTML = `
-    <div class="tb-bar"><label style="font-size:14px" title="Ponto de partida para a diretoria decidir: mude o número e o plano recalcula na hora">Meta proposta para ${PL.ano} (para discutir): R$ <input id="pl-meta" inputmode="decimal" value="${PL.meta.toLocaleString('pt-BR')}" style="width:150px;font-weight:700" ${pode ? '' : 'disabled'}></label>${pode ? '<button class="om-save" id="pl-salva">Salvar meta</button>' : ''}<span class="tb-esp"></span><button class="om-cancel" id="pl-csv">Exportar o plano (mês a mês e por produto)</button></div>
+    <div class="tb-bar"><label style="font-size:14px" title="Ponto de partida para a diretoria decidir: mude o número e o plano recalcula na hora">Meta proposta para ${PL.ano} (para discutir): R$ <input id="pl-meta" inputmode="decimal" value="${PL.meta.toLocaleString('pt-BR')}" style="width:150px;font-weight:700" ${pode ? '' : 'disabled'}></label>${pode ? '<button class="om-save" id="pl-salva">Salvar meta</button>' : ''}<span id="pl-ipca" class="tb-kpi" style="padding:6px 12px;min-height:0;font-size:13px" title="Mediana das projeções do mercado para o IPCA (Relatório Focus do Banco Central). O crescimento real é o que sobra acima da inflação.">${plIpcaTxt(cresc)}</span><span class="tb-esp"></span><button class="om-cancel" id="pl-csv">Exportar o plano (mês a mês e por produto)</button></div>
     <div class="tb-kpis">
       <div class="tb-kpi"><small>Meta ${PL.ano}</small><b>${fmtMoney(PL.meta)}</b><span>média de ${fmtMoney(PL.meta / 12)} por mês</span></div>
       <div class="tb-kpi"><small>${yA} deve fechar em</small><b>${fmtMoney(estAno)}</b><span>${mesesReais.length} meses vendidos + ${12 - mesesReais.length} estimados pela sazonalidade</span></div>
@@ -10602,6 +10611,11 @@ async function fiPlanejamento(host){
     <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null;
       return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td><td class="n">${fmtMoney(proj[0] * Number(p.parte))}</td><td class="n">${p.clientes}</td></tr>`; }).join('')}</tbody></table></div>
     <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
+  if(PL.ipca === undefined){ PL.ipca = null;   // busca uma vez a inflação prevista (Focus, Banco Central: dado público, nada sai daqui)
+    fetch(`https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=${encodeURIComponent(`Indicador eq 'IPCA' and DataReferencia eq '${PL.ano}' and baseCalculo eq 0`)}&$orderby=Data%20desc&$top=1&$format=json&$select=Data,Mediana`)
+      .then(r=> r.json()).then(j=>{ const x = (j.value || [])[0]; PL.ipca = x ? { v:Number(x.Mediana) / 100, em:x.Data } : false; })
+      .catch(()=>{ PL.ipca = false; })
+      .finally(()=>{ const el = document.getElementById('pl-ipca'); if(el) el.innerHTML = plIpcaTxt(cresc); }); }
   host.querySelector('#pl-salva')?.addEventListener('click', async ()=>{ const v = plDinheiro(host.querySelector('#pl-meta').value); if(!(v > 0)){ showToast('Informe a meta em reais.'); return; }
     const { error } = await sb.rpc('crm_planejamento_salvar', { p_ano:PL.ano, p_meta:v }); if(error){ showToast(errAmigavel(error)); return; }
     PL.meta = v; showToast('Meta salva.'); uso('clique', 'planejamento: meta salva'); fiPlanejamento(host); });
