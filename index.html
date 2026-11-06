@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261106-070544">
+<meta name="crm-versao" content="20261106-072052">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9392,7 +9392,7 @@ const NOVIDADES = [
   { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-09', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
   { id:'export-cliente-1106', lib:'export-cliente', dia:'2026-11-09', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
   { id:'rotas-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
-  { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção do mês, o ano contra o ano passado, o ranking dos vendedores (com "copiar para o grupo") e o que pede atenção na venda. Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. As letras ficaram maiores.' },
+  { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção do mês, o ano contra o ano passado, o ranking dos vendedores (com "copiar para o grupo") e o que pede atenção na venda. Vendedores junta Tab. média e Prazo; Produtos junta Tabelas e Catálogo. As letras ficaram maiores.' },
   { id:'cliente-unico-lib', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
   { id:'desconto-lib', lib:'fin-desc', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
   { id:'promo-bonif-lib', lib:'promo-bonif', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
@@ -11501,17 +11501,45 @@ function roOrdena(d){
 }
 const roGoogle = d=>{ const p = d.filter(r=> r._lat != null && r._pr !== 'cidade').slice(0, 10).map(r=> r._lat.toFixed(5) + ',' + r._lon.toFixed(5));
   return p.length < 2 ? null : 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + p[0] + '&destination=' + p[p.length - 1] + (p.length > 2 ? '&waypoints=' + encodeURIComponent(p.slice(1, -1).join('|')) : ''); };
-async function roMapa(host, dias, nav){
-  const el = host.querySelector('#ro-mapa'), st = host.querySelector('#ro-mapa-st'), chave = RO.de; if(!el) return;
-  try{
-    await roGeo(RO.rows, (f, t)=>{ if(st && RO.de === chave) st.textContent = `Localizando os CEPs no mapa: ${f} de ${t}… (só da primeira vez; depois fica guardado)`; });
-  }catch(e){ if(st) st.textContent = 'Não consegui localizar os CEPs agora: ' + errAmigavel(e); }
-  if(RO.de !== chave || !document.body.contains(el)) return;
-  if(RO.geoDe !== chave){ RO.geoDe = chave; renderRota(); return; }   // de novo, agora com a ordem pelo mapa
+// Mapa das Rotas (06/11/2026): aparece na hora. Quem ainda não tem o CEP localizado vai no centro da cidade e o mapa se refina quando os CEPs
+// chegam (só da primeira vez; depois fica guardado em crm_cep_geo). No fundo, a carteira do vendedor por cidade: o tamanho do círculo é o que
+// a cidade comprou em 12 meses.
+function roPreenche(rows, mun){
+  rows.forEach(r=>{
+    if(r._lat != null) return;
+    const x = RO_GEO.get(roCep(r.cep));
+    if(x && x.lat != null){ r._lat = x.lat; r._lon = x.lon; r._pr = x.precisao; return; }
+    const g = r.uf && r.cidade ? mun[r.uf + '|' + mpNorm(r.cidade)] : null;
+    if(g){ r._lat = g[2]; r._lon = g[3]; r._pr = 'cidade'; }
+  });
+}
+async function roCarteira(sid){
+  RO.cart = RO.cart || {};
+  if(!RO.cart[sid]){
+    RO.cart[sid] = (async ()=>{
+      if(RO.fonte === 'carteira' && RO.sid === sid && RO.rows) return RO.rows;
+      const { data, error } = await sb.rpc('crm_rota_clientes', { p_seller:sid, p_fonte:'carteira', p_semana:RO.semana });
+      if(error) throw error; return data || []; })().catch(e=>{ delete RO.cart[sid]; throw e; });
+  }
+  return RO.cart[sid];
+}
+function roDesenha(el, dias, nav, mun, cart){
   if(RO.map){ try{ RO.map.remove(); }catch(_){} RO.map = null; }
   const map = L.map(el, { zoomControl:true, attributionControl:true }); RO.map = map;
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom:17, attribution:'Tiles &copy; Esri · CEPs: BrasilAPI e OpenStreetMap' }).addTo(map);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom:17 }).addTo(map);
+  // fundo: a carteira do vendedor por cidade (onde ele vende)
+  const fundo = [];
+  if(cart && cart.length){
+    const C = new Map();
+    cart.forEach(r=>{ const g = r.uf && r.cidade ? mun[r.uf + '|' + mpNorm(r.cidade)] : null; if(!g) return;
+      const k = r.uf + '|' + g[0]; let x = C.get(k); if(!x){ x = { lat:g[2], lon:g[3], nome:g[1] + '/' + r.uf, n:0, fat:0 }; C.set(k, x); }
+      x.n++; x.fat += Number(r.fat_12m) || 0; });
+    const mx = Math.max(1, ...[...C.values()].map(x=> x.fat));
+    C.forEach(x=>{ fundo.push([x.lat, x.lon]);
+      L.circleMarker([x.lat, x.lon], { radius:4 + 16 * Math.sqrt(x.fat / mx), color:'#475569', weight:1, fillColor:'#64748b', fillOpacity:.22 })
+        .addTo(map).bindTooltip(`<b>${escapeHtml(x.nome)}</b><br>${fmtNum(x.n)} cliente${x.n === 1 ? '' : 's'} com compra · ${escapeHtml(fmtMoney(x.fat))} em 12 meses`); });
+  }
   const pts = [], cont = { rua:0, bairro:0, cep:0, cidade:0, sem:0 };
   dias.slice(0, 5).forEach((d, i)=>{
     const cor = RO_CORES[i], linha = [];
@@ -11528,9 +11556,27 @@ async function roMapa(host, dias, nav){
     });
     if(linha.length > 1) L.polyline(linha, { color:cor, weight:3, opacity:.55, dashArray:'6 6' }).addTo(map);
   });
-  if(pts.length) map.fitBounds(pts, { padding:[24, 24], maxZoom:15 }); else map.setView([-14.5, -52], 4);
+  const caixa = pts.length ? pts : fundo;
+  if(caixa.length) map.fitBounds(caixa, { padding:[24, 24], maxZoom:13 }); else map.setView([-22.3, -48.6], 6);   // sem pontos: o estado de São Paulo
   setTimeout(()=> map.invalidateSize(), 60);
-  if(st) st.textContent = pts.length ? `No mapa: ${cont.rua + cont.bairro} pela rua ou bairro do CEP${cont.cep + cont.cidade ? `, ${cont.cep + cont.cidade} em posição aproximada (bolinha clara)` : ''}${cont.sem ? `, ${cont.sem} sem CEP nem cidade reconhecida` : ''}. A linha tracejada é a ordem das visitas do dia.` : 'Nenhum cliente deste roteiro com CEP ou cidade reconhecida.';
+  return cont;
+}
+async function roMapa(host, dias, nav){
+  const el = host.querySelector('#ro-mapa'), st = host.querySelector('#ro-mapa-st'), chave = RO.de, sid = RO.sid; if(!el) return;
+  const mun = await roMunicipios();
+  if(RO.de !== chave || !document.body.contains(el)) return;
+  roPreenche(RO.rows, mun);
+  let cart = null; try{ cart = await roCarteira(sid); }catch(_){}
+  if(RO.de !== chave || !document.body.contains(el)) return;
+  const cont = roDesenha(el, dias, nav, mun, cart);
+  const resumo = ()=> `No mapa: ${cont.rua + cont.bairro} pela rua ou bairro do CEP${cont.cep + cont.cidade ? `, ${cont.cep + cont.cidade} em posição aproximada (bolinha clara)` : ''}${cont.sem ? `, ${cont.sem} sem CEP nem cidade reconhecida` : ''}. A linha tracejada é a ordem das visitas do dia; os círculos cinza são a carteira do vendedor por cidade (maior = comprou mais em 12 meses).`;
+  if(st) st.textContent = resumo();
+  if(RO.geoDe === chave) return;   // os CEPs deste roteiro já foram localizados
+  try{
+    await roGeo(RO.rows, (f, t)=>{ if(st && RO.de === chave) st.textContent = `Localizando a rua de cada cliente pelo CEP: ${f} de ${t}… Enquanto isso, quem falta está no centro da cidade (só da primeira vez; depois fica guardado).`; });
+  }catch(e){ if(st) st.textContent = 'Não consegui localizar os CEPs agora (o mapa mostra o centro de cada cidade): ' + errAmigavel(e); return; }
+  if(RO.de !== chave || !document.body.contains(el)) return;
+  RO.geoDe = chave; renderRota();   // de novo, agora com a ordem pelo mapa e os pontos na rua
 }
 const RO_FONTES = { plano:'Plano do Especialista na semana', parados:'Parados de 91 dias a 1 ano', risco:'Em risco', carteira:'Carteira toda (com compra)' };
 const RO_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
@@ -11589,7 +11635,7 @@ async function renderRota(){
       <div class="tb-kpi"><small>Dias de visita</small><b>${dias.length}</b><span>com até ${RO.porDia} visitas por dia${sobra ? ` · ${sobra} ficam para a semana seguinte` : ''}</span></div>
       <div class="tb-kpi"><small>Cidades</small><b>${new Set(RO.rows.map(r=> (r.cidade || '') + r.uf)).size}</b><span>${RO.rows.filter(r=> !r.logradouro).length} clientes sem endereço no cadastro</span></div>
     </div>
-    ${RO.rows.length ? `<div id="ro-mapa" class="ro-mapa"></div><div class="ro-leg">${dias.slice(0, 5).map((d, i)=> `<span><i style="background:${RO_CORES[i]}"></i>${RO_DIAS[i]}</span>`).join('')}</div><div class="tb-rodape" id="ro-mapa-st">Localizando os clientes no mapa…</div>` : ''}
+    ${RO.rows.length ? `<div id="ro-mapa" class="ro-mapa"></div><div class="ro-leg">${dias.slice(0, 5).map((d, i)=> `<span><i style="background:${RO_CORES[i]}"></i>${RO_DIAS[i]}</span>`).join('')}<span><i style="background:#64748b;opacity:.35;border:1px solid #475569"></i>Carteira do vendedor (por cidade)</span></div><div class="tb-rodape" id="ro-mapa-st">Localizando os clientes no mapa…</div>` : ''}
     ${dias.slice(0, 5).map((d, i)=> { const gm = roGoogle(d); return `<div class="cm-resumo" style="margin:12px 0 4px"><i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${RO_CORES[i]};margin-right:6px;vertical-align:-1px"></i><b>${RO_DIAS[i]}</b> · ${escapeHtml(cidDia(d))} · ${d.length} cliente${d.length === 1 ? '' : 's'}${gm ? `<a class="ro-dia-mapa" href="${gm}" target="_blank" rel="noopener">🧭 Abrir o caminho do dia no Google Maps</a>` : ''}</div>
       <div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Cliente</th><th>Endereço</th><th>Cidade</th><th>Telefone</th><th>Por quê</th><th class="n">Comprou em 12 meses</th></tr></thead><tbody>
       ${d.map((r, j)=> `<tr class="vd-lin" data-pid="${r.pessoa_id}" data-uso-linha="cliente roteiro"><td class="n">${j + 1}</td><td class="prod">${escapeHtml(r.nome || '')} <span class="vd-seta">›</span></td><td>${escapeHtml(end(r))}</td><td>${escapeHtml(nomeBonito(r.cidade || ''))}${r.uf ? '/' + escapeHtml(r.uf) : ''}</td><td>${escapeHtml(r.telefone || '')}</td><td><small>${escapeHtml(r.motivo || '')}</small></td><td class="n">${r.fat_12m ? fmtMoney(r.fat_12m) : '—'}</td></tr>`).join('')}</tbody></table></div>`; }).join('') || `<div class="tb-aviso">Nenhum cliente nesta fonte${RO.fonte === 'plano' ? ': o plano desta semana ainda não foi montado no Especialista' : ''}.</div>`}
