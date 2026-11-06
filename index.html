@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-211709">
+<meta name="crm-versao" content="20261105-212502">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10537,6 +10537,9 @@ async function renderFinanceiro(){
 const PL = { ano:2027, meta:null, vm:null, top:null, n:100 };
 // dinheiro digitado: "50.000.000", "50 milhões" ou "50.000.000,00" (o tbNum trata ponto como decimal quando não há vírgula)
 const plDinheiro = t=>{ let x = String(t || '').toLowerCase().trim(); const mi = /mi/.test(x); x = x.replace(/[^\d,.]/g, ''); if(x.includes(',')) x = x.replace(/\./g, '').replace(',', '.'); else if((x.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(x)) x = x.replace(/\./g, ''); const v = Number(x); return isFinite(v) && v > 0 ? (mi && v < 1e4 ? v * 1e6 : v) : null; };
+// margem bruta confiável de um produto do plano (sem custo, negativa ou acima de 90% = custo a conferir) e % com uma casa
+const plMb = p=> { const v = p.margem_bruta == null ? null : Number(p.margem_bruta); return v == null || v < 0 || v > .9 ? null : v; };
+const plPct = v=> v == null || !isFinite(v) ? '—' : (v * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
 // inflação prevista para o ano do plano (IPCA, mediana do Focus) e o crescimento real: quanto a meta cresce acima da inflação
 function plIpcaTxt(cresc){
   const x = PL.ipca;
@@ -10550,9 +10553,13 @@ async function fiPlanejamento(host){
   if(!PL.vm){
     host.innerHTML = '<div class="tb-rodape">Somando as vendas mês a mês e os produtos que mais vendem…</div>';
     const d0 = new Date(), dd = diaLocal;
-    const [vm, top, mt, tm, nv, pdd] = await Promise.all([sb.rpc('crm_vendas_mensal', { p_desde:'2022-01-01' }), sb.rpc('crm_plan_top_produtos', { p_n:100 }), sb.from('crm_planejamento').select('meta').eq('ano', PL.ano).maybeSingle(),
+    const [vm, top, mt, tm, nv, pdd, pm] = await Promise.all([sb.rpc('crm_vendas_mensal', { p_desde:'2022-01-01' }), sb.rpc('crm_plan_produtos_ab', { p_corte:.95 }), sb.from('crm_planejamento').select('meta').eq('ano', PL.ano).maybeSingle(),
       sb.rpc('crm_tabela_media', { p_ini:dd(new Date(d0 - 90 * 864e5)), p_fim:dd(d0) }), sb.rpc('crm_clientes_novos', { p_ini:dd(new Date(d0 - 90 * 864e5)), p_fim:dd(d0) }),
-      opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m,dias_sem_comprar', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 365)).catch(()=> [])]);
+      opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m,dias_sem_comprar', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 365)).catch(()=> []),
+      sb.from('crm_premissas').select('chave,valor,obs')]);
+    // premissas da margem de contribuição (as mesmas da tela de margens): impostos, comissão, frete e taxas financeiras sobre a venda
+    PL.prem = ((pm && !pm.error && pm.data) || []).filter(x=> ['imposto', 'comissao', 'frete', 'financeiro'].includes(x.chave));
+    PL.premPct = PL.prem.reduce((t, x)=> t + (Number(x.valor) || 0), 0);
     if(vm.error || top.error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(vm.error || top.error))}</div>`; return; }
     PL.vm = vm.data || []; PL.top = top.data || []; PL.meta = Number((mt.data || {}).meta) || 50e6;
     // alavancas da ponte "de onde vem o crescimento", medidas no próprio sistema
@@ -10585,6 +10592,8 @@ async function fiPlanejamento(host){
       <text x="${k * gw + gw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:11px;fill:var(--ink-faint)">${m}</text>`).join('')}</svg>
     <div class="fi-leg">${anos.map((y, j)=> `<span><i style="background:${cores[j + 3 - anos.length] || cores[0]}"></i>${y}${Object.keys(T[y]).length < 12 ? ` (${Object.keys(T[y]).length} meses)` : ''}</span>`).join('')}<span><i style="background:#E0A458"></i>meta ${PL.ano}</span></div>`;
   const totTop = PL.top.reduce((t, p)=> t + Number(p.parte), 0), pode = ['admin', 'master'].includes(perfilEfetivo());
+  const mbAno = PL.top.reduce((t, p)=>{ const mb = plMb(p); return t + (mb == null ? 0 : PL.meta * Number(p.parte) * mb); }, 0);
+  const mcAno = PL.top.reduce((t, p)=>{ const mb = plMb(p); return t + (mb == null ? 0 : PL.meta * Number(p.parte) * (mb - PL.premPct)); }, 0);
   // ponte: de onde podem vir os R$ que faltam (premissas simples e visíveis, para discutir com a diretoria)
   const gap = Math.max(0, PL.meta - estAno);
   const alav = [
@@ -10601,7 +10610,8 @@ async function fiPlanejamento(host){
       <div class="tb-kpi"><small>Meta ${PL.ano}</small><b>${fmtMoney(PL.meta)}</b><span>média de ${fmtMoney(PL.meta / 12)} por mês</span></div>
       <div class="tb-kpi"><small>${yA} deve fechar em</small><b>${fmtMoney(estAno)}</b><span>${mesesReais.length} meses vendidos + ${12 - mesesReais.length} estimados pela sazonalidade</span></div>
       <div class="tb-kpi ${cresc != null && cresc > .3 ? 'alerta' : ''}"><small>Crescimento necessário</small><b>${cresc == null ? '—' : (cresc >= 0 ? '+' : '') + Math.round(cresc * 100) + '%'}</b><span>sobre ${yA}${cresc != null && cresc > .3 ? ': precisa de estratégia nova (clientes, mix e preço), não só do ritmo atual' : ''}</span></div>
-      <div class="tb-kpi"><small>Os ${PL.top.length} produtos que mais vendem</small><b>${Math.round(totTop * 100)}%</b><span>do faturamento dos últimos 12 meses: é neles que a meta se distribui</span></div>
+      <div class="tb-kpi"><small>Curvas A e B: ${PL.top.length} produtos</small><b>${Math.round(totTop * 100)}%</b><span>do faturamento dos últimos 12 meses (${PL.top.filter(p=> p.curva === 'A').length} na curva A, ${PL.top.filter(p=> p.curva === 'B').length} na B): é neles que a meta se distribui</span></div>
+      <div class="tb-kpi"><small>Margem de contribuição em ${PL.ano}</small><b>${fmtMoney(mcAno)}</b><span>${plPct(mcAno / (PL.meta * totTop || 1))} da meta destes produtos (margem bruta ${plPct(mbAno / (PL.meta * totTop || 1))} − premissas ${plPct(PL.premPct)})</span></div>
     </div>
     ${ponte}
     <h3 style="font-size:15px;margin:8px 0">Vendas mês a mês e a meta de ${PL.ano} pela sazonalidade</h3>
@@ -10609,11 +10619,14 @@ async function fiPlanejamento(host){
     <div class="tb-wrap" style="min-height:0;max-height:none;margin-top:8px"><table class="tb-tab"><thead><tr><th>Mês</th>${anos.map(y=> `<th class="n">${y}</th>`).join('')}<th class="n" title="Quanto o mês vende em relação à média do ano (1,00 = um mês normal)">Peso do mês</th><th class="n">Meta ${PL.ano}</th><th class="n">Contra ${anos[anos.length - 1] || ''}</th></tr></thead>
     <tbody>${M3.map((m, k)=>{ const ul = anos.length ? T[anos[anos.length - 1]][k + 1] : null; return `<tr><td>${m}</td>${anos.map(y=> `<td class="n">${T[y][k + 1] != null ? fmtMoney(T[y][k + 1]) : '—'}</td>`).join('')}<td class="n">${ind[k].toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}</td><td class="n"><b>${fmtMoney(proj[k])}</b></td><td class="n">${ul ? (proj[k] / ul - 1 >= 0 ? '+' : '') + Math.round((proj[k] / ul - 1) * 100) + '%' : '—'}</td></tr>`; }).join('')}
       <tr class="tm-grupo"><td>Ano</td>${anos.map(y=> `<td class="n">${fmtMoney(Object.values(T[y]).reduce((a, c)=> a + c, 0))}</td>`).join('')}<td></td><td class="n"><b>${fmtMoney(PL.meta)}</b></td><td></td></tr></tbody></table></div>
-    <h3 style="font-size:15px;margin:16px 0 8px">Quanto cada produto precisa vender em ${PL.ano} (os ${PL.top.length} que mais vendem)</h3>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th class="n">Vendeu em 12 meses</th><th class="n">Parte</th><th class="n">Meta ${PL.ano}</th><th class="n">Quantidade no ano</th><th class="n">Em janeiro</th><th class="n">Clientes</th></tr></thead>
-    <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null;
-      return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td><td class="n">${fmtMoney(proj[0] * Number(p.parte))}</td><td class="n">${p.clientes}</td></tr>`; }).join('')}</tbody></table></div>
-    <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
+    <h3 style="font-size:15px;margin:16px 0 8px">Quanto cada produto precisa vender em ${PL.ano}: as curvas A e B (${PL.top.length} produtos, ${Math.round(totTop * 100)}% do faturamento)</h3>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Produto</th><th class="n">Curva</th><th class="n">Vendeu em 12 meses</th><th class="n">Quantidade em 12 meses</th><th class="n" title="Parte do produto no faturamento dos últimos 12 meses">Parte</th><th class="n">Meta ${PL.ano}</th><th class="n">Quantidade em ${PL.ano}</th>
+      <th class="n" title="Margem bruta: faturamento menos quantidade × custo atual do Fácil123">Margem bruta</th><th class="n" title="Margem de contribuição: margem bruta menos impostos, comissão, frete e taxas financeiras sobre a venda (premissas da tela de margens: ${plPct(PL.premPct)})">Margem de contribuição</th><th class="n">Contribuição em ${PL.ano}</th></tr></thead>
+    <tbody>${PL.top.map((p, i)=>{ const mp = PL.meta * Number(p.parte), q = Number(p.preco_medio) ? mp / Number(p.preco_medio) : null, mb = plMb(p), mc = mb == null ? null : mb - PL.premPct;
+      return `<tr><td class="n">${i + 1}</td><td class="prod">${escapeHtml(p.codigo)} · ${escapeHtml(p.produto)}</td><td class="n"><b>${p.curva}</b></td><td class="n">${fmtMoney(p.valor_12m)}</td><td class="n">${tbQtd(Math.round(Number(p.qtd_12m)))}</td><td class="n">${(Number(p.parte) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n"><b>${fmtMoney(mp)}</b></td><td class="n">${q != null ? tbQtd(Math.round(q)) : '—'}</td>
+        <td class="n">${mb == null ? '<span class="vazio" title="Sem custo no Fácil123 ou custo fora do normal">—</span>' : plPct(mb)}</td><td class="n" style="${mc != null && mc < .2 ? 'color:var(--red)' : ''}">${mc == null ? '—' : plPct(mc)}</td><td class="n">${mc == null ? '—' : fmtMoney(mp * mc)}</td></tr>`; }).join('')}
+      <tr class="tm-grupo"><td></td><td class="prod">Resto do catálogo (curva C)</td><td></td><td class="n">—</td><td></td><td class="n">${(Math.max(0, 1 - totTop) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 })}%</td><td class="n">${fmtMoney(PL.meta * Math.max(0, 1 - totTop))}</td><td colspan="4" class="vazio">fica fora do plano produto a produto (ver Análise de produtos)</td></tr></tbody></table></div>
+    <div class="tb-rodape">Sazonalidade: para cada ano, quanto cada mês vendeu em relação à média mensal daquele ano; o peso do mês é a média dos anos (o mês corrente, incompleto, fica fora). Meta do mês = meta do ano × peso do mês ÷ 12. Produtos: as curvas A e B dos últimos 12 meses (os que somam os primeiros 95% do faturamento; A = os primeiros 80%). Meta de cada produto = meta do ano × a parte dele no faturamento dos últimos 12 meses (premissa simples: o mix fica igual); quantidade = meta ÷ preço médio praticado. Margem bruta = faturamento − quantidade × custo atual do Fácil123 (o custo tem histórico só desde out/2026: número em conferência); margem de contribuição = margem bruta − ${PL.prem.map(x=> ({ imposto:'impostos', comissao:'comissão', frete:'frete', financeiro:'taxas financeiras' }[x.chave]) + ' ' + plPct(Number(x.valor))).join(', ') || 'premissas'} (tela de margens). Vendas pela mesma regra das outras telas. O Fácil123 da Synthetic tem vendas a partir de jan/2024 (antes disso a conta está vazia), então a sazonalidade usa 2024, 2025 e 2026. Nesta primeira versão o mix fica igual (todo produto cresce na mesma proporção); o próximo passo é escolher quais linhas puxam o crescimento. Próximos passos: mix (quais produtos crescem mais), preço (tabela média), novos clientes por vendedor e o orçamento de despesas.</div>`;
   if(PL.ipca === undefined){ PL.ipca = null;   // busca uma vez a inflação prevista (Focus, Banco Central: dado público, nada sai daqui)
     fetch(`https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=${encodeURIComponent(`Indicador eq 'IPCA' and DataReferencia eq '${PL.ano}' and baseCalculo eq 0`)}&$orderby=Data%20desc&$top=1&$format=json&$select=Data,Mediana`)
       .then(r=> r.json()).then(j=>{ const x = (j.value || [])[0]; PL.ipca = x ? { v:Number(x.Mediana) / 100, em:x.Data } : false; })
@@ -10627,8 +10640,9 @@ async function fiPlanejamento(host){
     const n = v=> Number(v || 0).toFixed(2).replace('.', ',');
     const linhas = [['Planejamento Estratégico ' + PL.ano, 'Meta', n(PL.meta)], [], ['Mês', ...anos.map(String), 'Peso do mês', 'Meta ' + PL.ano]]
       .concat(M3.map((m, k)=> [m, ...anos.map(y=> T[y][k + 1] != null ? n(T[y][k + 1]) : ''), n(ind[k]), n(proj[k])]))
-      .concat([[], ['Código', 'Produto', 'Vendeu em 12 meses', 'Parte', 'Meta ' + PL.ano, 'Quantidade no ano', ...M3.map(m=> 'Meta ' + m)]])
-      .concat(PL.top.map(p=>{ const mp = PL.meta * Number(p.parte); return [p.codigo, p.produto, n(p.valor_12m), n(Number(p.parte) * 100) + '%', n(mp), Number(p.preco_medio) ? Math.round(mp / Number(p.preco_medio)) : '', ...proj.map(v=> n(v * Number(p.parte)))]; }));
+      .concat([[], ['Código', 'Produto', 'Curva', 'Vendeu em 12 meses', 'Quantidade em 12 meses', 'Parte', 'Meta ' + PL.ano, 'Quantidade no ano', 'Margem bruta %', 'Margem de contribuição %', 'Contribuição ' + PL.ano, ...M3.map(m=> 'Meta ' + m)]])
+      .concat(PL.top.map(p=>{ const mp = PL.meta * Number(p.parte), mb = plMb(p), mc = mb == null ? null : mb - PL.premPct;
+        return [p.codigo, p.produto, p.curva, n(p.valor_12m), n(p.qtd_12m), n(Number(p.parte) * 100) + '%', n(mp), Number(p.preco_medio) ? Math.round(mp / Number(p.preco_medio)) : '', mb == null ? '' : n(mb * 100), mc == null ? '' : n(mc * 100), mc == null ? '' : n(mp * mc), ...proj.map(v=> n(v * Number(p.parte)))]; }));
     csvDownload(linhas, 'planejamento-' + PL.ano + '.csv'); uso('clique', 'planejamento: exportar');
   });
 }
