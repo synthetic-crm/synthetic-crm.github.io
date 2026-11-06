@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-212502">
+<meta name="crm-versao" content="20261105-213218">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9384,11 +9384,12 @@ setInterval(libConfere, 10*60000);
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
   { id:'rotas-mapa', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
-  { id:'menu-7', dia:'2026-11-05', tela:'resumo', titulo:'Menu com 7 portas', txt:'Vendas agora tem a aba Planejamento 2027; Rotas virou aba de Clientes. A tela Vendas ficou com os 4 números que importam (mês, projeção, ano e em atraso), o ranking logo abaixo e o que pede atenção na venda.' },
+  { id:'entregas-sexta', dia:'2026-11-06', tela:'sugestoes', titulo:'Toda sexta tem novidade na Torre', txt:'As melhorias saem toda sexta-feira, até o fim do dia, com o que vocês sugerirem na semana: de segunda a quinta a gente recolhe, na reunião de quinta conversa e na sexta entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
+  { id:'financeiro', lib:'fin-inad', dia:'2026-11-06', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Rian na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
+  { id:'export-cliente', lib:'export-cliente', dia:'2026-11-06', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente', txt:'Pedido na reunião de 05/11. Na Tab. média e no Prazo, o botão "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, no período escolhido, pronto para abrir no Excel. Sentiu falta de alguma coluna? Conta pelo botão Sugestões.' },
   { id:'rotas', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas: o roteiro da semana por cidade e bairro', txt:'Escolha os clientes (parados, em risco, carteira toda) e o sistema distribui de segunda a sexta, sem misturar cidades no mesmo dia, pronto para copiar no WhatsApp. A gestão vê também a área de cada vendedor: quem está concentrado e quem está espalhado.' },
-  { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção, o ano, o gráfico mês a mês e o ranking dos vendedores (com "copiar para o grupo"). Clientes junta a Carteira e os Parados; Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. Acessos foi para o topo.' },
+  { id:'menu-novo', dia:'2026-11-05', tela:'resumo', titulo:'Menu novo, mais simples', txt:'Vendas é a primeira tela: o mês, a projeção do mês, o ano contra o ano passado, o ranking dos vendedores (com "copiar para o grupo") e o que pede atenção na venda. Vendedores junta Tab. média, Prazo e Comissões; Produtos junta Tabelas e Catálogo. As letras ficaram maiores.' },
   { id:'cliente-unico', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Clique no cliente da Carteira: tudo sobre ele', txt:'Abre as compras mês a mês, os boletos, a nota de pagamento e a oferta no WhatsApp, com ‹ › para passar ao próximo da lista. "Registrar contato" leva à ficha completa.' },
-  { id:'export-cliente', lib:'export-cliente', dia:'2026-11-05', tela:'tabmedia', titulo:'Exportar Tab. média e Prazo por cliente, e filtro de internos', txt:'Na Tab. média e no Prazo: "Exportar por cliente" baixa a tabela média e o prazo de cada vendedor em cada cliente, e o filtro separa vendedores internos e externos.' },
   { id:'desconto', lib:'fin-desc', dia:'2026-11-05', tela:'financeiro', titulo:'Desconto de duplicatas', txt:'Financeiro › Desconto de duplicatas: separe os boletos a vencer que vão ser descontados, copie o lote para aprovação e marque o que foi descontado, sem mexer no Fácil123.' },
   { id:'promo-bonificacao', lib:'promo-bonif', dia:'2026-11-05', tela:'catalogo', titulo:'Promoção por bonificação em produto', txt:'Além do desconto, a promoção pode ser "a cada 12 unidades, bonifica 2": o preço de tabela fica igual e o custo da bonificação aparece para lançar como marketing.' },
   { id:'promo-vendas', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Quem vendeu cada promoção', txt:'Financeiro › Relatórios › Vendas das promoções: por vendedor e pedido a pedido, com o fechamento do dia pronto para colar no WhatsApp.' },
@@ -9396,7 +9397,6 @@ const NOVIDADES = [
   { id:'rede', dia:'2026-11-05', tela:'parados', titulo:'Parados: "rede compra"', txt:'Marca o cliente que parou nesta loja, mas outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias.' },
   { id:'devedor-cnpj', lib:'nota', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
   { id:'relatorios', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
-  { id:'financeiro', lib:'fin-inad', dia:'2026-11-05', tela:'financeiro', titulo:'Novo módulo Financeiro: inadimplência e baixas', txt:'Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado. Lista por cliente para acompanhar a cobrança, sem a planilha puxada do Fácil.' },
   { id:'rating', lib:'nota', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
   { id:'carteira', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
   { id:'parados-faixas', dia:'2026-11-04', tela:'parados', titulo:'Parados: os mais fáceis de recuperar em destaque', txt:'O quadro principal separa quem parou há 91 a 180 dias (mais fácil de trazer de volta) de quem parou há mais tempo.' },
@@ -11356,7 +11356,9 @@ async function renderEntregas(){
         ${[...new Set([hoje, ...sextas, l.libera_em].filter(Boolean))].sort().map(d=> `<option value="${d}" ${d === l.libera_em ? 'selected' : ''}>${d === hoje ? 'Hoje · ' : ''}${enDia(d)}</option>`).join('')}</select></td></tr>`;
   const tabela = rs=> `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Entrega</th><th>Quem pediu</th><th>Onde fica</th><th>Situação</th><th>Quando sai</th></tr></thead><tbody>${rs.map(linha).join('')}</tbody></table></div>`;
   const recado = d=> { const it = vem.filter(l=> l.libera_em === d);
-    return `Pessoal, saiu hoje na Torre de Controle:\n` + it.map(l=> `• ${l.titulo}${l.pedido_por ? ' (pedido: ' + l.pedido_por + ')' : ''}`).join('\n') + `\n\nNa segunda, ao entrar, aparece o quadro de Novidades; se a faixa "Saiu uma versão nova" aparecer, é só clicar em Atualizar. Dúvida ou ideia: o balão 💬 no canto da tela. Na quinta olhamos juntos como foi.`; };
+    return `Bom dia, pessoal! Saiu hoje a entrega da semana na Torre de Controle - Synthetic:\n` + it.map(l=> `• ${l.titulo}${l.pedido_por ? ' (pedido: ' + l.pedido_por + ')' : ''}`).join('\n')
+      + `\n\nComo funciona daqui para a frente: de segunda a quinta a gente recolhe as sugestões de vocês, na reunião de quinta conversa sobre elas e toda sexta, até o fim do dia, sai uma melhoria nova. Se algo não funciona e impede o uso, marque "Urgente" e resolvemos em até 48 horas.`
+      + `\n\nEntrem, usem e contem o que acharam pelo botão Sugestões ou pelo balão 💬 no canto da tela: é assim que a próxima sexta é escolhida. Se aparecer a faixa "Saiu uma versão nova", é só clicar em Atualizar.`; };
   host.innerHTML = `
     <div class="tb-kpis">
       <div class="tb-kpi"><small>Próxima entrega</small><b>${datas[0] ? escapeHtml(enDia(datas[0])) : '—'}</b><span>${datas[0] ? vem.filter(l=> l.libera_em === datas[0]).length + ' melhoria(s)' : 'nada agendado'}</span></div>
@@ -12170,21 +12172,29 @@ async function cmDetalhe(ini, fim){
 }
 
 // ---------- APRESENTAÇÃO: o que é a Torre de Controle Synthetic (1ª tela de quem entra) ----------
+// Apresentação pelo calendário de entregas: para o time, o que ainda não saiu aparece como em construção ("~" na frente)
+const sbL = k=> libLivre(k) ? '' : '~';
+function sbFin(){
+  const L = [libLivre('fin-inad') && 'quem deve e há quanto tempo, as baixas mês a mês', libLivre('nota') && 'a nota de pagamento de cada cliente', libLivre('fin-desc') && 'o lote de duplicatas para descontar', libLivre('fin-rel') && 'os relatórios de endereços e clientes novos'].filter(Boolean);
+  if(!L.length) return '';
+  const t = L.length > 1 ? L.slice(0, -1).join(', ') + ' e ' + L[L.length - 1] : L[0];
+  return t.charAt(0).toUpperCase() + t.slice(1) + '.';
+}
 function renderSobre(){
   const host = document.getElementById('sb'); if(!host || host.dataset.ok) return;
   host.dataset.ok = '1';
   const pilares = [
-    ['📊', 'Indicadores', 'Os números que mostram se o negócio está andando, todo dia, sem planilha.', ['Vendas do mês, projeção e ranking dos vendedores', 'Planejamento 2027: meta do ano mês a mês e por produto', '~Meta por vendedor', '~Margem de contribuição', 'Prazo médio de recebimento', 'Inadimplência e baixas, mês a mês', 'Nota de pagamento de cada cliente']],
+    ['📊', 'Indicadores', 'Os números que mostram se o negócio está andando, todo dia, sem planilha.', ['Vendas do mês, projeção e ranking dos vendedores', sbL('plano27') + 'Planejamento 2027: meta do ano mês a mês e por produto', '~Meta por vendedor', sbL('plano27') + 'Margem de contribuição', 'Prazo médio de recebimento', sbL('fin-inad') + 'Inadimplência e baixas, mês a mês', sbL('nota') + 'Nota de pagamento de cada cliente']],
     ['🏷️', 'Precificação', 'Preço com regra: quanto dá para negociar sem perder margem.', ['Tabela média por vendedor', 'Vendas abaixo do limite (Tabela 1 −7%)', 'Comissão pela faixa de desconto', '~Piso e alvo de margem por linha']],
-    ['🧭', 'Informação do negócio', 'O que acontece na carteira, para agir antes de perder o cliente.', ['Clientes que pararam de comprar', 'O que cada cliente comprava e quando parou', 'Registro de ligações e visitas na ficha', 'Roteiro da semana por cidade e bairro', 'Aviso de cliente ligado a quem deve', '~Mapa das visitas']]];
+    ['🧭', 'Informação do negócio', 'O que acontece na carteira, para agir antes de perder o cliente.', ['Clientes que pararam de comprar', 'O que cada cliente comprava e quando parou', 'Registro de ligações e visitas na ficha', sbL('rota') + 'Roteiro da semana por cidade e bairro', sbL('nota') + 'Aviso de cliente ligado a quem deve', sbL('rota') + 'Mapa das visitas']]];
   // pela jornada de quem usa (05/11/2026): o que está pronto em cada porta do menu
   const prio = [
-    ['Vendas', 'O mês, a projeção pelo ritmo dos dias úteis, o ano contra o ano passado, o ranking dos vendedores para o grupo e o Planejamento 2027.', 'pronto'],
-    ['Clientes', 'A carteira na linha do tempo, os parados há mais de 90 dias, o detalhe de cada cliente (compras, boletos, nota de pagamento, oferta no WhatsApp) e o roteiro da semana.', 'pronto · mapa das visitas em construção'],
+    ['Vendas', 'O mês, a projeção pelo ritmo dos dias úteis, o ano contra o ano passado e o ranking dos vendedores para o grupo' + (libLivre('plano27') ? ', e o Planejamento 2027.' : '.'), 'pronto' + (libLivre('plano27') ? '' : ' · Planejamento 2027 em construção')],
+    ['Clientes', (libLivre('carteira') ? 'A carteira na linha do tempo, os' : 'Os') + ' parados há mais de 90 dias e o detalhe de cada cliente (compras, boletos' + (libLivre('nota') ? ', nota de pagamento' : '') + ', oferta no WhatsApp)' + (libLivre('rota') ? ' e o roteiro da semana, no mapa.' : '.'), 'pronto' + (libLivre('rota') ? '' : ' · roteiro da semana em construção')],
     ['Vendedores', 'Tabela média e prazo médio de cada um, com a gerência, e a comissão do ciclo pela faixa de desconto, conferida com a planilha de agosto.', 'pronto · gerência aguarda o cadastro das equipes'],
-    ['Produtos', 'Tabelas de preço 1 a 5, catálogo oficial e promoções de desconto ou de bonificação em produto.', 'pronto'],
-    ['Financeiro', 'Quem deve e há quanto tempo, as baixas mês a mês, a nota de pagamento de cada cliente e o lote de duplicatas para descontar.', 'pronto']];
-  const depois = ['Meta por vendedor', 'Margem de contribuição', 'Mapa das visitas', 'Rastreamento de entrega (transportadora RC)'];
+    ['Produtos', 'Tabelas de preço 1 a 5, catálogo oficial e promoções de desconto' + (libLivre('promo-bonif') ? ' ou de bonificação em produto.' : '.'), 'pronto' + (libLivre('promo-bonif') ? '' : ' · bonificação em produto em construção')],
+    ['Financeiro', sbFin() || 'O módulo financeiro está em construção.', sbFin() ? 'pronto' + (['nota', 'fin-desc', 'fin-rel'].every(libLivre) ? '' : ' · mais funções em construção') : 'em construção']];
+  const depois = ['Meta por vendedor', 'Rastreamento de entrega (transportadora RC)'];
   // padrão Capacity Case (skill apresentacao-torre): como a torre foi montada nesta empresa, nos 3 verbos do site
   const jlc = [
     ['Lê', 'O sistema que já funciona continua', 'O Fácil123 segue sendo onde se lança pedido, cliente, produto e preço. A torre lê os dados dele a cada 30 minutos, só leitura.'],
@@ -12203,7 +12213,7 @@ function renderSobre(){
   const perfis = [
     ['CEO', 'Entra em Vendas: como está o mês, o ranking dos vendedores e o que pede atenção. Depois a carteira, os vendedores, os produtos e o financeiro.'],
     ['Gerente de vendas', 'Time comercial: vendas, clientes parados de cada vendedor, tabela média e prazo.'],
-    ['Financeiro', 'Entra no Financeiro: quem deve e há quanto tempo, o que entrou mês a mês, a nota de pagamento de cada cliente e o lote de duplicatas para descontar.'],
+    ['Financeiro', sbFin() ? 'Entra no Financeiro: ' + sbFin().charAt(0).toLowerCase() + sbFin().slice(1) : 'Tabela média e prazo de cada vendedor; o módulo financeiro está em construção.'],
     ['Vendedor', 'A própria carteira, a tabela média e o prazo dele, e os parados para ligar na semana.']];
   host.innerHTML = `
     <section class="sb-hero">
