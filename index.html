@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-215243">
+<meta name="crm-versao" content="20261105-215808">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11117,11 +11117,11 @@ async function esVendedor(host){
 // um vai para o controle por sorteio e os outros dois para o plano. Assim plano e controle têm clientes do mesmo tamanho. Nota de pagamento
 // abaixo de 4 não entra na pré-seleção (dá para marcar na mão, e a mensagem avisa "só à vista"). Com o controle já gravado, ele não muda.
 function esSorteia(){
-  const fixo = (ESP.plano.controle || []).length > 0;
-  ESP.sel = new Set(); if(!fixo) ESP.ctrl = new Set();
+  const fixo = (ESP.plano.controle || []).length > 0, pend = ESP.pend || new Set();
+  ESP.sel = new Set(pend); if(!fixo) ESP.ctrl = new Set();
   Object.keys(ES_EST).forEach(k=>{
     const q = ESP.qtd[k] || 0; if(!q) return;
-    const L = ESP.cand.filter(c=> c.estrategia === k && !(c.nota != null && c.nota < 4) && !ESP.sel.has(c.pessoa_id) && !(fixo && ESP.ctrl.has(c.pessoa_id)));
+    const L = ESP.cand.filter(c=> c.estrategia === k && !pend.has(c.pessoa_id) && !(c.nota != null && c.nota < 4) && !ESP.sel.has(c.pessoa_id) && !(fixo && ESP.ctrl.has(c.pessoa_id)));
     if(fixo){ L.slice(0, q).forEach(c=> ESP.sel.add(c.pessoa_id)); return; }
     const top = L.slice(0, Math.round(q / .7));
     for(let i = 0; i < top.length; i += 3){
@@ -11141,12 +11141,13 @@ async function esPlano(box, host, nome){
     ESP.cand = data || [];
     // clientes do plano salvo (ou reprogramado da semana passada) que não estão mais nas sugestões continuam no plano
     const ids = new Set(ESP.cand.map(c=> c.pessoa_id));
+    ESP.pend = new Set((P.itens || []).filter(i=> /^veio da semana/.test(i.motivo || '')).map(i=> i.pessoa_id));   // reprogramados: não vão para o sorteio
     (P.itens || []).filter(i=> !ids.has(i.pessoa_id)).forEach(i=> ESP.cand.unshift({ estrategia:i.estrategia, pessoa_id:i.pessoa_id, nome:i.nome, cidade:i.cidade, telefone:i.telefone, motivo:i.motivo, produtos:(i.oferta || '').split(', ').join(' · '), nota:null }));
     ESP.qtd = Object.fromEntries(Object.entries(ES_EST).map(([k, e])=> [k, e.q]));
     // plano salvo: marca o que já estava nele e o controle gravado; senão, sorteia em trios
     ESP.sel = new Set((P.itens || []).map(i=> i.pessoa_id));
     ESP.ctrl = new Set((P.controle || []).map(i=> i.pessoa_id));
-    if(!ESP.sel.size) esSorteia();
+    if(!ESP.sel.size || !ESP.ctrl.size) esSorteia();
   }
   const C = ESP.cand, porEst = k=> C.filter(c=> c.estrategia === k);
   // um cliente pode aparecer em mais de uma estratégia: fica na primeira em que foi marcado
@@ -11190,14 +11191,17 @@ async function esPlano(box, host, nome){
   box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
   box.querySelector('#es-regera').addEventListener('click', e=>{ e.preventDefault(); box.querySelector('#es-msg').value = msgPadrao(); });
   const salvar = async ()=>{
+    if(ESP.salvando) return null; ESP.salvando = true;
+    try{ return await salvarFaz(); } finally { ESP.salvando = false; } };
+  const salvarFaz = async ()=>{
     const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c) }));
     const mensagem = box.querySelector('#es-msg').value;
     // grupo de controle (prova do resultado): gravado na primeira vez, o sorteado em trios (esSorteia); depois não muda
     let controle = null;
     if(!(ESP.plano.controle || []).length) controle = ESP.cand.filter(c=> ESP.ctrl.has(c.pessoa_id)).filter((c, i, a)=> a.findIndex(x=> x.pessoa_id === c.pessoa_id) === i).map(c=> ({ pessoa_id:c.pessoa_id, estrategia:c.estrategia }));
     const { data: id, error } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:itens, p_mensagem:mensagem, p_controle:controle });
-    if(controle) ESP.plano.controle = controle;
     if(error){ showToast(errAmigavel(error)); return null; }
+    if(controle) ESP.plano.controle = controle;
     ESP.plano = { ...ESP.plano, id, itens, mensagem }; return id; };
   const copia = async ()=>{ try{ await navigator.clipboard.writeText(box.querySelector('#es-msg').value); showToast('Mensagem copiada: cole no WhatsApp do vendedor.'); }catch(_){ prompt('Copie a mensagem:', box.querySelector('#es-msg').value); } };
   box.querySelector('#es-salva').addEventListener('click', async ()=>{ if(await salvar()){ showToast('Plano salvo.'); esVendedor(host); } });
@@ -11213,7 +11217,7 @@ async function esPlano(box, host, nome){
     if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
     const id = await salvar(); if(!id) return;
     esWhats('Mandar a estratégia da semana', box.querySelector('#es-msg').value, async txt=>{
-      if(txt !== ESP.plano.mensagem) await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:ESP.plano.itens, p_mensagem:txt });
+      if(txt !== ESP.plano.mensagem){ const { error: e2 } = await sb.rpc('crm_esp_salvar', { p_semana:ESP.semana, p_seller:ESP.vend.id, p_itens:ESP.plano.itens, p_mensagem:txt }); if(e2){ showToast(errAmigavel(e2)); return; } }
       const { error } = await sb.rpc('crm_esp_marcar', { p_id:id, p_etapa:'enviado' }); if(error){ showToast(errAmigavel(error)); return; }
       ESP.plano.enviado_em = new Date().toISOString(); ESP.plano.mensagem = txt; uso('clique', 'especialista: plano no WhatsApp', { seller_id:ESP.vend.id }); dlgClose(); esVendedor(host); }); });
 }
@@ -11302,7 +11306,7 @@ async function renderAnaliseProdutos(){
     host.innerHTML = '<div class="tb-rodape">Somando as vendas por produto-base, a margem desde abril e o estoque…</div>';
     const [c, e] = await Promise.all([sb.rpc('crm_analise_catalogo'), sb.rpc('crm_estoque_liquidar')]);
     if(c.error){ host.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(c.error))}</div>`; return; }
-    AP.rows = c.data || []; AP.est = (e && !e.error && e.data) || [];
+    AP.rows = c.data || []; AP.estErro = !e || e.error ? errAmigavel(e && e.error || 'sem resposta') : null; AP.est = AP.estErro ? [] : (e.data || []);
   }
   const L = AP.rows, E = AP.est, soma = (rs, k)=> rs.reduce((t, r)=> t + Number(r[k] || 0), 0);
   const pct = (v, d = 0)=> v == null ? '—' : (Number(v) * 100).toLocaleString('pt-BR', { maximumFractionDigits:d, minimumFractionDigits:d }) + '%';
@@ -11316,7 +11320,7 @@ async function renderAnaliseProdutos(){
       <div class="tb-kpi rs-kpi-ok"><small>Núcleo (curvas A e B)</small><b>${fmtNum(nucleo.length)}</b><span>${pct(soma(nucleo, 'parte'), 1)} da venda · margem desde abril ${pct(mgMed(nucleo), 1)}</span></div>
       <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, 'parte'), 2)} da venda (${fmtMoney(soma(sai, 'faturamento_12m'))}) · margem ${pct(mgMed(de('candidato')), 1)}</span></div>
       <div class="tb-kpi"><small>Sob encomenda</small><b>${fmtNum(enc.length)}</b><span>${pct(soma(enc, 'parte'), 1)} da venda: saem da tabela do vendedor</span></div>
-      <div class="tb-kpi alerta"><small>Estoque acabado para olhar</small><b>${fmtMoney(soma(exc, 'valor_custo') + soma(par, 'valor_custo'))}</b><span>saldo inteiro de ${exc.length} códigos com mais de 6 meses de cobertura e ${par.length} parados, a custo de out/2026 · contar fisicamente antes de citar</span></div>
+      <div class="tb-kpi alerta"><small>Estoque acabado para olhar</small><b>${AP.estErro ? 'não carregou' : fmtMoney(soma(exc, 'valor_custo') + soma(par, 'valor_custo'))}</b><span>${AP.estErro ? escapeHtml(AP.estErro) : `saldo inteiro de ${exc.length} códigos com mais de 6 meses de cobertura e ${par.length} parados, a custo de out/2026${E.filter(r=> r.valor_custo == null).length ? ` (${E.filter(r=> r.valor_custo == null).length} sem custo fora do total)` : ''} · contar fisicamente antes de citar`}</span></div>
     </div>`;
   const aviso = `<div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> O que esta análise mostra: o ganho de enxugar o catálogo é <b>foco do vendedor e cadastro limpo</b>, não margem nem estoque. Os candidatos a sair têm margem acima da média e quase nenhum estoque. O estoque parado de verdade está em poucos itens que ainda vendem: o caminho para eles é liquidar, não cortar.</div>`;
   if(AP.aba === 'estoque'){
@@ -11324,7 +11328,7 @@ async function renderAnaliseProdutos(){
       <div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="prod">Produto</th><th>Situação</th><th class="n">Saldo</th><th class="n">Valor a custo</th><th class="n" title="Saldo ÷ média mensal vendida nos últimos 12 meses">Cobertura</th><th class="n">Última venda</th><th class="n">Clientes 12m</th><th title="Outro código do mesmo produto-base com saldo negativo: sinal de produção ou venda lançada no código errado">Conferir</th></tr></thead>
       <tbody>${E.map(r=> `<tr><td class="prod">${escapeHtml(r.codigo || '')} · ${escapeHtml(r.produto || '')}</td><td><span class="rt ${r.situacao === 'parado' ? 'rt-D' : 'rt-C'}">${r.situacao === 'parado' ? 'Parado há 180 dias ou mais' : 'Excesso (mais de 6 meses)'}</span></td>
         <td class="n">${fmtNum(Math.round(Number(r.saldo)))} ${escapeHtml(r.unidade || '')}</td><td class="n">${r.valor_custo == null ? '<span class="vazio">sem custo</span>' : fmtMoney(r.valor_custo)}</td><td class="n">${r.meses_cobertura == null ? '—' : String(r.meses_cobertura).replace('.', ',') + ' meses'}</td>
-        <td class="n">${r.ultima_venda ? fmtDate(r.ultima_venda) : '<span class="vazio">nunca</span>'}</td><td class="n">${fmtNum(r.clientes_12m)}</td><td>${r.irmao_negativo ? '⚠ código irmão negativo' : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="vazio">Nenhum produto acabado parado ou em excesso.</td></tr>'}</tbody></table></div>
+        <td class="n">${r.ultima_venda ? fmtDate(r.ultima_venda) : '<span class="vazio">nunca</span>'}</td><td class="n">${fmtNum(r.clientes_12m)}</td><td>${r.irmao_negativo ? '⚠ código irmão negativo' : ''}</td></tr>`).join('') || `<tr><td colspan="8" class="vazio">${AP.estErro ? 'Não consegui carregar o estoque: ' + escapeHtml(AP.estErro) : 'Nenhum produto acabado parado ou em excesso.'}</td></tr>`}</tbody></table></div>
       <div class="tb-rodape">Só produto acabado (fora óleo básico, aditivo, embalagem, rótulo e uso e consumo). Parado = saldo com última venda há 180 dias ou mais; excesso = saldo acima de 6 meses da venda média dos últimos 12 meses. O saldo é o do Fácil123 (um depósito, sem inventário): conte fisicamente antes de levar qualquer valor ao CEO. "Código irmão negativo" = outro código do mesmo produto com saldo negativo (ex.: o 200 L positivo e o 1 L negativo), sinal de produção lançada no código errado.</div>`;
   } else {
     const q = AP.q.toLowerCase();
