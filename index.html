@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261105-214829">
+<meta name="crm-versao" content="20261105-215243">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11316,7 +11316,7 @@ async function renderAnaliseProdutos(){
       <div class="tb-kpi rs-kpi-ok"><small>Núcleo (curvas A e B)</small><b>${fmtNum(nucleo.length)}</b><span>${pct(soma(nucleo, 'parte'), 1)} da venda · margem desde abril ${pct(mgMed(nucleo), 1)}</span></div>
       <div class="tb-kpi alerta"><small>Candidatos a sair</small><b>${fmtNum(sai.length)}</b><span>${pct(soma(sai, 'parte'), 2)} da venda (${fmtMoney(soma(sai, 'faturamento_12m'))}) · margem ${pct(mgMed(de('candidato')), 1)}</span></div>
       <div class="tb-kpi"><small>Sob encomenda</small><b>${fmtNum(enc.length)}</b><span>${pct(soma(enc, 'parte'), 1)} da venda: saem da tabela do vendedor</span></div>
-      <div class="tb-kpi alerta"><small>Estoque acabado a liquidar</small><b>${fmtMoney(soma(exc, 'valor_custo') + soma(par, 'valor_custo'))}</b><span>${exc.length} em excesso e ${par.length} parados · contar antes de citar</span></div>
+      <div class="tb-kpi alerta"><small>Estoque acabado para olhar</small><b>${fmtMoney(soma(exc, 'valor_custo') + soma(par, 'valor_custo'))}</b><span>saldo inteiro de ${exc.length} códigos com mais de 6 meses de cobertura e ${par.length} parados, a custo de out/2026 · contar fisicamente antes de citar</span></div>
     </div>`;
   const aviso = `<div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> O que esta análise mostra: o ganho de enxugar o catálogo é <b>foco do vendedor e cadastro limpo</b>, não margem nem estoque. Os candidatos a sair têm margem acima da média e quase nenhum estoque. O estoque parado de verdade está em poucos itens que ainda vendem: o caminho para eles é liquidar, não cortar.</div>`;
   if(AP.aba === 'estoque'){
