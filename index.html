@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261109-095021">
+<meta name="crm-versao" content="20261109-095830">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11201,6 +11201,18 @@ async function esPlano(box, host, nome){
     const [{ data, error }] = await Promise.all([sb.rpc('crm_esp_candidatos', { p_seller:V.id, p_semana:ESP.semana }), WA_PROMOS ? Promise.resolve() : sb.rpc('crm_promocoes_lista').then(r=>{ WA_PROMOS = (r.data || []).filter(x=> x.situacao === 'ativa'); })]);
     if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
     ESP.cand = data || [];
+    // endereço (para a rota) e oferta sugerida: o que ele levava e o que a cidade dele compra e ele nunca comprou (09/11/2026)
+    const [of, mun] = await Promise.all([sb.rpc('crm_esp_ofertas', { p_ids:ESP.cand.map(c=> c.pessoa_id) }).catch(()=> ({})), roMunicipios()]);
+    const ofDe = new Map(((of && of.data) || []).map(o=> [o.pessoa_id, o]));
+    ESP.cand.forEach(c=> Object.assign(c, ofDe.get(c.pessoa_id) || {}));
+    roPreenche(ESP.cand, mun);
+    // saída do vendedor: a cidade que mais compra na carteira dele (Área de cada vendedor); sem isso, a cidade com mais candidatos
+    if(!RO.area){ const { data: ar } = await sb.rpc('crm_rota_area'); RO.area = ar || []; }
+    const prin = String(((RO.area || []).find(a=> a.seller_id === V.id) || {}).principais || '').split(' · ')[0];
+    let bk = prin.includes('/') ? prin.split('/')[1] + '|' + mpNorm(prin.split('/')[0]) : '';
+    if(!mun[bk]){ const ct = {}; ESP.cand.forEach(c=>{ const k = (c.uf || '') + '|' + mpNorm(c.cidade || ''); if(mun[k]) ct[k] = (ct[k] || 0) + 1; }); bk = Object.keys(ct).sort((x, y)=> ct[y] - ct[x])[0] || ''; }
+    ESP.base = mun[bk] ? { _lat:mun[bk][2], _lon:mun[bk][3], nome:mun[bk][1] + '/' + bk.split('|')[0] } : null;
+    ESP.geoDe = '';
     // clientes do plano salvo (ou reprogramado da semana passada) que não estão mais nas sugestões continuam no plano
     const ids = new Set(ESP.cand.map(c=> c.pessoa_id));
     ESP.pend = new Set((P.itens || []).filter(i=> /^veio da semana/.test(i.motivo || '')).map(i=> i.pessoa_id));   // reprogramados: não vão para o sorteio
@@ -11216,31 +11228,49 @@ async function esPlano(box, host, nome){
   const vistos = new Set(), escolhidos = [];
   Object.keys(ES_EST).forEach(k=> porEst(k).forEach(c=>{ if(ESP.sel.has(c.pessoa_id) && !ESP.ctrl.has(c.pessoa_id) && !vistos.has(c.pessoa_id)){ vistos.add(c.pessoa_id); escolhidos.push(c); } }));
   const prodTxt = c=> c.parou || (c.produtos || '').split(' · ').slice(0, 2).join(', ');
+  // oferta sugerida: voltar o que ele parou de levar (ou o que mais levava) + o que a cidade dele compra e ele nunca comprou
+  const curto = t=> String(t || '').replace(/^SYNTHETIC\s+/i, '').replace(/\s+/g, ' ').trim();
+  const ofertaTxt = c=> [c.parou ? 'voltar o ' + curto(c.parou) : (c.historico ? 'repor o ' + curto(String(c.historico).split(' · ')[0]) : ''),
+      c.mercado ? 'novo: ' + curto(c.mercado) + (c.mercado_clientes ? ` (${c.mercado_clientes} clientes de ${nomeBonito(c.cidade || '')} compram)` : '') : ''].filter(Boolean).join(' · ');
+  // a rota da semana: os clientes marcados em até 5 dias, os mais próximos juntos, saindo da cidade do vendedor (a mesma inteligência das Rotas)
+  const ESPR = { porDia:ESP.porDia || 5, nDias:5, raio:150, alcance:ESP.alcance || 400, volta:true };
+  const rota = ESP.base && escolhidos.length ? roInteligente(escolhidos, ESP.base, ESPR) : null;
+  const diasR = rota ? rota.dias.filter(d=> d.ord.length) : [];
+  const naRota = new Set(diasR.flatMap(d=> d.ord.map(c=> c.pessoa_id))), foraRota = escolhidos.filter(c=> !naRota.has(c.pessoa_id));
+  const diaDe = new Map(); diasR.forEach((d, i)=> d.ord.forEach((c, j)=> diaDe.set(c.pessoa_id, { dia:RO_DIAS[i], ordem:j + 1 })));
+  const cidDia = d=> [...new Set(d.ord.map(c=> nomeBonito(c.cidade || '?')))].join(', ');
   const fone = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.length >= 10 ? `(${d.slice(-11, -9) || d.slice(0, 2)}) ${d.slice(-9, -4)}-${d.slice(-4)}` : (t || ''); };
   // promoção só quando é de um produto que o cliente levava (código do produto que parou, ou o nome entre os que ele comprava)
   const promoDe = c=>{ const nomes = (c.produtos || '').toUpperCase();
     const x = (WA_PROMOS || []).find(pr=> (pr.itens || []).some(i=> (c.parou_codigo && String(i.codigo) === String(c.parou_codigo)) || (i.produto && nomes.includes(String(i.produto).toUpperCase()))));
     return x ? `${x.nome}${x.tipo === 'bonificacao' ? ' (bonificação)' : ''}, até ${esDM(x.fim)}` : ''; };
   const mesesSem = c=> c.dias_sem_comprar == null ? '' : c.dias_sem_comprar < 60 ? `${c.dias_sem_comprar} dias sem comprar` : `${Math.round(c.dias_sem_comprar / 30)} meses sem comprar`;
-  const linhaMsg = (c, n)=> [`${n}. ${c.nome}`, c.cidade ? nomeBonito(c.cidade) : '', c.telefone ? fone(c.telefone) : '',
-      c.estrategia === 'prospect' ? 'nunca comprou' : mesesSem(c), c.parou ? 'levava ' + c.parou : '',
+  const linhaMsg = (c, n)=> [`${n}. ${c.nome}`, c.bairro ? nomeBonito(c.bairro) : (c.cidade ? nomeBonito(c.cidade) : ''), c.telefone ? fone(c.telefone) : '',
+      c.estrategia === 'prospect' ? 'nunca comprou' : mesesSem(c),
       c.estrategia === 'orfao' && c.vendedor_atual ? 'era do ' + nomeBonito(c.vendedor_atual).split(' ')[0] : '',
-      c.nota != null && c.nota < 4 ? 'só à vista' : '', promoDe(c) ? 'oferta: ' + promoDe(c) : ''].filter(Boolean).join(' · ');
+      c.nota != null && c.nota < 4 ? 'só à vista' : '', promoDe(c) ? 'promoção: ' + promoDe(c) : ''].filter(Boolean).join(' · ');
   const msgPadrao = ()=> {
-    // por cidade, a cidade com mais clientes primeiro (a mesma lógica do roteiro), sem os nomes internos das estratégias
-    const cid = c=> nomeBonito(c.cidade || 'Sem cidade'), cont = {}; escolhidos.forEach(c=>{ cont[cid(c)] = (cont[cid(c)] || 0) + 1; });
-    const ord = escolhidos.slice().sort((a, b)=> (cont[cid(b)] - cont[cid(a)]) || cid(a).localeCompare(cid(b), 'pt-BR') || Number(b.valor_jogo || 0) - Number(a.valor_jogo || 0));
-    let n = 0, ult = null; const linhas = [];
-    ord.forEach(c=>{ if(cid(c) !== ult){ linhas.push(`\n*${cid(c)}*`); ult = cid(c); } linhas.push(linhaMsg(c, ++n)); });
-    return `Bom dia, ${nome}! 🎯 Seus ${escolhidos.length} clientes da semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}):\n${linhas.join('\n')}\n\nLance cada contato no CRM (ligação ou visita): é isso que eu olho na quarta.\nMeta: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Qualquer dúvida, me chama.`; };
+    let n = 0; const linhas = [];
+    const cliente = c=>{ const of = ofertaTxt(c); linhas.push(linhaMsg(c, ++n) + (of ? `\n   💡 ${of}` : '')); };
+    if(diasR.length){
+      // por dia, na ordem da rota (os mais próximos juntos), com o caminho do dia no Google Maps
+      diasR.forEach((d, i)=>{ const gm = roGoogle(d.ord, ESP.base, true);
+        linhas.push(`\n*${RO_DIAS[i]} · ${cidDia(d)}* (~${Math.round(d.km)} km)${gm ? '\n🧭 Caminho do dia: ' + gm : ''}`); d.ord.forEach(cliente); });
+      if(foraRota.length){ linhas.push('\n*Por telefone ou na próxima viagem* (longe da sua base)'); foraRota.forEach(cliente); }
+    } else escolhidos.forEach(cliente);
+    return `Bom dia, ${nome}! 🎯 Sua semana (${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}): ${escolhidos.length} clientes${ESP.base ? ', saindo de ' + ESP.base.nome.split('/')[0] : ''}.\n${linhas.join('\n')}\n\nLance cada contato no CRM (ligação ou visita): é isso que eu olho na quarta.\nMeta: falar com todos e fechar pedido com pelo menos ${Math.max(1, Math.round(escolhidos.length * .3))}. Qualquer dúvida, me chama.`; };
   const msg = P.mensagem && P.id && P.itens && P.itens.length === escolhidos.length && P.itens.every(i=> ESP.sel.has(i.pessoa_id)) ? P.mensagem : msgPadrao();
   box.innerHTML = `
     <div class="tb-bar">${Object.entries(ES_EST).map(([k, e])=> `<label title="${escapeHtml(e.c)}" style="font-size:13px">${escapeHtml(e.t)} <input data-esq="${k}" inputmode="numeric" value="${ESP.qtd[k]}" style="width:48px"> <span class="vazio">de ${porEst(k).length}</span></label>`).join('')}
       <button class="cm-chip" id="es-sug" title="Refaz a seleção com as quantidades ao lado">Sugerir de novo</button></div>
     ${Object.entries(ES_EST).map(([k, e])=>{ const L = porEst(k); return `
       <div class="cm-resumo" style="margin:12px 0 4px">${escapeHtml(e.t)} <span class="vazio">· ${escapeHtml(e.c)}</span></div>
-      ${L.length ? `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th></th><th>Cliente</th><th>Cidade</th><th>Por quê</th><th class="n" title="Quanto ele comprava por mês × a chance de voltar (perto do ciclo de compra vale mais)">R$ em jogo/mês</th><th>Parou de levar</th><th class="n">Nota pgto.</th><th>Telefone</th></tr></thead><tbody>
-        ${L.map(c=> `<tr${ESP.ctrl.has(c.pessoa_id) ? ' style="opacity:.6"' : ''}><td>${ESP.ctrl.has(c.pessoa_id) ? '<span class="rt rt-C" title="Grupo de controle: não vai para o vendedor; é a comparação que prova o resultado do plano">controle</span>' : `<input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}>`}</td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td class="n">${Number(c.valor_jogo) ? fmtMoney(c.valor_jogo) : '—'}</td><td><small>${escapeHtml(c.parou || '')}</small></td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
+      ${L.length ? `<div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th></th><th>Cliente</th><th>Cidade</th><th>Por quê</th><th class="n" title="Quanto ele comprava por mês × a chance de voltar (perto do ciclo de compra vale mais)">R$ em jogo/mês</th><th title="Voltar o que ele parou de levar e um produto novo: o que mais clientes da cidade dele compram e ele nunca comprou">💡 Oferta sugerida</th><th class="n">Nota pgto.</th><th>Telefone</th></tr></thead><tbody>
+        ${L.map(c=> `<tr${ESP.ctrl.has(c.pessoa_id) ? ' style="opacity:.6"' : ''}><td>${ESP.ctrl.has(c.pessoa_id) ? '<span class="rt rt-C" title="Grupo de controle: não vai para o vendedor; é a comparação que prova o resultado do plano">controle</span>' : `<input type="checkbox" data-esc="${c.pessoa_id}" ${ESP.sel.has(c.pessoa_id) ? 'checked' : ''}>`}</td><td class="prod"><a href="#" data-esd="${c.pessoa_id}">${escapeHtml(c.nome || '')}</a>${c.vendedor_atual && k === 'orfao' ? `<br><small class="vazio">hoje com ${escapeHtml(nomeBonito(c.vendedor_atual))}</small>` : ''}</td><td>${escapeHtml(nomeBonito(c.cidade || ''))}</td><td>${escapeHtml(c.motivo || '')}</td><td class="n">${Number(c.valor_jogo) ? fmtMoney(c.valor_jogo) : '—'}</td><td title="${escapeHtml(c.historico ? 'Mais comprava: ' + c.historico : '')}"><small>${escapeHtml(ofertaTxt(c))}</small>${diaDe.get(c.pessoa_id) ? `<br><small class="vazio">${diaDe.get(c.pessoa_id).dia}, ${diaDe.get(c.pessoa_id).ordem}ª visita</small>` : ''}</td><td class="n">${c.nota != null ? `<span class="rt rt-${c.nota >= 8 ? 'A' : c.nota >= 6 ? 'B' : c.nota >= 4 ? 'C' : 'D'}">${c.nota}</span>` : '<span class="vazio">—</span>'}</td><td>${escapeHtml(fone(c.telefone))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="tb-rodape">Nenhum cliente nesta estratégia para este vendedor.</div>'}`; }).join('')}
+    ${diasR.length ? `<div class="cm-resumo" style="margin:14px 0 4px">🗺️ Roteiro da semana · ${fmtNum(Math.round(diasR.reduce((t, d)=> t + d.km, 0)))} km saindo de ${escapeHtml(ESP.base.nome)} <label style="font-size:13px;font-weight:400;margin-left:8px">visitas por dia <input id="es-pd" inputmode="numeric" value="${ESPR.porDia}" style="width:40px"></label></div>
+      <div class="ab-grid" style="grid-template-columns:repeat(auto-fill, minmax(230px, 1fr))">${diasR.map((d, i)=>{ const gm = roGoogle(d.ord, ESP.base, true); return `<div class="ab-card"><b><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${RO_CORES[i]};margin-right:6px"></i>${RO_DIAS[i]} · ~${fmtNum(Math.round(d.km))} km</b><p>${d.ord.map((c, j)=> `${j + 1}. ${escapeHtml(c.nome || '')}${c.bairro ? ' <small class="vazio">' + escapeHtml(nomeBonito(c.bairro)) + '</small>' : ''}`).join('<br>')}</p>${gm ? `<a href="${gm}" target="_blank" rel="noopener" style="font-size:13px">🧭 Caminho do dia no Google Maps</a>` : ''}</div>`; }).join('')}
+        ${foraRota.length ? `<div class="ab-card"><b>📞 Por telefone</b><p>${foraRota.map(c=> escapeHtml(c.nome || '') + ' <small class="vazio">' + escapeHtml(nomeBonito(c.cidade || '')) + '</small>').join('<br>')}</p><small>a mais de ${ESPR.alcance} km da saída</small></div>` : ''}</div>
+      <div class="tb-rodape" id="es-geo" style="margin:0 0 6px">Rota pelos clientes mais próximos (a mesma inteligência das Rotas). ${escolhidos.some(c=> c._pr === 'cidade') ? 'Localizando a rua de alguns clientes pelo CEP: a rota se ajusta sozinha.' : ''}</div>` : ''}
     <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes) <a href="#" id="es-regera" style="font-size:13px;margin-left:8px" title="Refaz a mensagem com os clientes marcados">refazer a mensagem</a></div>
     ${escolhidos.length > 12 ? `<div class="tb-aviso">São ${escolhidos.length} clientes: acima de 12 a mensagem fica longa para ler no celular. Desmarque os de menor valor em jogo.</div>` : ''}
     <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
@@ -11252,11 +11282,19 @@ async function esPlano(box, host, nome){
   box.querySelectorAll('[data-esc]').forEach(cb=> cb.addEventListener('change', ()=>{ if(cb.checked) ESP.sel.add(cb.dataset.esc); else ESP.sel.delete(cb.dataset.esc); ESP.plano.mensagem = null; re(); }));
   box.querySelectorAll('[data-esd]').forEach(a=> a.addEventListener('click', e=>{ e.preventDefault(); clDetalhe(a.dataset.esd); }));
   box.querySelector('#es-regera').addEventListener('click', e=>{ e.preventDefault(); box.querySelector('#es-msg').value = msgPadrao(); });
+  box.querySelector('#es-pd')?.addEventListener('change', e=>{ ESP.porDia = Math.max(1, Math.min(12, Number(e.target.value) || 5)); ESP.plano.mensagem = null; re(); });
+  // localiza pelo CEP quem ainda está no centro da cidade e refaz a rota uma vez (só da primeira vez; depois fica guardado)
+  const geoKey = escolhidos.map(c=> c.pessoa_id).join(',');
+  if(rota && ESP.geoDe !== geoKey && escolhidos.some(c=> c._pr === 'cidade' && roCep(c.cep))){
+    ESP.geoDe = geoKey;
+    roGeoFaz(escolhidos, null).then(()=>{ if(ESP.geoDe === geoKey && document.body.contains(box) && !P.enviado_em){ ESP.plano.mensagem = null; re(); } }).catch(()=>{});
+  }
   const salvar = async ()=>{
     if(ESP.salvando) return null; ESP.salvando = true;
     try{ return await salvarFaz(); } finally { ESP.salvando = false; } };
   const salvarFaz = async ()=>{
-    const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c) }));
+    const itens = escolhidos.map(c=> ({ pessoa_id:c.pessoa_id, nome:c.nome, estrategia:c.estrategia, motivo:c.motivo, cidade:c.cidade, telefone:c.telefone, oferta:prodTxt(c),
+      sugestao:ofertaTxt(c), mercado:c.mercado || null, dia:(diaDe.get(c.pessoa_id) || {}).dia || (naRota.size ? 'telefone' : null), ordem:(diaDe.get(c.pessoa_id) || {}).ordem || null }));
     const mensagem = box.querySelector('#es-msg').value;
     // grupo de controle (prova do resultado): gravado na primeira vez, o sorteado em trios (esSorteia); depois não muda
     let controle = null;
@@ -11567,29 +11605,29 @@ function roCaminho(base, L, volta){
       if(v < melhor - .01){ ord = c; melhor = v; mudou = true; } } }
   return { ord, km:melhor };
 }
-function roInteligente(rows, base){
-  // só entra quem dá para visitar e voltar no dia (até RO.alcance km da saída); o resto fica para contato por telefone
-  const P0 = rows.filter(r=> r._lat != null), P = P0.filter(r=> RO_KM(base, r) <= RO.alcance), val = r=> Number(r.fat_12m) || 0, mx = Math.max(1, ...P.map(val));
+function roInteligente(rows, base, o = RO){
+  // só entra quem dá para visitar e voltar no dia (até o.alcance km da saída); o resto fica para contato por telefone
+  const P0 = rows.filter(r=> r._lat != null), P = P0.filter(r=> RO_KM(base, r) <= o.alcance), val = r=> Number(r.fat_12m) || 0, mx = Math.max(1, ...P.map(val));
   const livres = new Set(P), dias = [];
-  for(let d = 0; d < RO.nDias && livres.size; d++){
+  for(let d = 0; d < o.nDias && livres.size; d++){
     // o dia nasce onde há mais valor junto: o cliente que, somado aos vizinhos dentro do raio, vale mais (não o maior cliente isolado)
     let semente = null, pot = -1;
-    livres.forEach(c=>{ const viz = []; livres.forEach(o=>{ if(o !== c && RO_KM(c, o) <= RO.raio) viz.push(val(o)); });
-      const v = val(c) + viz.sort((a, b)=> b - a).slice(0, RO.porDia - 1).reduce((a, b)=> a + b, 0); if(v > pot){ pot = v; semente = c; } });
+    livres.forEach(c=>{ const viz = []; livres.forEach(o=>{ if(o !== c && RO_KM(c, o) <= o.raio) viz.push(val(o)); });
+      const v = val(c) + viz.sort((a, b)=> b - a).slice(0, o.porDia - 1).reduce((a, b)=> a + b, 0); if(v > pot){ pot = v; semente = c; } });
     const g = [semente]; livres.delete(semente);
-    while(g.length < RO.porDia && livres.size){
+    while(g.length < o.porDia && livres.size){
       // o próximo é o mais perto do grupo, com um empurrão para quem vale mais (até 15 km de vantagem para o maior cliente)
       let best = null, bs = Infinity, bd = 0;
       livres.forEach(r=>{ const dm = Math.min(...g.map(x=> RO_KM(x, r))), sc = dm - 15 * val(r) / mx; if(sc < bs){ bs = sc; best = r; bd = dm; } });
-      if(bd > RO.raio) break;
+      if(bd > o.raio) break;
       g.push(best); livres.delete(best);
     }
-    dias.push(roCaminho(base, g, RO.volta));
+    dias.push(roCaminho(base, g, o.volta));
   }
   // comparação: os mesmos números de visitas escolhidos só pelo valor, visitados nessa ordem, sem juntar por proximidade
   const n = dias.reduce((t, d)=> t + d.ord.length, 0), top = P.slice().sort((a, b)=> val(b) - val(a)).slice(0, n);
-  let ingenuo = 0; for(let i = 0; i < top.length; i += RO.porDia){ const o = top.slice(i, i + RO.porDia);
-    ingenuo += o.reduce((t, r, j)=> t + RO_KM(j ? o[j - 1] : base, r), 0) + (RO.volta && o.length ? RO_KM(o[o.length - 1], base) : 0); }
+  let ingenuo = 0; for(let i = 0; i < top.length; i += o.porDia){ const g = top.slice(i, i + o.porDia);
+    ingenuo += g.reduce((t, r, j)=> t + RO_KM(j ? g[j - 1] : base, r), 0) + (o.volta && g.length ? RO_KM(g[g.length - 1], base) : 0); }
   return { dias, sobra:rows.length - n, semCoord:rows.length - P0.length, fora:P0.length - P.length, ingenuo };
 }
 const roHoras = (km, n)=> (n * 40 + km / 50 * 60) / 60;   // 40 min por visita + estrada a 50 km/h
@@ -11604,9 +11642,9 @@ function roOrdena(d){
     resto.forEach(r=>{ if(!prox || km(atual, r) < km(atual, prox)) prox = r; }); atual = prox; }
   return ord.concat(d.filter(r=> r._lat == null));
 }
-const roGoogle = d=>{ const ll = r=> r._lat.toFixed(5) + ',' + r._lon.toFixed(5), p = d.filter(r=> r._lat != null).slice(0, 9).map(ll);
+const roGoogle = (d, base = RO.baseLL, volta = RO.volta)=>{ const ll = r=> r._lat.toFixed(5) + ',' + r._lon.toFixed(5), p = d.filter(r=> r._lat != null).slice(0, 9).map(ll);
   if(!p.length) return null;
-  const b = RO.baseLL ? ll(RO.baseLL) : p.shift(), dest = RO.volta && RO.baseLL ? b : p.pop(); if(!dest) return null;
+  const b = base ? ll(base) : p.shift(), dest = volta && base ? b : p.pop(); if(!dest) return null;
   return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + b + '&destination=' + dest + (p.length ? '&waypoints=' + encodeURIComponent(p.join('|')) : ''); };
 // Mapa das Rotas (06/11/2026): aparece na hora. Quem ainda não tem o CEP localizado vai no centro da cidade e o mapa se refina quando os CEPs
 // chegam (só da primeira vez; depois fica guardado em crm_cep_geo). No fundo, a carteira do vendedor por cidade: o tamanho do círculo é o que
