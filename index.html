@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261106-072600">
+<meta name="crm-versao" content="20261109-093921">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -91,6 +91,13 @@
   .en-dia{ margin:16px 0 6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;} .en-dia b{ font-size:16px;}
   .en-sit{ display:inline-block; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:600;}
   .en-sit.ok{ background:#dcfce7; color:#166534;} .en-sit.ag{ background:#f3e8ff; color:#7e22ce;} .en-sit.es{ background:#fef3c7; color:#92400e;}
+  /* tela de abertura (09/11/2026): o que já está pronto para a pessoa */
+  .ab-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; margin:6px 0 14px;}
+  .ab-card{ border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--surface); display:flex; flex-direction:column; gap:6px;}
+  .ab-card b{ font-size:16px;} .ab-card p{ margin:0; font-size:14px; color:var(--ink-soft); line-height:1.45;} .ab-card small{ color:var(--brand); font-weight:600;}
+  .ab-card button{ align-self:flex-start; margin-top:auto;}
+  .ab-ciclo{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; margin:6px 0 4px;}
+  .ab-ciclo div{ background:var(--surface-2); border-radius:10px; padding:8px 10px; font-size:13.5px;} .ab-ciclo b{ display:block; font-size:14px;}
   .ro-mapa{ height:clamp(280px, 46vh, 640px); border-radius:10px; border:1px solid var(--line, #e3e7ee); margin:12px 0 4px; background:#e9edf2; z-index:0;}
   .ro-pin{ width:24px; height:24px; border-radius:50%; color:#fff; font:700 12px/24px Barlow, sans-serif; text-align:center; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
   .ro-pin.aprox{ opacity:.6; border-style:dashed;}
@@ -2018,7 +2025,7 @@ async function boot(){
   await loadSellers();
   renderCalendar();
   if(!abrirTelaInicial()){ renderHoje(); abrirEntrada(); }
-  setTimeout(novidadesMostra, 1500);   // o que mudou desde a última visita (depois de entrar na tela)
+  setTimeout(aberturaMostra, 1500);   // tela de abertura: o que já está pronto para a pessoa e o que mudou (09/11/2026)
   setTimeout(perguntaMostra, 5000);    // pergunta da Capacity Case para uma pessoa (a resposta vai para Sugestões)
   sgRetornoCarrega(); setInterval(sgRetornoCarrega, 5 * 60000);   // respostas às sugestões de quem está logado
   eqBadgePedidos(); setInterval(()=>{ EQ.pedidos = null; eqBadgePedidos(); }, 5 * 60000);   // pedidos de acesso esperando o Administrador
@@ -9451,6 +9458,59 @@ async function perguntaMostra(){
     try{ localStorage.setItem(chave(P.id), 'ok'); }catch(_){}
     uso('pergunta', P.id, { evento:'respondeu' }); box.querySelector('[data-close]').click(); showToast('Obrigado! A resposta foi para a Capacity Case.');
   });
+}
+// ---------- TELA DE ABERTURA (09/11/2026, pedido do Luiz: o time usar o que já está disponível antes de soltar mais) ----------
+// Aparece ao entrar, a cada versão: o que já está pronto PARA AQUELA PESSOA (só as telas que ela vê e que já saíram), o que é novo nesta
+// versão (as Novidades vêm junto) e o ciclo da semana com o convite para sugerir. "Entendi" guarda até a próxima versão.
+const AB_TELAS = {
+  resumo:['📊 Vendas do mês', 'Como está o mês, a projeção até o fim do mês, o ano contra o ano passado e o ranking dos vendedores, com "copiar para o grupo".', 'Comece o dia por aqui.'],
+  plano27:['🎯 Planejamento 2027', 'A meta do ano mês a mês pela sazonalidade, quanto cada produto precisa vender e a margem que ele deixa.', 'Para a reunião de planejamento.'],
+  operacao:['🗂️ Carteira', 'Cada cliente na linha do tempo, com compras, contatos e a ficha completa.', 'Para cuidar da carteira toda.'],
+  parados:['🔁 Clientes parados', 'Quem comprava e está há mais de 90 dias sem comprar, por vendedor. Clique no cliente para ver o que ele levava e mandar a oferta no WhatsApp.', 'A lista da semana para ligar: os de 91 a 180 dias voltam mais fácil.'],
+  rota:['🗺️ Rotas da semana', 'O roteiro de visitas de segunda a sexta, juntando os clientes mais próximos, com km e combustível.', 'Para planejar as visitas.'],
+  tabmedia:['🏷️ Tabela média', 'Em que tabela (1 a 5) cada vendedor está vendendo, contra a meta de 2,3, por gerência. Clique no vendedor para ver os pedidos.', 'Para conversar com o time sobre preço.'],
+  prazo:['⏳ Prazo médio', 'Em quantos dias a Synthetic recebe, por vendedor e por gerência, contra a meta de 60 dias.', 'Para acompanhar o prazo das vendas.'],
+  comissoes:['💰 Comissões', 'Quanto cada vendedor ganha no ciclo, item a item, pela faixa de desconto.', 'Para fechar o ciclo de comissão.'],
+  tabelas:['📋 Tabelas de preço', 'As tabelas 1 a 5 de cada produto, para consultar e lançar.', 'Antes de negociar preço.'],
+  catalogo:['📦 Catálogo e promoções', 'O catálogo oficial, o que está vendendo e as promoções ativas.', 'Para saber o que oferecer.'],
+  financeiro:['💳 Financeiro', 'Quem deve e há quanto tempo e as baixas mês a mês.', 'Para acompanhar a cobrança.'] };
+function novidadesPendentes(){
+  const em = window._userEmail || '', chave = 'torre_novidades_vistas:' + em;
+  let vistas = null, antiga = null; try{ vistas = JSON.parse(localStorage.getItem(chave) || 'null'); antiga = localStorage.getItem('torre_novidades_vista:' + em); }catch(_){}
+  if(!Array.isArray(vistas)) vistas = antiga ? NOVIDADES.filter(n=> n.dia < antiga).map(n=> n.id) : null;
+  const marca = ()=>{ try{ localStorage.setItem(chave, JSON.stringify([...new Set((vistas || []).concat(NOVIDADES.filter(n=> !n.lib || libLivre(n.lib)).map(n=> n.id)))])); }catch(_){} };
+  const desde = new Date(Date.now() - 10 * 864e5).toISOString().slice(0, 10);
+  const vis = v=>{ const b = document.querySelector(`#rail .nav-btn[data-view="${v}"]`); return b && !b.hidden ? b : null; };
+  const L = NOVIDADES.filter(n=> (vistas ? !vistas.includes(n.id) : n.dia > desde) && vis(n.tela) && (!n.lib || libLivre(n.lib))).slice(0, 5);
+  return { L, marca, vis };
+}
+function aberturaMostra(){
+  const dlg = document.getElementById('dlg'); if(dlg && dlg.style.display === 'flex') return;
+  // o que está pronto para esta pessoa: as telas do menu que ela vê, na ordem do menu, fora as só do Administrador e as que ainda não saíram
+  const vistasMenu = [...document.querySelectorAll('#rail .nav-btn')].filter(b=> !b.hidden && AB_TELAS[b.dataset.view] && !SO_ADMIN_VIEW[b.dataset.view]);
+  const ordem = [...new Set(vistasMenu.map(b=> b.dataset.view))];
+  if(!ordem.length) return novidadesMostra();
+  const { L, marca, vis } = novidadesPendentes();
+  const em = window._userEmail || '', chave = 'torre_abertura:' + em, versao = ordem.join(',') + '|' + NOVIDADES.filter(n=> !n.lib || libLivre(n.lib)).map(n=> n.id)[0];
+  let vista = ''; try{ vista = localStorage.getItem(chave) || ''; }catch(_){}
+  if(vista === versao && !L.length) return;
+  const nome = String((window._perfil && window._perfil.name) || curUserName() || '').split(' ')[0];
+  const box = dlgOpen(`<div class="om-title"><div><h3>${nome ? 'Bom te ver, ' + escapeHtml(nome) + '!' : 'Bem-vindo!'} Isto já está pronto para você na Torre</h3><div class="om-sub">Torre de Controle - Synthetic · use, teste com os seus números e conte o que achou</div></div><button data-close>✕</button></div>
+    <div class="dlg-body">
+      ${L.length ? `<div class="cm-resumo" style="margin:0 0 6px">✨ Novo nesta versão</div><ul class="nv-lista" style="margin:0 0 12px">${L.map((n, i)=> `<li><b>${escapeHtml(n.titulo)}</b>${escapeHtml(n.txt)}<br><button type="button" data-nv="${i}">Ver na tela</button></li>`).join('')}</ul>` : ''}
+      <div class="cm-resumo" style="margin:0 0 4px">🧭 O que você já pode usar</div>
+      <div class="ab-grid">${ordem.map(v=>{ const [t, d, u] = AB_TELAS[v]; return `<div class="ab-card"><b>${t}</b><p>${escapeHtml(d)}</p><small>${escapeHtml(u)}</small><button type="button" class="om-cancel" data-abv="${v}">Abrir</button></div>`; }).join('')}</div>
+      <div class="cm-resumo" style="margin:0 0 4px">📅 Como a Torre evolui toda semana</div>
+      <div class="ab-ciclo"><div><b>Segunda a quarta</b>vocês usam e mandam sugestões</div><div><b>Quinta</b>a gente conversa na reunião</div><div><b>Segunda seguinte</b>sai a versão nova</div><div><b>Urgente</b>algo não funciona? resolvido em até 48 h</div></div>
+      <p style="margin:10px 0 0;font-size:14px">A próxima versão é escolhida pelo que vocês usam e sugerem. Viu um número estranho ou sentiu falta de algo? Use o botão <b>Sugestões</b> ou o balão 💬 no canto da tela.</p>
+    </div>
+    <div class="om-foot"><button class="om-cancel" id="ab-sug">💡 Dar uma sugestão</button><span style="flex:1"></span><button class="om-save" id="ab-ok">Entendi, vou usar</button></div>`, true);
+  const guarda = ()=>{ try{ localStorage.setItem(chave, versao); }catch(_){} marca(); };
+  guarda(); uso('clique', 'abertura: mostrou ' + ordem.length + ' telas' + (L.length ? ' e ' + L.length + ' novidades' : ''));
+  box.querySelector('#ab-ok').addEventListener('click', ()=>{ uso('clique', 'abertura: entendi'); dlgClose(); });
+  box.querySelector('#ab-sug').addEventListener('click', ()=>{ uso('clique', 'abertura: sugestão'); dlgClose(); vis('sugestoes')?.click(); });
+  box.querySelectorAll('[data-abv]').forEach(b=> b.addEventListener('click', ()=>{ uso('clique', 'abertura: abrir ' + b.dataset.abv); dlgClose(); vis(b.dataset.abv)?.click(); }));
+  box.querySelectorAll('[data-nv]').forEach(b=> b.addEventListener('click', ()=>{ const n = L[Number(b.dataset.nv)]; dlgClose(); vis(n.tela)?.click(); }));
 }
 function novidadesMostra(){
   // vistas = ids já mostrados (04/11: pela data, o que saía duas vezes no mesmo dia sumia). Registro antigo (só a data): conta como visto o de dias anteriores.
