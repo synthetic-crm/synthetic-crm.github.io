@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261109-095830">
+<meta name="crm-versao" content="20261109-113603">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8607,7 +8607,7 @@ function sgDraw(){
       ${r.audio_path?`<div class="sg-audio"><a href="#" data-act="audio">▶ ouvir o áudio original</a></div>`:''}
       ${r.resposta?`<div class="sg-resp"${(r.resposta||'').startsWith('🔴')?' style="background:#fde8e8;border:2px solid #c23636"':''}><b>Resposta:</b> ${escapeHtml(r.resposta).replace(/\n/g,'<br>')}</div>`:''}
       ${sgRetornoHtml(r)}
-      <div class="sg-actions">${perfilEfetivo()==='admin' ? '<button class="om-cancel" data-act="status">Alterar status / responder</button>' : ''}<button class="btn-ghost" data-act="hist">Histórico (${hist.length})</button></div>
+      <div class="sg-actions">${perfilEfetivo()==='admin' ? '<button class="om-cancel" data-act="status">Alterar status / responder</button>' : ''}<button class="btn-ghost" data-act="hist">Histórico (${hist.length})</button>${(sgSouAutor(r) || perfilEfetivo()==='admin') ? '<span style="flex:1"></span><button class="btn-ghost" data-act="excluir" title="Apaga esta sugestão, com o áudio e os anexos" style="color:#c23636">🗑 Excluir</button>' : ''}</div>
       <div class="sg-hist" style="display:none">${hist.length ? hist.slice().reverse().map(h=>`<div class="rec"><span class="k">${fmtDateTime(h.em)}</span><b>${escapeHtml(h.por||'—')}</b>: ${escapeHtml(sgLabel(h.de)[1])} → <b>${escapeHtml(sgLabel(h.para)[1])}</b>${h.nota?'<br>'+escapeHtml(h.nota):''}</div>`).join('') : '<div class="no-rec">Sem movimentações ainda.</div>'}</div>
     </div>`; }).join('') : '<div class="op-more">Nenhuma sugestão nesta seleção.</div>';
   sgThumbs();
@@ -8622,8 +8622,21 @@ document.getElementById('sg-list').addEventListener('click', async e=>{
   if(a.dataset.act==='hist'){ const h = card.querySelector('.sg-hist'); h.style.display = h.style.display==='none' ? 'block' : 'none'; }
   if(a.dataset.act==='audio'){ try{ const url = await docsSignedUrl(r.audio_path); a.parentElement.innerHTML = `<audio controls autoplay src="${url}"></audio>`; }catch(x){ showToast('Erro: '+errMsg(x)); } }
   if(a.dataset.act==='status') sgStatusDialog(r);
+  if(a.dataset.act==='excluir') await sgExcluir(r, a);
   if(a.dataset.act==='ret-bom' || a.dataset.act==='ret-nao') await sgRetorno(r, a.dataset.act==='ret-bom' ? 'ficou_bom' : 'nao_ficou');
 });
+// Excluir (09/11/2026, pedido do Luiz): quem escreveu apaga a própria sugestão; o Administrador apaga qualquer uma (regra no banco).
+// O áudio e os anexos saem do armazenamento junto (o banco só deixa apagar arquivo de quem enviou ou do Administrador).
+async function sgExcluir(r, btn){
+  if(!confirm('Excluir esta sugestão?\n\n"' + (r.texto || '').slice(0, 120) + '"\n\nEla some da lista, com o áudio e os anexos. Não dá para desfazer.')) return;
+  btn.disabled = true;
+  const { data, error } = await sb.from('crm_sugestoes').delete().eq('id', r.id).select('id');
+  if(error || !data || !data.length){ btn.disabled = false; showToast(error ? errAmigavel(error) : 'Só quem escreveu a sugestão pode excluí-la.'); return; }
+  const arqs = [r.audio_path, ...((r.anexos || []).map(x=> x && x.path))].filter(Boolean);
+  if(arqs.length) sb.storage.from('crm-docs').remove(arqs).catch(()=>{});
+  uso('clique', 'sugestão excluída'); showToast('Sugestão excluída.');
+  SG.list = SG.list.filter(x=> x.id !== r.id); sgDraw(); sgRetornoCarrega();
+}
 // ---------- RETORNO PARA QUEM SUGERIU (skill balao-e-sugestoes, passo 6) ----------
 // A resposta aparece na aba Sugestões e na própria tela de onde a sugestão saiu; quem sugeriu diz "ficou bom" ou "ainda não ficou".
 // Regra do banco: cada um só vê as próprias sugestões; Administrador e CEO veem todas (crm_e_master).
