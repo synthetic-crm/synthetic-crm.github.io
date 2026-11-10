@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261109-113603">
+<meta name="crm-versao" content="20261110-111958">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -257,6 +257,7 @@
   .grp-abas{ margin:0 0 12px;} .grp-abas[hidden]{ display:none;}
   #rail .rail-logo{ width:34px; height:46px; object-fit:cover; object-position:left center; margin-bottom:8px; flex:none;}
   #rail button{ background:transparent; border:none; color:#cfe3ea; width:60px; height:54px; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; transition:all .15s;}
+  #rail button[hidden]{ display:none !important;}   /* 10/11/2026: o display:flex acima passava por cima do hidden e o grupo Especialista aparecia vazio para o Ryan */
   #rail button svg{ width:20px; height:20px; flex:none;}
   #rail button span{ font-size:11px; font-family:'Barlow',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-weight:700; max-width:100%; text-align:center;}
   #rail .nav-btn{ width:70px;}   /* a barra tem 76px: cabe "Apresentação", o rótulo mais longo */
