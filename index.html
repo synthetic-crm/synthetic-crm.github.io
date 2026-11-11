@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261111-162341">
+<meta name="crm-versao" content="20261111-165951">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11017,12 +11017,13 @@ async function fiInadimplencia(host){
   const releu = D.releitura && D.releitura !== '-infinity' ? new Date(D.releitura) : null;
   host.innerHTML = `
     <div class="tb-kpis">
-      <div class="tb-kpi alerta"><small>Em atraso hoje</small><b>${fmtMoney(D.em_atraso)}</b><span>${fmtNum(D.clientes_atraso)} clientes · ${fmtNum(D.boletos_atraso)} boletos vencidos há mais de 3 dias e não baixados</span></div>
+      <div class="tb-kpi alerta"><small>Em atraso hoje</small><b>${fmtMoney(D.em_atraso)}</b><span>${fmtNum(D.clientes_atraso)} clientes · ${fmtNum(D.boletos_atraso)} títulos vencidos há mais de 3 dias e não baixados no Contas a receber${Number(D.atraso_antes) ? ` · ${fmtMoney(D.atraso_antes)} venceram antes de ${desdeTxt}` : ''}</span></div>
       <div class="tb-kpi"><small>Baixado desde ${desdeTxt}</small><b>${fmtMoney(D.baixado_periodo)}</b><span>boletos que estavam em atraso e foram pagos (acertos e acordos entram quando o boleto é baixado)</span></div>
       <div class="tb-kpi"><small>A vencer</small><b>${fmtMoney(D.a_vencer)}</b><span>boletos em aberto que ainda não venceram (ou venceram há até 3 dias)</span></div>
     </div>
     ${fiGrafico(D.meses)}
     <div class="cm-chips" style="margin:2px 0 8px">${FI_FAIXAS.map(([f])=>{ const a = agDe(f); return `<button class="cm-chip ${FI.faixa === f ? 'on' : ''}" data-fifx="${f}" title="Clientes cujo boleto em atraso mais antigo está nesta faixa">Atraso de ${f}: <b>${fmtMoney(a.valor)}</b> · ${fmtNum(a.clientes)} clientes</button>`; }).join('')}</div>
+    <div class="tb-rodape" style="margin:0 0 4px">Fonte: o <b>Contas a receber</b> do 123 Fácil das 6 empresas (o mesmo do relatório do financeiro), relido a cada 2 horas. Um título sai do atraso quando o financeiro dá a baixa.</div>
     ${(D.por_empresa || []).length ? `<div class="tb-rodape" style="margin:0 0 8px">Em atraso por empresa que faturou: ${(D.por_empresa || []).map(e=> `${escapeHtml(e.empresa)} ${fmtMoney(e.valor)} (${fmtNum(e.clientes)})`).join(' · ')}</div>` : ''}
     <div class="tb-bar">
       <select id="fi-mostra" aria-label="Quais clientes"><option value="atraso" ${FI.mostra === 'atraso' ? 'selected' : ''}>Com boleto em atraso hoje</option><option value="baixa" ${FI.mostra === 'baixa' ? 'selected' : ''}>Que deram baixa desde ${desdeTxt}</option><option value="todos" ${FI.mostra === 'todos' ? 'selected' : ''}>Todos (em atraso ou com baixa)</option></select>
