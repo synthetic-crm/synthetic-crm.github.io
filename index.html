@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261110-111958">
+<meta name="crm-versao" content="20261111-162341">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1713,6 +1713,9 @@
   .sg-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;} .sg-meta{ font-size:11.5px; color:var(--ink-faint);}
   .sg-status{ color:#fff; border-radius:999px; padding:2px 11px; font-size:11.5px; font-weight:600;}
   .sg-text{ font-size:13.5px; line-height:1.55;} .sg-audio{ margin-top:8px; font-size:12.5px;} .sg-audio a{ color:var(--brand); font-weight:600;}
+  .sg-rep{ margin-top:6px; border-left:3px solid var(--brand); background:var(--surface-2); border-radius:var(--radius-sm); padding:6px 12px; font-size:12.5px;}
+  .sg-rep-box{ margin-top:8px; display:flex; flex-direction:column; gap:6px;} .sg-rep-box textarea{ width:100%; min-height:70px; font:inherit; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm);}
+  .sg-rep-box div{ display:flex; gap:8px;}
   .sg-resp{ margin-top:8px; background:var(--green-soft); border-radius:var(--radius-sm); padding:8px 12px; font-size:12.5px;}
   .sg-actions{ display:flex; gap:8px; margin-top:10px;} .sg-hist{ margin-top:8px;}
   .sg-files{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
@@ -8601,14 +8604,16 @@ function sgDraw(){
   const rows = SG.list.filter(r=>(!SG.filter || r.status===SG.filter) && (!q || (r.texto||'').toLowerCase().includes(q) || (r.autor||'').toLowerCase().includes(q) || (r.tela||'').toLowerCase().includes(q)));
   document.getElementById('sg-list').innerHTML = rows.length ? rows.map(r=>{
     const st = sgLabel(r.status); const hist = r.historico||[];
+    const reps = hist.filter(h=> h.tipo === 'replica'), ultRep = hist.length && hist[hist.length - 1].tipo === 'replica';
     return `<div class="sg-card" data-id="${r.id}">
-      <div class="sg-top"><b>${escapeHtml(r.autor||'—')}</b><span class="sg-meta">${fmtDateTime(r.created_at)}</span><span class="tagx">${escapeHtml(SG_TIPOS[r.tipo]||r.tipo||'')}</span>${r.tela?`<span class="tagx">${escapeHtml(r.tela)}</span>`:''}${r.prioridade==='urgente'?'<span class="tagx bad">Urgente · até 48 h</span>':r.prioridade==='alta'?'<span class="tagx bad">Prioridade alta</span>':''}${(r.resposta||'').startsWith('🔴')?'<span class="tagx bad">💬 Aguardando retorno</span>':''}${r.origem==='voz'?'<span class="tagx">🎤 por voz</span>':''}<span style="flex:1"></span><span class="sg-status" style="background:${st[2]}">${st[1]}</span></div>
+      <div class="sg-top"><b>${escapeHtml(r.autor||'—')}</b><span class="sg-meta">${fmtDateTime(r.created_at)}</span><span class="tagx">${escapeHtml(SG_TIPOS[r.tipo]||r.tipo||'')}</span>${r.tela?`<span class="tagx">${escapeHtml(r.tela)}</span>`:''}${r.prioridade==='urgente'?'<span class="tagx bad">Urgente · até 48 h</span>':r.prioridade==='alta'?'<span class="tagx bad">Prioridade alta</span>':''}${(r.resposta||'').startsWith('🔴')?'<span class="tagx bad">💬 Aguardando retorno</span>':''}${r.origem==='voz'?'<span class="tagx">🎤 por voz</span>':''}${ultRep && !sgSouAutor(r) ? '<span class="tagx bad">↩ Respondeu, falta você</span>' : ''}<span style="flex:1"></span><span class="sg-status" style="background:${st[2]}">${st[1]}</span></div>
       <div class="sg-text">${escapeHtml(r.texto).replace(/\n/g,'<br>')}</div>
       ${(r.anexos&&r.anexos.length)?`<div class="sg-atts">${r.anexos.map(a=>/^image\//.test(a.mime||'')?`<a href="#" data-att="${escapeHtml(a.path)}" title="${escapeHtml(a.nome||'')}"><img class="sg-thumb" data-thumb="${escapeHtml(a.path)}" alt="${escapeHtml(a.nome||'print')}"></a>`:`<a href="#" class="sg-file" data-att="${escapeHtml(a.path)}">${sgIco(a.mime)} ${escapeHtml(a.nome||'arquivo')}</a>`).join('')}</div>`:''}
       ${r.audio_path?`<div class="sg-audio"><a href="#" data-act="audio">▶ ouvir o áudio original</a></div>`:''}
       ${r.resposta?`<div class="sg-resp"${(r.resposta||'').startsWith('🔴')?' style="background:#fde8e8;border:2px solid #c23636"':''}><b>Resposta:</b> ${escapeHtml(r.resposta).replace(/\n/g,'<br>')}</div>`:''}
+      ${reps.map(h=> `<div class="sg-rep"><b>↩ ${escapeHtml(h.por || 'Quem sugeriu')} respondeu</b> <span class="sg-meta">${fmtDateTime(h.em)}</span><br>${escapeHtml(h.nota || '').replace(/\n/g,'<br>')}</div>`).join('')}
       ${sgRetornoHtml(r)}
-      <div class="sg-actions">${perfilEfetivo()==='admin' ? '<button class="om-cancel" data-act="status">Alterar status / responder</button>' : ''}<button class="btn-ghost" data-act="hist">Histórico (${hist.length})</button>${(sgSouAutor(r) || perfilEfetivo()==='admin') ? '<span style="flex:1"></span><button class="btn-ghost" data-act="excluir" title="Apaga esta sugestão, com o áudio e os anexos" style="color:#c23636">🗑 Excluir</button>' : ''}</div>
+      <div class="sg-actions">${r.resposta && sgSouAutor(r) ? '<button class="om-save" data-act="responder">↩ Responder</button>' : ''}${perfilEfetivo()==='admin' ? '<button class="om-cancel" data-act="status">Alterar status / responder</button>' : ''}<button class="btn-ghost" data-act="hist">Histórico (${hist.length})</button>${(sgSouAutor(r) || perfilEfetivo()==='admin') ? '<span style="flex:1"></span><button class="btn-ghost" data-act="excluir" title="Apaga esta sugestão, com o áudio e os anexos" style="color:#c23636">🗑 Excluir</button>' : ''}</div>
       <div class="sg-hist" style="display:none">${hist.length ? hist.slice().reverse().map(h=>`<div class="rec"><span class="k">${fmtDateTime(h.em)}</span><b>${escapeHtml(h.por||'—')}</b>: ${escapeHtml(sgLabel(h.de)[1])} → <b>${escapeHtml(sgLabel(h.para)[1])}</b>${h.nota?'<br>'+escapeHtml(h.nota):''}</div>`).join('') : '<div class="no-rec">Sem movimentações ainda.</div>'}</div>
     </div>`; }).join('') : '<div class="op-more">Nenhuma sugestão nesta seleção.</div>';
   sgThumbs();
@@ -8624,6 +8629,7 @@ document.getElementById('sg-list').addEventListener('click', async e=>{
   if(a.dataset.act==='audio'){ try{ const url = await docsSignedUrl(r.audio_path); a.parentElement.innerHTML = `<audio controls autoplay src="${url}"></audio>`; }catch(x){ showToast('Erro: '+errMsg(x)); } }
   if(a.dataset.act==='status') sgStatusDialog(r);
   if(a.dataset.act==='excluir') await sgExcluir(r, a);
+  if(a.dataset.act==='responder') sgResponderAbre(card, r);
   if(a.dataset.act==='ret-bom' || a.dataset.act==='ret-nao') await sgRetorno(r, a.dataset.act==='ret-bom' ? 'ficou_bom' : 'nao_ficou');
 });
 // Excluir (09/11/2026, pedido do Luiz): quem escreveu apaga a própria sugestão; o Administrador apaga qualquer uma (regra no banco).
@@ -8637,6 +8643,24 @@ async function sgExcluir(r, btn){
   if(arqs.length) sb.storage.from('crm-docs').remove(arqs).catch(()=>{});
   uso('clique', 'sugestão excluída'); showToast('Sugestão excluída.');
   SG.list = SG.list.filter(x=> x.id !== r.id); sgDraw(); sgRetornoCarrega();
+}
+// Responder de volta (11/11/2026): o Ryan viu as perguntas da resposta e "não achou uma parte pra responder de volta".
+// Quem escreveu responde ali mesmo; vai para o histórico e, se a sugestão estava concluída ou para depois, volta para Em análise.
+function sgResponderAbre(card, r){
+  if(card.querySelector('.sg-rep-box')){ card.querySelector('.sg-rep-box textarea').focus(); return; }
+  const box = document.createElement('div'); box.className = 'sg-rep-box';
+  box.innerHTML = '<textarea maxlength="3000" placeholder="Escreva aqui a sua resposta para a Capacity Case"></textarea><div><button class="om-save">Enviar resposta</button><button class="om-cancel">Cancelar</button></div>';
+  card.querySelector('.sg-actions').before(box);
+  const ta = box.querySelector('textarea'), [env, can] = box.querySelectorAll('button'); ta.focus();
+  can.addEventListener('click', ()=> box.remove());
+  env.addEventListener('click', async ()=>{
+    const t = ta.value.trim(); if(!t){ showToast('Escreva a sua resposta.'); ta.focus(); return; }
+    env.disabled = true;
+    const { error } = await sb.rpc('crm_sugestao_responder', { p_id:r.id, p_texto:t });
+    if(error){ env.disabled = false; showToast(errAmigavel(error)); return; }
+    uso('clique', 'sugestão: respondeu de volta'); showToast('Resposta enviada. Obrigado!');
+    await renderSugestoes(); sgRetornoCarrega();
+  });
 }
 // ---------- RETORNO PARA QUEM SUGERIU (skill balao-e-sugestoes, passo 6) ----------
 // A resposta aparece na aba Sugestões e na própria tela de onde a sugestão saiu; quem sugeriu diz "ficou bom" ou "ainda não ficou".
@@ -8674,11 +8698,13 @@ function sgRetornoNaTela(){
   const host = document.getElementById('view-' + view); if(!host) return;
   const d = document.createElement('div'); d.id = 'sg-aviso'; d.className = 'sg-aviso';
   d.innerHTML = `<div><b>💬 Respondemos sua sugestão sobre esta tela</b><p>"${escapeHtml((r.texto || '').slice(0, 120))}${(r.texto || '').length > 120 ? '…' : ''}"</p><p class="sg-aviso-resp">${escapeHtml(r.resposta || '')}</p></div>
-    <div class="sg-aviso-bt"><button class="om-save" data-ret="ficou_bom">👍 Ficou bom</button><button class="om-cancel" data-ret="nao_ficou">Ainda não ficou</button><button class="btn-ghost" data-ret="fechar" title="Ver depois na aba Sugestões">Depois</button></div>`;
+    <div class="sg-aviso-bt"><button class="om-save" data-ret="ficou_bom">👍 Ficou bom</button><button class="om-cancel" data-ret="nao_ficou">Ainda não ficou</button><button class="om-cancel" data-ret="responder">↩ Responder</button><button class="btn-ghost" data-ret="fechar" title="Ver depois na aba Sugestões">Depois</button></div>`;
   host.prepend(d);
   if(!r.resposta_vista_em){ r.resposta_vista_em = new Date().toISOString(); sb.rpc('crm_sugestao_retorno', { p_id:r.id, p_retorno:null }); }
   d.addEventListener('click', async e=>{ const b = e.target.closest('[data-ret]'); if(!b) return;
     if(b.dataset.ret === 'fechar'){ d.remove(); return; }
+    if(b.dataset.ret === 'responder'){ d.remove(); const sb2 = document.querySelector('#rail .nav-btn[data-view="sugestoes"]'); if(sb2) sb2.click();
+      setTimeout(()=>{ const c = document.querySelector(`.sg-card[data-id="${r.id}"]`), x = SG.list.find(y=> y.id === r.id); if(c && x){ c.scrollIntoView({ block:'center' }); sgResponderAbre(c, x); } }, 900); return; }
     await sgRetorno(r, b.dataset.ret); d.remove(); });
 }
 document.addEventListener('crm-tela', ()=> setTimeout(sgRetornoNaTela, 300));
