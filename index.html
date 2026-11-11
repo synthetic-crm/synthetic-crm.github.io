@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261111-165951">
+<meta name="crm-versao" content="20261111-170550">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10625,7 +10625,7 @@ async function clDetalhe(pid, nav){
 // Inadimplência e baixas: substitui a planilha que o financeiro puxa do Fácil123 (janeiro a outubro) para acompanhar quem deve e quem foi pagando.
 // Rating dos clientes: nota de pagamento de cada cliente pelos boletos (crm_rating_clientes); as premissas estão escritas na tela para a diretoria ajustar.
 // Fonte: boletos das empresas que faturam (AMG, Asia, Blendbase, Canada, Korea). "Em atraso" = venceu há mais de 3 dias e não foi baixado.
-const FI = { aba:'inad', desde:'2026-01-01', dados:null, dadosDe:'', mostra:'atraso', faixa:'', vend:'', q:'', qr:'', rt:'', nomes:null };   // q = busca da Inadimplência; qr = da Nota de pagamento
+const FI = { aba:'inad', desde:'2026-01-01', dados:null, dadosDe:'', mostra:'atraso', faixa:'', sit:'', vend:'', q:'', qr:'', rt:'', nomes:null };   // q = busca da Inadimplência; qr = da Nota de pagamento
 const FI_FAIXAS = [['4 a 30 dias', 4, 30], ['31 a 90 dias', 31, 90], ['91 a 180 dias', 91, 180], ['mais de 180 dias', 181, Infinity]];
 const fiMi = v=>{ v = Number(v) || 0; return v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits:1 }) + ' mi' : Math.round(v / 1e3).toLocaleString('pt-BR') + ' mil'; };
 async function renderFinanceiro(){
@@ -10995,6 +10995,8 @@ function fiGrafico(M){
   return `<svg class="fi-graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Em atraso, entradas e baixas mês a mês"><line x1="${esq}" x2="${W - dir}" y1="${H - b}" y2="${H - b}" stroke="var(--border)"/>${barras}<polyline points="${pts}" fill="none" stroke="#33505E" stroke-width="2.5"/>${rot}</svg>
     <div class="fi-leg"><span><i style="background:#33505E"></i>Em atraso no fim do mês (saldo)</span><span><i style="background:#E0A458"></i>Entrou em atraso no mês</span><span><i style="background:#4FA36D"></i>Baixado no mês (boleto em atraso que foi pago)</span></div>`;
 }
+// situação do título no financeiro (11/11/2026): importada da planilha do Ryan e marcada na tela pela gestão (crm_fin_situacao)
+const FI_SIT = { protestado:'Protestado', acordo:'Em acordo', descontado:'Descontado', negativado:'Negativado', outro:'Outro', sem:'Sem marcação' };
 async function fiInadimplencia(host){
   if(!FI.dados || FI.dadosDe !== FI.desde){
     host.innerHTML = '<div class="tb-rodape">Somando os boletos em atraso e as baixas…</div>';
@@ -11009,6 +11011,7 @@ async function fiInadimplencia(host){
   const fx = FI_FAIXAS.find(f=> f[0] === FI.faixa), q = FI.q.trim().toLowerCase();
   const L = C.filter(r=> (FI.mostra === 'todos' || (FI.mostra === 'atraso' ? Number(r.em_atraso) > 0 : Number(r.baixado) > 0))
     && (!fx || (Number(r.em_atraso) > 0 && diasDe(r.mais_antigo) >= fx[1] && diasDe(r.mais_antigo) <= fx[2]))
+    && (!FI.sit || (FI.sit === 'sem' ? !r.situacao && Number(r.em_atraso) > 0 : String(r.situacao || '').split(', ').includes(FI.sit)))
     && (!FI.vend || nomeV(r) === FI.vend) && (!q || [r.cliente, r.cnpj, nomeV(r)].join(' ').toLowerCase().includes(q)));
   if(FI.mostra === 'baixa') L.sort((a, b)=> Number(b.baixado) - Number(a.baixado));
   const soma = (rs, k)=> rs.reduce((t, r)=> t + (Number(r[k]) || 0), 0);
@@ -11024,6 +11027,7 @@ async function fiInadimplencia(host){
     ${fiGrafico(D.meses)}
     <div class="cm-chips" style="margin:2px 0 8px">${FI_FAIXAS.map(([f])=>{ const a = agDe(f); return `<button class="cm-chip ${FI.faixa === f ? 'on' : ''}" data-fifx="${f}" title="Clientes cujo boleto em atraso mais antigo está nesta faixa">Atraso de ${f}: <b>${fmtMoney(a.valor)}</b> · ${fmtNum(a.clientes)} clientes</button>`; }).join('')}</div>
     <div class="tb-rodape" style="margin:0 0 4px">Fonte: o <b>Contas a receber</b> do 123 Fácil das 6 empresas (o mesmo do relatório do financeiro), relido a cada 2 horas. Um título sai do atraso quando o financeiro dá a baixa.</div>
+    ${(D.por_situacao || []).length ? `<div class="cm-chips" style="margin:0 0 8px">${D.por_situacao.map(x=> `<button class="cm-chip ${FI.sit === x.situacao ? 'on' : ''}" data-fisit="${escapeHtml(x.situacao)}" title="Situação marcada pelo financeiro (protesto, acordo, desconto…)">${escapeHtml(FI_SIT[x.situacao] || x.situacao)}: <b>${fmtMoney(x.valor)}</b> · ${fmtNum(x.clientes)} clientes</button>`).join('')}</div>` : ''}
     ${(D.por_empresa || []).length ? `<div class="tb-rodape" style="margin:0 0 8px">Em atraso por empresa que faturou: ${(D.por_empresa || []).map(e=> `${escapeHtml(e.empresa)} ${fmtMoney(e.valor)} (${fmtNum(e.clientes)})`).join(' · ')}</div>` : ''}
     <div class="tb-bar">
       <select id="fi-mostra" aria-label="Quais clientes"><option value="atraso" ${FI.mostra === 'atraso' ? 'selected' : ''}>Com boleto em atraso hoje</option><option value="baixa" ${FI.mostra === 'baixa' ? 'selected' : ''}>Que deram baixa desde ${desdeTxt}</option><option value="todos" ${FI.mostra === 'todos' ? 'selected' : ''}>Todos (em atraso ou com baixa)</option></select>
@@ -11032,13 +11036,14 @@ async function fiInadimplencia(host){
       <input id="fi-q" class="ca-inp" placeholder="Buscar cliente ou CNPJ" value="${escapeHtml(FI.q)}" style="min-width:180px">
       <span class="tb-esp"></span><button class="om-cancel" id="fi-csv" title="Baixar a lista para acompanhar a cobrança">Exportar</button>
     </div>
-    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th>${RT_MAPA && libLivre('nota') ? '<th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th>' : ''}<th></th></tr></thead>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Faturou</th><th class="n">Em atraso</th><th class="n">Boletos</th><th class="n" title="Dias desde o vencimento do boleto em atraso mais antigo">Mais antigo</th><th title="Marcada pelo financeiro. Vale para todos os títulos vencidos do cliente">Situação</th><th class="n">Baixado desde ${desdeTxt}</th><th class="n">Última baixa</th>${RT_MAPA && libLivre('nota') ? '<th class="n" title="Nota de pagamento de 0 a 10">Nota pgto.</th>' : ''}<th></th></tr></thead>
     <tbody>${mostra.map(r=>{ const d = diasDe(r.mais_antigo), x = RT_MAPA && r.pessoa_id && RT_MAPA.get(r.pessoa_id);
       return `<tr class="${r.pessoa_id ? 'vd-lin' : ''}" ${r.pessoa_id ? `data-pid="${r.pessoa_id}" data-uso-linha="cliente financeiro" title="Ver compras e boletos de ${escapeHtml(r.cliente || 'o cliente')}"` : 'title="Cliente sem cadastro no CRM com este CNPJ"'}>
       <td class="prod">${escapeHtml(r.cliente || r.cnpj)}${r.pessoa_id ? ' <span class="vd-seta">›</span>' : ''}</td><td>${escapeHtml(nomeV(r))}</td><td>${escapeHtml(r.empresas || '')}</td>
       <td class="n">${Number(r.em_atraso) ? '<b>' + fmtMoney(r.em_atraso) + '</b>' : '—'}</td><td class="n">${r.boletos_atraso || '—'}</td><td class="n ${d > 30 ? 'cm-pend' : ''}">${d != null ? d + ' dias' : '—'}</td>
+      <td>${Number(r.em_atraso) > 0 && r.cnpj ? `<select class="fi-sit" data-sitcnpj="${escapeHtml(r.cnpj)}" aria-label="Situação">${['', 'protestado', 'acordo', 'descontado', 'negativado', 'outro'].map(k=> `<option value="${k}" ${(r.situacao || '').split(', ')[0] === k ? 'selected' : ''}>${k ? FI_SIT[k] : '—'}</option>`).join('')}</select>${String(r.situacao || '').includes(',') ? ' <small title="' + escapeHtml(r.situacao) + '">+</small>' : ''}` : ''}</td>
       <td class="n">${Number(r.baixado) ? fmtMoney(r.baixado) : '—'}</td><td class="n">${r.ultima_baixa ? fmtDate(r.ultima_baixa) : '—'}</td>${RT_MAPA && libLivre('nota') ? `<td class="n">${x ? rtSelo(x) : ''}</td>` : ''}<td>${r.pessoa_id && Number(r.em_atraso) > 0 ? `<button class="cm-chip" data-cob="${r.pessoa_id}" title="Mensagem de cobrança pronta para o WhatsApp">💬 Cobrar</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="10" class="vazio">Nenhum cliente com esses filtros.</td></tr>'}</tbody></table></div>
-    <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Fonte: boletos das empresas que faturam as vendas da Synthetic (AMG, Asia, Blendbase, Canada e Korea), lidos do Fácil123. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = boleto em atraso que foi pago; acordo que gera boleto novo aparece quando o boleto novo é pago. O saldo do gráfico só conta boletos de notas emitidas desde outubro/2025: os primeiros meses ficam um pouco abaixo do real. Notas canceladas não entram. Os boletos dos últimos 45 dias são relidos a cada 2 horas; os mais antigos, uma vez a cada meio dia${releu ? ' (volta completa mais antiga: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')' : ' (a primeira volta completa termina em cerca de 11 horas: até lá, um boleto antigo pago depois de 28/10 ainda pode aparecer em atraso)'}.</details></div>`;
+    <div class="tb-rodape">${L.length > MAX ? `Mostrando ${MAX} de ${fmtNum(L.length)}; use os filtros ou Exportar. ` : ''}${fmtNum(L.length)} clientes · ${fmtMoney(soma(L, 'em_atraso'))} em atraso · ${fmtMoney(soma(L, 'baixado'))} baixados.<details class="tb-como"><summary>ⓘ Como é calculado</summary>Fonte: o Contas a receber do 123 Fácil (módulo financeiro, onde o financeiro dá baixa) da Synthetic e das empresas que faturam as vendas (AMG, Asia, Blendbase, Canada e Korea), relido a cada 2 horas. A situação (protestado, acordo…) é marcada pelo financeiro; a primeira carga veio da planilha de contas a receber de 09/11. Em atraso = venceu há mais de 3 dias e não foi baixado (os 3 dias cobrem compensação e fim de semana). Baixa = título em atraso que foi baixado no Contas a receber; acordo que gera título novo aparece quando o novo é baixado. Baixas lidas desde novembro/2024.${releu ? ' Última leitura completa: ' + releu.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + '.' : ''}</details></div>`;
   const re = ()=> fiInadimplencia(host);
   host.querySelectorAll('[data-fifx]').forEach(b=> b.addEventListener('click', ()=>{ FI.faixa = FI.faixa === b.dataset.fifx ? '' : b.dataset.fifx; if(FI.faixa) FI.mostra = 'atraso'; re(); }));
   host.querySelector('#fi-mostra').addEventListener('change', e=>{ FI.mostra = e.target.value; if(FI.mostra !== 'atraso') FI.faixa = ''; re(); });
@@ -11046,7 +11051,14 @@ async function fiInadimplencia(host){
   host.querySelector('#fi-vend')?.addEventListener('change', e=>{ FI.vend = e.target.value; re(); });
   let tq; host.querySelector('#fi-q').addEventListener('input', e=>{ clearTimeout(tq); tq = setTimeout(()=>{ FI.q = e.target.value; re(); const i = document.getElementById('fi-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 350); });
   const nav = { ids:mostra.filter(r=> r.pessoa_id).map(r=> r.pessoa_id), nomes:Object.fromEntries(mostra.map(r=> [r.pessoa_id, r.cliente])) };
-  host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', e=>{ if(e.target.closest('[data-cob]')) return; clDetalhe(tr.dataset.pid, nav); }));
+  host.querySelectorAll('tr[data-pid]').forEach(tr=> tr.addEventListener('click', e=>{ if(e.target.closest('[data-cob],.fi-sit')) return; clDetalhe(tr.dataset.pid, nav); }));
+  host.querySelectorAll('[data-fisit]').forEach(b=> b.addEventListener('click', ()=>{ FI.sit = FI.sit === b.dataset.fisit ? '' : b.dataset.fisit; if(FI.sit) FI.mostra = 'atraso'; re(); }));
+  host.querySelectorAll('.fi-sit').forEach(sel=> sel.addEventListener('change', async ()=>{
+    sel.disabled = true;
+    const { data, error } = await sb.rpc('crm_fin_situacao_marca', { p_cnpj:sel.dataset.sitcnpj, p_situacao:sel.value || null, p_nota:null });
+    if(error){ sel.disabled = false; showToast(errAmigavel(error)); return; }
+    uso('clique', 'inadimplência: situação ' + (sel.value || 'limpa')); showToast(sel.value ? `Marcado como ${FI_SIT[sel.value]} (${data} títulos vencidos).` : 'Situação limpa.');
+    FI.dados = null; re(); }));
   host.querySelectorAll('[data-cob]').forEach(b=> b.addEventListener('click', e=>{ e.stopPropagation(); waCobrar(b.dataset.cob); }));
   host.querySelector('#fi-csv').addEventListener('click', ()=>{
     uso('clique', 'Exportar inadimplência', { linhas:L.length });
