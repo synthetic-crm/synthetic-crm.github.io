@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261111-170550">
+<meta name="crm-versao" content="20261111-172615">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9134,11 +9134,19 @@ function eqUsuarios(corpo){
     <td><span class="tagx">${PERFIS[u.role]||escapeHtml(u.role)}</span></td><td>${escapeHtml(u.vendedor_facil||'—')}</td><td>${escapeHtml(u.equipe||'—')}</td>
     <td>${u.ativo?'<span class="sy-st ok">ativo</span>':'<span class="sy-st erro">inativo</span>'}${u.tem_login?'':'<div class="eq-mini">sem login criado</div>'}</td>
     <td>${eqDt(u.ultimo_acesso)}</td>
-    <td class="r">${eqPodeAtribuir(u.role) && u.email !== window._userEmail ? `<button type="button" class="om-cancel" data-eqedit="${escapeHtml(u.email)}">Editar</button>${u.ativo ? ` <button type="button" class="om-cancel" data-eqsenha="${escapeHtml(u.email)}" title="Gera uma senha provisória para você enviar">${u.tem_login ? 'Nova senha' : 'Criar senha'}</button>` : ''}` : ''}</td></tr>`).join('');
+    <td class="r">${u.email === window._userEmail ? '<button type="button" class="om-cancel" data-eqminha="1" title="Define uma senha nova para o seu próprio login">Trocar minha senha</button>' : ''}${eqPodeAtribuir(u.role) && u.email !== window._userEmail ? `<button type="button" class="om-cancel" data-eqedit="${escapeHtml(u.email)}">Editar</button>${u.ativo ? ` <button type="button" class="om-cancel" data-eqsenha="${escapeHtml(u.email)}" title="Gera uma senha provisória para você enviar">${u.tem_login ? 'Nova senha' : 'Criar senha'}</button>` : ''}` : ''}</td></tr>`).join('');
   corpo.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button type="button" class="om-save" id="eq-cadastrar">+ Cadastrar usuário (senha provisória)</button></div><table class="ca-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Carteira (Fácil123)</th><th>Equipe</th><th>Situação</th><th>Último acesso</th><th></th></tr></thead><tbody>${linhas || '<tr><td colspan="7">Nenhum usuário.</td></tr>'}</tbody></table>
     <p class="eq-nota">Novos usuários entram de três jeitos: <b>🔗 link de acesso da equipe</b> (um link para o grupo; cada um se cadastra e você aprova escolhendo o perfil), <b>cadastro com senha provisória</b> (você envia a senha; no primeiro acesso a pessoa cria a dela) ou <b>convite individual</b> (link para uma pessoa, já com o perfil). Aqui você também muda o perfil, a carteira ou desativa alguém (o acesso é cortado na hora). Ninguém pode mudar o próprio perfil.</p>`;
   corpo.querySelectorAll('[data-eqedit]').forEach(b=>b.addEventListener('click', ()=>eqEditarUsuario(EQ.usuarios.find(u=>u.email===b.dataset.eqedit))));
   corpo.querySelector('#eq-cadastrar').addEventListener('click', eqCadastrar);
+  // trocar a própria senha (11/11/2026): quem entra pelo link do e-mail fica logado sem saber a senha e não tinha onde trocá-la
+  corpo.querySelector('[data-eqminha]')?.addEventListener('click', ()=>{
+    window._recovery = true;
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('reset-pass').value = ''; authMsg('reset-err', '');
+    document.getElementById('reset-screen').style.display = 'flex';
+    document.getElementById('reset-pass').focus();
+  });
   corpo.querySelectorAll('[data-eqsenha]').forEach(b=>b.addEventListener('click', async ()=>{
     const u = EQ.usuarios.find(x=>x.email===b.dataset.eqsenha); if(!u) return;
     if(u.tem_login && !confirm(`Gerar uma nova senha provisória para ${u.nome || u.email}? A senha atual dele deixa de funcionar.`)) return;
