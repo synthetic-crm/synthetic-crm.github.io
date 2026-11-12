@@ -513,6 +513,7 @@
     <button class="nav-grp" data-grp="especialista" title="Especialista comercial: o plano da semana de cada vendedor (segunda, quarta e sexta), o Planejamento 2027 e a Análise de produtos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button class="nav-grp" data-grp="vendas" title="Vendas: o mês, a projeção e o ranking dos vendedores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg><span>Vendas</span></button>
     <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="plano27" data-grupo="especialista" title="Planejamento Estratégico 2027"><span>Planejamento</span></button>
+    <button data-perfis="admin" class="nav-btn nav-membro" data-view="caixalucro" data-grupo="especialista" title="Caixa e lucro: o resultado do mês, as perguntas do dia 5, a cobrança semanal e se a empresa é viável (só você vê)"><span>Caixa e lucro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="anprod" data-grupo="especialista" title="Análise de produtos: faturamento, quantidade e margem de cada produto, para decidir o catálogo"><span>Análise de produtos</span></button>
     <button class="nav-grp" data-grp="clientes" title="Clientes: a carteira na linha do tempo e os parados há mais de 90 dias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>Clientes</span></button>
     <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
@@ -547,6 +548,7 @@
     <div id="view-comissoes" class="view"><div class="tb" id="cm"></div></div>
     <div id="view-financeiro" class="view"><div class="tb" id="fi"></div></div>
     <div id="view-especialista" class="view"><div class="tb" id="es"></div></div>
+    <div id="view-caixalucro" class="view"><div class="tb" id="cl"></div></div>
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
     <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
@@ -3998,6 +4000,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'comissoes') renderComissoes();
     if(v === 'financeiro') renderFinanceiro();
     if(v === 'especialista') renderEspecialista();
+    if(v === 'caixalucro') renderCaixaLucro();
     if(v === 'rota') renderRota();
     if(v === 'entregas') renderEntregas();
     if(v === 'anprod') renderAnaliseProdutos();
@@ -4075,7 +4078,7 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
@@ -4088,7 +4091,7 @@ const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) 
 const svC = k=> libSoVoce(k) ? ' so-voce' : '';
 const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
 const LIB_VIEW = { operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
-const SO_ADMIN_VIEW = { especialista:1, entregas:1, anprod:1, plano27:1 };
+const SO_ADMIN_VIEW = { caixalucro:1, especialista:1, entregas:1, anprod:1, plano27:1 };
 const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
 async function libCarrega(){
   try{ const { data, error } = await sb.rpc('crm_liberacoes_pendentes'); if(error) throw error; LIB.pend = libPend(data); }
@@ -4132,7 +4135,7 @@ function menuLiberado(view, p){
 // o financeiro entra no Financeiro; o vendedor, na própria carteira. Telas irmãs viram abas de um botão só (as telas não mudam).
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês']] },
-  especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
+  especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
   clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
@@ -9587,7 +9590,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState 
 // ---------- PEÇA 2 · REGISTRO DE USO (onde o usuário tem dúvida) ----------
 // Grava só: tela aberta, rótulo do que foi clicado, 1ª célula da linha clicada, filtro escolhido, mensagens do sistema e erros.
 // NUNCA o que é digitado nos campos. O app só insere em uso_eventos; ninguém lê pelo app.
-const TELAS_NOME = { entregas:'Entregas', anprod:'Análise de produtos', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
+const TELAS_NOME = { entregas:'Entregas', anprod:'Análise de produtos', caixalucro:'Caixa e lucro', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
   indicadores:'Painel', comercial:'Painel · metas', vendedores:'Painel · vendedores', regioes:'Painel · regiões', margens:'Painel · margens',
   concorrentes:'Painel · concorrentes', estoque:'Painel · estoque', mapa:'Estratégia', equipe:'Acessos', ajustes:'Ajustes',
   conhecimento:'Base de conhecimento', sugestoes:'Sugestões', parados:'Clientes parados', ata:'Ata do projeto', reunioes:'Conversas registradas' };
@@ -11518,6 +11521,225 @@ async function renderAnaliseProdutos(){
         'analise-catalogo-' + diaLocal(new Date()) + '.csv'); uso('clique', 'análise de produtos: exportar'); });
   }
   host.querySelectorAll('[data-apa]').forEach(b=> b.addEventListener('click', ()=>{ AP.aba = b.dataset.apa; renderAnaliseProdutos(); }));
+}
+
+// ---------- CAIXA E LUCRO (12/11/2026, pedido do Luiz): o que o dono precisa saber do mês, em 4 abas ----------
+// SÓ O ADMINISTRADOR vê (decisão do Luiz em 12/11: "só eu vejo, mais ninguém"; sem data de liberação). O banco confere de novo:
+// crm_caixa_lucro e crm_cl_acoes recusam quem não é admin. Método: skill caixa-e-lucro (perguntas do dia 5, ritual semanal, pilares).
+// Regra dos números: nada inventado. O que não tem dado aparece como "sem dado" e diz o que falta trazer.
+const CL = { mes:null, aba:'resultado', d:{}, acoes:null, novo:false };
+const CL_ABAS = [['resultado', 'Resultado do mês'], ['perguntas', 'Perguntas do dia 5'], ['cobranca', 'Cobrança semanal'], ['viavel', 'A empresa é viável?']];
+const CL_AREAS = ['Receita', 'Margem', 'Despesas', 'Capital de giro', 'Dívida', 'Comercial', 'Operação', 'Outro'];
+const CL_MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const clMesNome = ym=> CL_MESES[Number(ym.slice(5, 7)) - 1] + ' de ' + ym.slice(0, 4);
+const clPct = (v, d = 1)=> v == null || !isFinite(v) ? '—' : (v * 100).toLocaleString('pt-BR', { minimumFractionDigits:d, maximumFractionDigits:d }) + '%';
+const clMg = o=> o && Number(o.rc) ? 1 - Number(o.custo) / Number(o.rc) : null;
+const clVar = (a, b)=> a == null || !Number(b) ? null : Number(a) / Number(b) - 1;
+function clSeta(v, inverte){
+  if(v == null || !isFinite(v)) return '<span class="vazio">sem comparação</span>';
+  const bom = inverte ? v <= 0 : v >= 0, s = v >= 0 ? '▲' : '▼';
+  return `<span style="color:${bom ? 'var(--ok, #2e7d32)' : 'var(--err, #c62828)'};font-weight:600">${s} ${clPct(Math.abs(v))}</span>`;
+}
+function clPp(v){ if(v == null || !isFinite(v)) return '—'; const s = v >= 0 ? '+' : '−'; return s + (Math.abs(v) * 100).toLocaleString('pt-BR', { maximumFractionDigits:1 }) + ' p.p.'; }
+function clNome(n){ const t = String(n || ''); if(!/^\d{2}[ .]?\d{3}[ .]?\d{3}/.test(t)) return t;
+  return t.replace(/[0-9.]/g, ' ').split(/\s+/).filter(w=> w.length > 2).map(w=> w[0].toUpperCase() + '.').join(' ') + ' (MEI)'; }
+const clSem = (o, falta)=> `<span class="rt rt-C" title="${escapeHtml(falta || '')}">sem dado</span>`;
+function clMesesOpc(){
+  const r = [], x = new Date(); x.setDate(1);
+  for(let i = 0; i < 14; i++){ r.push(x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0')); x.setMonth(x.getMonth() - 1); }
+  return r;
+}
+function clMesPadrao(){ const x = new Date(); x.setDate(1); x.setMonth(x.getMonth() - 1); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); }
+
+async function renderCaixaLucro(){
+  const host = document.getElementById('cl'); if(!host) return;
+  if(!libAdmin()){ host.innerHTML = '<div class="tb-aviso">Esta tela é só do Administrador.</div>'; return; }
+  if(!CL.mes) CL.mes = clMesPadrao();
+  const abas = `<div class="cm-abas">${CL_ABAS.map(([k, t])=> `<button class="cm-aba ${CL.aba === k ? 'on' : ''}" data-cla="${k}">${t}</button>`).join('')}</div>`;
+  const barra = CL.aba === 'cobranca' ? '' : `<div class="tb-bar"><label for="cl-mes" style="margin-right:6px">Mês</label><select id="cl-mes">${clMesesOpc().map(m=> `<option value="${m}" ${m === CL.mes ? 'selected' : ''}>${clMesNome(m)}${m === clMesesOpc()[0] ? ' (em andamento)' : ''}</option>`).join('')}</select><span class="tb-esp"></span><small class="vazio">Fechamento: até o dia 5 do mês seguinte</small></div>`;
+  const aviso = `<div class="tb-aviso" style="background:var(--surface-2)">🔒 <b>Só você vê.</b> Nem o CEO nem o time enxergam esta tela (o banco recusa quem não é Administrador). Ela mostra o que o dono precisa saber para ter <b>mais caixa e mais lucro</b>: o que já dá para responder com os dados do 123 Fácil e o que ainda falta trazer.</div>`;
+  const bind = ()=>{
+    host.querySelectorAll('[data-cla]').forEach(b=> b.addEventListener('click', ()=>{ CL.aba = b.dataset.cla; uso('clique', 'caixa e lucro: ' + CL.aba); renderCaixaLucro(); }));
+    const s = host.querySelector('#cl-mes'); if(s) s.addEventListener('change', e=>{ CL.mes = e.target.value; renderCaixaLucro(); });
+  };
+  if(CL.aba === 'cobranca'){ host.innerHTML = abas + aviso + '<div id="cl-corpo"><div class="tb-rodape">Carregando as ações…</div></div>'; bind(); return clCobranca(host.querySelector('#cl-corpo')); }
+  let d = CL.d[CL.mes];
+  if(!d){
+    host.innerHTML = abas + barra + '<div class="tb-rodape">Somando o mês, a margem e os clientes…</div>'; bind();
+    const pedido = CL.mes, aba = CL.aba;
+    const { data, error } = await sb.rpc('crm_caixa_lucro', { p_mes:pedido + '-01' });
+    if(CL.mes !== pedido || CL.aba !== aba) return;   // a pessoa trocou de mês ou de aba enquanto carregava
+    if(error){ const r = host.querySelector('.tb-rodape'); if(r) r.outerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+    d = CL.d[pedido] = data;
+  }
+  const corpo = CL.aba === 'resultado' ? clResultado(d) : CL.aba === 'perguntas' ? clPerguntas(d) : clViavel(d);
+  host.innerHTML = abas + barra + aviso + corpo; bind();
+}
+
+function clCab(d){
+  const P = d.periodos || {}, dm = s=> fmtDate(s).slice(0, 5);
+  const sy = d.sync ? `<div class="tb-rodape">Dados do 123 Fácil até ${new Date(d.sync).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}. Faturamento = total das notas; margem = itens com custo cadastrado, a custo de hoje.</div>` : '';
+  return sy + (d.parcial ? `<div class="tb-rodape">Mês em andamento: ${dm(P.cur.ini)} a ${dm(P.cur.fim)}. Comparado com os mesmos dias do mês anterior (${dm(P.prev.ini)} a ${dm(P.prev.fim)}) e do ano anterior.</div>` : '');
+}
+
+// ---- Aba 1: Resultado do mês ----
+function clResultado(d){
+  const T = d.tot || {}, c = T.cur || {}, p = T.prev || {}, l = T.ly || {};
+  const mc = clMg(c), mp = clMg(p), mgR = o=> Number(o.rc || 0) - Number(o.custo || 0);
+  const alvo = Number(c.rregra) ? Number(c.ralvo) / Number(c.rregra) : null, piso = Number(c.rregra) ? Number(c.rpiso) / Number(c.rregra) : null;
+  const cob = Number(c.itens) ? Number(c.rc) / Number(c.itens) : null;
+  const abx = o=> Number(o.rc) ? Number(o.rp || 0) / Number(o.rc) : null;
+  const tk = o=> Number(o.notas) ? Number(o.fat) / Number(o.notas) : null;
+  const kpis = `<div class="tb-kpis">
+    <div class="tb-kpi"><small>Faturamento</small><b>${fmtMoney(c.fat)}</b><span>${clSeta(clVar(c.fat, p.fat))} contra o mês anterior · ${clSeta(clVar(c.fat, l.fat))} contra ${d.mes.slice(5, 7)}/${Number(d.mes.slice(0, 4)) - 1}${d.meta ? ' · meta ' + fmtMoney(d.meta) : ' · <span class="vazio">sem meta gravada</span>'}</span></div>
+    <div class="tb-kpi ${mc != null && alvo != null && mc < alvo ? 'alerta' : 'rs-kpi-ok'}"><small>Margem bruta</small><b>${fmtMoney(mgR(c))}</b><span>${clPct(mc)} sobre ${clPct(cob, 0)} da venda (itens com custo, custo de hoje) · ${clPp(mc != null && mp != null ? mc - mp : null)} contra o mês anterior · alvo médio ${clPct(alvo)}</span></div>
+    <div class="tb-kpi ${abx(c) > abx(p) ? 'alerta' : ''}"><small>Faltou para o piso de margem</small><b>${fmtMoney(c.falta_piso)}</b><span>é o desconto além da regra, em ${fmtMoney(c.rp)} de venda feita abaixo do piso (${clPct(abx(c))} da venda com custo; mês anterior ${clPct(abx(p))}) · custo de hoje</span></div>
+    <div class="tb-kpi"><small>Clientes e notas</small><b>${fmtNum(c.clientes)} · ${fmtNum(c.notas)}</b><span>ticket médio ${fmtMoney(tk(c))} (${clSeta(clVar(tk(c), tk(p)))})</span></div>
+  </div>`;
+  // ponte da margem: mês anterior → este mês
+  const B = (d.ponte || {}).prev;
+  let ponte = '<div class="tb-aviso">Sem venda com custo no mês anterior para montar a ponte.</div>';
+  if(B){
+    const mix = Number(B.m1) - Number(B.m0) - Number(B.volume) - Number(B.preco);
+    const ajuste = (Number(c.rc || 0) - Number(c.custo || 0)) - Number(B.m1);
+    const L = [['Margem do mês anterior (sem devoluções)', B.m0, 'base'], ['Volume: vendeu mais ou menos, incluindo produtos novos e que saíram', B.volume], ['Preço: preço médio de cada produto (inclui troca de clientes e de tabela)', B.preco], ['Mix: diferença de margem entre os produtos vendidos', mix], ['Custo', null, 'custo'], ['Margem deste mês (sem devoluções)', B.m1, 'base']];
+    if(Math.abs(ajuste) >= 1) L.push(['Devoluções e itens sem quantidade', ajuste], ['Margem bruta do mês (igual ao cartão acima)', Number(c.rc || 0) - Number(c.custo || 0), 'base']);
+    const mx = Math.max(...L.map(r=> Math.abs(Number(r[1]) || 0)));
+    ponte = `<h3 style="margin:18px 0 6px">De onde veio a variação da margem</h3>
+      <div class="tb-wrap"><table class="tb-tab"><tbody>${L.map(([t, v, k])=>{
+        if(k === 'custo') return `<tr><td class="prod">${t}</td><td colspan="2"><span class="vazio">não medido: o histórico de custo só existe desde ${fmtDate(d.custo_desde)}. Os dois meses usam o custo de hoje, então o efeito do custo aparece como zero.</span></td></tr>`;
+        const n = Number(v) || 0, w = mx ? Math.max(2, Math.round(Math.abs(n) / mx * 100)) : 0, cor = k === 'base' ? 'var(--brand, #005071)' : n >= 0 ? 'var(--ok, #2e7d32)' : 'var(--err, #c62828)';
+        return `<tr><td class="prod">${k === 'base' ? '<b>' + t + '</b>' : t}</td><td class="n" style="white-space:nowrap">${k === 'base' ? '' : n >= 0 ? '+' : '−'}${fmtMoney(Math.abs(n))}</td><td style="width:55%"><div style="height:14px;width:${w}%;background:${cor};border-radius:3px"></div></td></tr>`; }).join('')}</tbody></table></div>
+      <div class="tb-rodape">Volume = a venda crescendo ou caindo à margem média do mês anterior; produtos novos e que saíram entram aqui. Preço = o que mudou no preço médio de cada produto vendido nos dois meses; como é a média de todos os clientes, vender mais para quem compra mais barato também aparece como preço. Mix = a diferença de margem entre os produtos. Só itens com custo cadastrado (${clPct(Number(c.rc) / Number(c.itens || 1))} da venda deste mês).</div>`;
+  }
+  const falta = `<h3 style="margin:18px 0 6px">Abaixo da margem bruta</h3>
+    <div class="tb-wrap"><table class="tb-tab"><tbody>
+      <tr><td class="prod">Despesas fixas e variáveis (folha, aluguel, frete, comissão, impostos)</td><td>${clSem()}</td><td><small>Falta: despesas do mês, do financeiro ou do contador</small></td></tr>
+      <tr><td class="prod">EBITDA e lucro líquido</td><td>${clSem()}</td><td><small>Falta: DRE mensal do contador (regime de competência)</small></td></tr>
+      <tr><td class="prod">Geração de caixa e dívida</td><td>${clSem()}</td><td><small>Falta: saldos bancários, empréstimos, juros e prazos por banco</small></td></tr>
+    </tbody></table></div>`;
+  const S = d.serie || [];
+  const serie = `<h3 style="margin:18px 0 6px">Últimos 12 meses (com o mês escolhido)</h3><div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Mês</th><th class="n">Faturamento</th><th class="n">Margem bruta</th><th class="n">Margem %</th></tr></thead>
+    <tbody>${S.map(r=> `<tr${r.mes === d.mes ? ' style="font-weight:700"' : ''}><td>${clMesNome(r.mes)}</td><td class="n">${fmtMoney(r.r)}</td><td class="n">${fmtMoney(Number(r.rc || 0) - Number(r.cu || 0))}</td><td class="n">${clPct(Number(r.rc) ? 1 - Number(r.cu) / Number(r.rc) : null)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="tb-rodape">Margem a custo de hoje em todos os meses (o custo só é registrado desde ${fmtDate(d.custo_desde)}): nos meses antigos não dá para saber se a margem real foi maior ou menor do que a mostrada. Serve para ver a tendência do faturamento, não para comparar margem de um ano atrás.</div>`;
+  return clCab(d) + kpis + ponte + falta + serie;
+}
+
+// ---- Aba 2: Perguntas do dia 5 ----
+function clPerguntas(d){
+  const T = d.tot || {}, c = T.cur || {}, p = T.prev || {}, N = d.novos || {}, PR = d.parou || {}, A = d.abc || {}, R = d.receber || {}, PZ = d.prazo || {};
+  const mc = clMg(c), tk = o=> Number(o.notas) ? Number(o.fat) / Number(o.notas) : null;
+  const V = (d.vendedores || []).filter(v=> Number(v.fat) > 0);
+  const piorPiso = V.filter(v=> Number(v.falta_piso) > 0).sort((a, b)=> Number(b.falta_piso) - Number(a.falta_piso)).slice(0, 3);
+  const q = (pergunta, resposta, est)=> `<tr><td class="prod" style="width:34%"><b>${pergunta}</b></td><td>${resposta}</td><td style="width:120px">${est === 'ok' ? '<span class="rt rt-A">respondida</span>' : est === 'conf' ? '<span class="rt rt-C">a conferir</span>' : '<span class="rt rt-D">sem dado</span>'}</td></tr>`;
+  const com = [
+    q('A meta foi batida com que margem?', d.meta ? `Faturou ${fmtMoney(c.fat)} de uma meta de ${fmtMoney(d.meta)} (${clPct(Number(c.fat) / Number(d.meta), 0)}), com margem bruta de ${clPct(mc)}.` : `Não há meta de faturamento gravada para ${clMesNome(d.mes)}. Margem bruta do mês: ${clPct(mc)}.`, d.meta ? 'ok' : 'conf'),
+    q('Quanto de desconto passou do limite?', `Faltaram ${fmtMoney(c.falta_piso)} para o piso de margem, em ${fmtMoney(c.rp)} de venda feita abaixo dele (${clPct(Number(c.rc) ? Number(c.rp) / Number(c.rc) : null)} da venda com custo; no mês anterior, ${clPct(Number(p.rc) ? Number(p.rp) / Number(p.rc) : null)}). Custo de hoje.${piorPiso.length ? ' Quem mais faltou para o piso: ' + piorPiso.map(v=> escapeHtml(nomeBonito(v.vendedor || '')) + ' ' + fmtMoney(v.falta_piso)).join(', ') + '.' : ''}`, 'conf'),
+    q('Quantos clientes novos e com que ticket de entrada?', `${fmtNum(N.n)} clientes compraram pela primeira vez (mês anterior: ${fmtNum(N.n_prev)}), com primeira compra média de ${fmtMoney(N.ticket_entrada)}.`, 'ok'),
+    q('Ticket médio e frequência', `${fmtMoney(tk(c))} por nota (${clSeta(clVar(tk(c), tk(p)))} contra o mês anterior); ${fmtNum(c.notas)} notas para ${fmtNum(c.clientes)} clientes, ${Number(c.clientes) ? (Number(c.notas || 0) / Number(c.clientes)).toLocaleString('pt-BR', { maximumFractionDigits:2 }) : '—'} notas por cliente.`, 'ok'),
+    q('Curva ABC: quem sustenta a venda?', `${fmtNum(A.a)} de ${fmtNum(A.total)} clientes (${clPct(Number(A.a) / Number(A.total || 1), 0)}) fazem 80% dos ${fmtMoney(A.r12)} vendidos nos últimos 12 meses.`, 'ok'),
+    q('Quem parou de comprar neste mês?', `${fmtNum(PR.n)} clientes completaram de 91 a 120 dias sem comprar; nos 12 meses eles somaram ${fmtMoney(PR.valor_12m)}.${(PR.top || []).length ? ' Maiores: ' + PR.top.slice(0, 5).map(x=> escapeHtml(clNome(x.cliente)) + ' (' + fmtMoney(x.r12) + ')').join(', ') + '.' : ''}`, 'ok')];
+  const fin = [
+    q('EBITDA contra o mês e o ano anterior', 'Falta a DRE mensal do contador.', 'sem'),
+    q('CMV e margem bruta', `CMV ${fmtMoney(c.custo)} sobre ${fmtMoney(c.rc)} vendidos com custo: margem bruta ${clPct(mc)} (custo de hoje).`, 'ok'),
+    q('Despesas fixas e variáveis: o que subiu?', 'Falta o relatório de despesas do financeiro.', 'sem'),
+    q('Geração de caixa: paga a dívida? Quanto sobra?', 'Faltam saldos bancários e a lista de empréstimos (banco, juros, prazo).', 'sem'),
+    q('Em quantos dias recebemos?', PZ.dias != null ? `${Math.round(PZ.dias)} dias em média, mas só ${clPct(Number(PZ.valor_com_parcela) / Number(c.fat || 1), 0)} das vendas do mês trazem as parcelas no 123 Fácil.` : 'As vendas do mês não trazem parcelas no 123 Fácil.', 'conf'),
+    q('Quanto está vencido para receber?', `Posição de hoje (${fmtDate(d.hoje).slice(0, 5)}), não do mês escolhido: ${fmtMoney(R.vencido)} vencidos de ${fmtNum(R.clientes_vencido)} clientes e ${fmtMoney(R.a_vencer)} a vencer. A planilha do Ryan mostrava R$ 487 mil vencidos em 11/11: a diferença está em conferência. Recebido em ${clMesNome(d.mes)}: ${fmtMoney(R.recebido_mes)}.`, 'conf')];
+  const vend = `<h3 style="margin:18px 0 6px">Por vendedor</h3><div class="tb-wrap"><table class="tb-tab fixa"><thead><tr><th class="prod">Vendedor</th><th class="n">Faturou</th><th class="n">Contra o mês anterior</th><th class="n">Meta</th><th class="n">Margem bruta</th><th class="n">Faltou para o piso</th><th class="n sec">Clientes</th><th class="n sec">Notas</th></tr></thead>
+    <tbody>${V.map(v=> `<tr><td class="prod">${escapeHtml(nomeBonito(v.vendedor || 'Sem vendedor'))}</td><td class="n">${fmtMoney(v.fat)}</td><td class="n">${clSeta(clVar(v.fat, v.fat_prev))}</td><td class="n">${v.meta ? clPct(Number(v.fat) / Number(v.meta), 0) : '<span class="vazio">sem meta</span>'}</td><td class="n">${clPct(clMg(v))}</td><td class="n">${Number(v.falta_piso) ? fmtMoney(v.falta_piso) : '—'}</td><td class="n sec">${fmtNum(v.clientes)}</td><td class="n sec">${fmtNum(v.notas)}</td></tr>`).join('')}</tbody></table></div>`;
+  const cli = `<h3 style="margin:18px 0 6px">Margem dos 15 maiores clientes do mês</h3><div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="prod">Cliente</th><th class="sec">Vendedor</th><th class="n">Comprou</th><th class="n">Margem bruta</th></tr></thead>
+    <tbody>${(d.clientes_top || []).map(x=> `<tr><td class="prod">${escapeHtml(clNome(x.cliente))}</td><td class="sec">${escapeHtml(nomeBonito(x.vendedor || ''))}</td><td class="n">${fmtMoney(x.fat)}</td><td class="n">${clPct(clMg(x))}</td></tr>`).join('')}</tbody></table></div>`;
+  return clCab(d) + `<div class="tb-rodape">As perguntas que o dono faz até o dia 5 do mês seguinte. A resposta tem de estar aqui, sem ninguém precisar abrir o computador.</div>
+    <h3 style="margin:14px 0 6px">Ao comercial</h3><div class="tb-wrap"><table class="tb-tab"><tbody>${com.join('')}</tbody></table></div>
+    <h3 style="margin:18px 0 6px">Ao financeiro</h3><div class="tb-wrap"><table class="tb-tab"><tbody>${fin.join('')}</tbody></table></div>` + vend + cli;
+}
+
+// ---- Aba 4: A empresa é viável? (bem / mal / não sei, pilar por pilar) ----
+function clViavel(d){
+  const T = d.tot || {}, c = T.cur || {}, Y = d.ytd || {}, R = d.receber || {}, PZ = d.prazo || {};
+  const mc = clMg(c), alvo = Number(c.rregra) ? Number(c.ralvo) / Number(c.rregra) : null, piso = Number(c.rregra) ? Number(c.rpiso) / Number(c.rregra) : null;
+  const cresc = clVar(Y.atual, Y.anterior), ano = d.fim.slice(0, 4);
+  const P = [
+    ['Receita', 'Volume e preço estão certos?', cresc == null ? 'nao' : cresc < 0 ? 'mal' : cresc < 0.05 ? 'conf' : 'bem',
+      `Faturou ${fmtMoney(Y.atual)} em ${ano} até ${fmtDate(d.fim).slice(0, 5)}, ${clSeta(cresc)} contra o mesmo período de ${Number(ano) - 1} (${fmtMoney(Y.anterior)}). Crescimento em reais, sem descontar a inflação: abaixo de 5% pode ser só reajuste de preço.`],
+    ['Margem', 'Custo e preço sob controle?', mc == null || alvo == null ? 'nao' : 'conf',
+      `Margem bruta de ${clPct(mc)} em ${clMesNome(d.mes)}, ${mc != null && alvo != null ? (mc >= alvo ? 'acima' : 'abaixo') : ''} do alvo médio de ${clPct(alvo)} (piso ${clPct(piso)}; média das regras de margem, pesada pela venda). A conferir: usa o custo de hoje (existe desde ${fmtDate(d.custo_desde)}) e ainda não há comparação com o mercado.`],
+    ['Despesas', 'Tem desperdício? O ganho de escala apareceu?', 'nao', 'Sem dado. Falta o relatório de despesas fixas e variáveis do financeiro.'],
+    ['Capital de giro', 'Prazo e estoque cabem no crescimento?', 'nao',
+      `Há números, mas ainda não são confiáveis: prazo médio de ${PZ.dias != null ? Math.round(PZ.dias) + ' dias' : '—'} em só ${clPct(Number(PZ.valor_com_parcela) / Number(c.fat || 1), 0)} das vendas; ${fmtMoney(R.vencido)} vencidos a receber hoje (a conferir com o Ryan, que tinha R$ 487 mil); estoque do 123 Fácil sem inventário.`],
+    ['Dívida', 'O crédito está barato, longo e disponível?', 'nao', 'Sem dado. Falta a lista de empréstimos e limites por banco (valor, juros, prazo, garantia).'],
+    ['Resultado', 'Sobra lucro no fim? (EBITDA, lucro líquido)', 'nao', 'Sem dado. Falta a DRE mensal do contador, em regime de competência.']];
+  const est = { bem:['rt-A', 'bem'], mal:['rt-D', 'mal'], conf:['rt-B', 'a conferir'], nao:['rt-C', 'não sei'] };
+  const resp = P.filter(x=> x[2] !== 'nao').length;
+  return clCab(d) + `<div class="tb-kpis"><div class="tb-kpi alerta"><small>Minha empresa é viável?</small><b>Não sei</b><span>${resp} de ${P.length} pilares com alguma resposta. "Não sei" é a pior das três respostas: o que falta trazer está em cada cartão.</span></div></div>
+    <div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="prod">Pilar</th><th>Pergunta do mês</th><th>Hoje</th><th>Por quê</th></tr></thead>
+    <tbody>${P.map(([p, pg, s, t])=> `<tr><td class="prod"><b>${p}</b></td><td>${pg}</td><td><span class="rt ${est[s][0]}">${est[s][1]}</span></td><td><small>${t}</small></td></tr>`).join('')}</tbody></table></div>
+    <h3 style="margin:18px 0 6px">O que falta trazer para responder tudo</h3>
+    <div class="tb-wrap"><table class="tb-tab"><tbody>
+      <tr><td class="prod">DRE mensal dos últimos 12 meses</td><td>contador</td><td><small>responde Resultado e Despesas</small></td></tr>
+      <tr><td class="prod">Despesas fixas e variáveis do mês</td><td>financeiro (Ryan)</td><td><small>responde Despesas e o pente-fino a cada 3 meses</small></td></tr>
+      <tr><td class="prod">Empréstimos, limites e saldos por banco</td><td>financeiro (Ryan)</td><td><small>responde Dívida e Capital de giro</small></td></tr>
+      <tr><td class="prod">Inventário do estoque (contagem física)</td><td>operação</td><td><small>torna o estoque do 123 Fácil confiável</small></td></tr>
+      <tr><td class="prod">Meta de faturamento por mês e por vendedor</td><td>CEO</td><td><small>responde "a meta foi batida com que margem?"</small></td></tr>
+    </tbody></table></div>`;
+}
+
+// ---- Aba 3: Cobrança semanal (crm_cl_acoes: só o Administrador lê e grava) ----
+function clSegunda(x){ const d = new Date(x); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
+async function clCobranca(el){
+  const { data, error } = await sb.from('crm_cl_acoes').select('*').order('prazo', { ascending:true, nullsFirst:false }).order('criado_em');
+  if(error){ el.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  CL.acoes = data || [];
+  const hoje = diaLocal(new Date()), seg = clSegunda(new Date()), dom = new Date(seg); dom.setDate(dom.getDate() + 6);
+  const segS = diaLocal(seg), domS = diaLocal(dom), segAnt = new Date(seg); segAnt.setDate(segAnt.getDate() - 7); const segAntS = diaLocal(segAnt);
+  const ab = CL.acoes.filter(a=> a.status === 'aberta');
+  const atras = ab.filter(a=> a.prazo && a.prazo < hoje), semana = ab.filter(a=> a.prazo && a.prazo >= hoje && a.prazo <= domS),
+    depois = ab.filter(a=> a.prazo && a.prazo > domS), semPrazo = ab.filter(a=> !a.prazo);
+  const feitas = CL.acoes.filter(a=> a.status === 'feita' && a.concluida_em && diaLocal(new Date(a.concluida_em)) >= segAntS);
+  const canceladas = CL.acoes.filter(a=> a.status === 'cancelada');
+  const linha = a=>{
+    const at = a.status === 'aberta' && a.prazo && a.prazo < hoje;
+    return `<tr${at ? ' style="background:rgba(198,40,40,.07)"' : ''}><td class="prod"><b>${escapeHtml(a.titulo)}</b>${a.detalhe ? '<br><small class="vazio">' + escapeHtml(a.detalhe) + '</small>' : ''}</td>
+      <td>${escapeHtml(a.area || '')}</td><td>${escapeHtml(a.responsavel || '') || '<span class="vazio">sem dono</span>'}</td><td class="n">${fmtDate(a.inicio)}</td>
+      <td class="n" ${at ? 'style="color:var(--err, #c62828);font-weight:700"' : ''}>${a.prazo ? fmtDate(a.prazo) : '<span class="vazio">sem prazo</span>'}</td>
+      <td style="white-space:nowrap">${a.status === 'aberta' ? `<button class="cm-chip" data-clf="${a.id}">✓ Feita</button> <button class="om-cancel" data-clx="${a.id}" title="Cancelar a ação">Cancelar</button>` : `<span class="rt ${a.status === 'feita' ? 'rt-A' : 'rt-C'}">${a.status === 'feita' ? 'feita' : 'cancelada'} ${fmtDate(a.concluida_em)}</span> <button class="om-cancel" data-clr="${a.id}">Reabrir</button>`}</td></tr>`; };
+  const bloco = (t, L, vazio)=> `<h3 style="margin:16px 0 6px">${t} <small class="vazio">(${L.length})</small></h3>` + (L.length ? `<div class="tb-wrap"><table class="tb-tab"><thead><tr><th class="prod">Ação</th><th>Área</th><th>Dono</th><th class="n">Início</th><th class="n">Prazo</th><th></th></tr></thead><tbody>${L.map(linha).join('')}</tbody></table></div>` : `<div class="tb-rodape">${vazio}</div>`);
+  el.innerHTML = `<div class="tb-kpis">
+      <div class="tb-kpi ${atras.length ? 'alerta' : 'rs-kpi-ok'}"><small>Atrasadas</small><b>${atras.length}</b><span>ações abertas com o prazo vencido</span></div>
+      <div class="tb-kpi"><small>Para esta semana</small><b>${semana.length}</b><span>prazo até ${fmtDate(domS).slice(0, 5)}</span></div>
+      <div class="tb-kpi rs-kpi-ok"><small>Feitas desde ${fmtDate(segAntS).slice(0, 5)}</small><b>${feitas.length}</b><span>na semana passada e nesta</span></div>
+      <div class="tb-kpi"><small>Abertas no total</small><b>${ab.length}</b><span>${semPrazo.length} sem prazo</span></div></div>
+    <div class="tb-rodape">30 minutos por semana: o que ficou da semana passada, o que entra nesta. Cada ação com dono, início e prazo. São 52 chances por ano de corrigir a rota; sem a reunião, nenhuma.</div>
+    <div class="tb-bar"><button class="cm-chip" id="cl-nova">+ Nova ação</button></div>
+    <div id="cl-form" ${CL.novo ? '' : 'hidden'} style="border:1px solid var(--line, #ddd);border-radius:8px;padding:12px;margin:8px 0;display:${CL.novo ? 'grid' : 'none'};grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <div class="field" style="grid-column:1/-1"><label for="cl-t">Ação</label><input id="cl-t" maxlength="200" placeholder="Ex.: trazer a DRE de outubro do contador"></div>
+      <div class="field" style="grid-column:1/-1"><label for="cl-det">Detalhe (opcional)</label><input id="cl-det" maxlength="300"></div>
+      <div class="field"><label for="cl-area">Área</label><select id="cl-area">${CL_AREAS.map(a=> `<option>${a}</option>`).join('')}</select></div>
+      <div class="field"><label for="cl-resp">Dono</label><input id="cl-resp" maxlength="80" placeholder="Nome de quem faz"></div>
+      <div class="field"><label for="cl-ini">Início</label><input id="cl-ini" type="date" value="${hoje}"></div>
+      <div class="field"><label for="cl-prazo">Prazo</label><input id="cl-prazo" type="date" value="${domS}"></div>
+      <div style="grid-column:1/-1;display:flex;gap:8px"><button class="cm-chip" id="cl-salva">Salvar ação</button><button class="om-cancel" id="cl-cancela">Cancelar</button><span id="cl-erro" class="vazio"></span></div></div>
+    ${bloco('Atrasadas', atras, 'Nada atrasado.')}${bloco('Para esta semana', semana, 'Nada com prazo nesta semana.')}${bloco('Próximas semanas', depois, 'Nada agendado para depois.')}${semPrazo.length ? bloco('Sem prazo', semPrazo, '') : ''}${bloco('Feitas desde a semana passada', feitas, 'Nenhuma ação concluída nas duas últimas semanas.')}${canceladas.length ? bloco('Canceladas', canceladas, '') : ''}`;
+  const recarrega = ()=> clCobranca(el);
+  const muda = async (id, campos, b)=>{ if(b){ if(b.disabled) return; b.disabled = true; } const { error } = await sb.from('crm_cl_acoes').update(campos).eq('id', id); if(error){ showToast('Não salvou: ' + errAmigavel(error)); if(b) b.disabled = false; return; } recarrega(); };
+  el.querySelector('#cl-nova').addEventListener('click', ()=>{ CL.novo = !CL.novo; recarrega(); });
+  el.querySelectorAll('[data-clf]').forEach(b=> b.addEventListener('click', ()=> muda(b.dataset.clf, { status:'feita', concluida_em:new Date().toISOString() }, b)));
+  el.querySelectorAll('[data-clx]').forEach(b=> b.addEventListener('click', ()=>{ if(confirm('Cancelar esta ação?')) muda(b.dataset.clx, { status:'cancelada', concluida_em:new Date().toISOString() }, b); }));
+  el.querySelectorAll('[data-clr]').forEach(b=> b.addEventListener('click', ()=> muda(b.dataset.clr, { status:'aberta', concluida_em:null }, b)));
+  const f = el.querySelector('#cl-form'); if(!f) return;
+  el.querySelector('#cl-cancela').addEventListener('click', ()=>{ CL.novo = false; recarrega(); });
+  const salva = el.querySelector('#cl-salva');
+  salva.addEventListener('click', async ()=>{
+    const t = el.querySelector('#cl-t').value.trim(), ini = el.querySelector('#cl-ini').value, pz = el.querySelector('#cl-prazo').value, err = el.querySelector('#cl-erro');
+    if(!t){ err.textContent = 'Escreva a ação.'; return; }
+    if(pz && ini && pz < ini){ err.textContent = 'O prazo não pode ser antes do início.'; return; }
+    salva.disabled = true;
+    const { error } = await sb.from('crm_cl_acoes').insert({ titulo:t, detalhe:el.querySelector('#cl-det').value.trim() || null, area:el.querySelector('#cl-area').value,
+      responsavel:el.querySelector('#cl-resp').value.trim() || null, inicio:ini || hoje, prazo:pz || null });
+    if(error){ salva.disabled = false; err.textContent = 'Não salvou: ' + errAmigavel(error); return; }
+    uso('gravou', 'caixa e lucro: nova ação'); CL.novo = false; showToast('Ação salva.'); recarrega();
+  });
 }
 
 // ---------- ENTREGAS (05/11/2026): o calendário das melhorias, só para o Administrador ----------
