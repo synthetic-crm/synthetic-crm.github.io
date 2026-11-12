@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261112-102550">
+<meta name="crm-versao" content="20261112-123348">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -497,6 +497,7 @@
 <div id="app">
   <header>
     <div class="brand"><span class="wm">Torre de Controle</span><span class="dot"></span><span class="wm-sub">Synthetic</span><span class="hdr-title" id="hdr-title">Hoje</span><span class="info-ico" id="hdr-info" tabindex="0" title="Cada cliente numa linha do tempo: a faixa do funil comercial (antes do 1º pedido e na reativação) e a faixa de compras do Fácil123, mês a mês. Clique na faixa do funil para marcar/desmarcar uma etapa na data; clique no nome para abrir a ficha completa.">ⓘ</span></div>
+    <form class="pq" id="pq-form" role="search" autocomplete="off" hidden><span class="pq-ico" aria-hidden="true">✨</span><input id="pq-in" type="search" maxlength="600" placeholder="Pergunte aqui: tire qualquer dúvida do sistema" aria-label="Pergunte aqui: tire qualquer dúvida do sistema"><button type="submit">Perguntar</button></form><button type="button" class="pq-mini" id="pq-mini" hidden title="Pergunte aqui: tire qualquer dúvida do sistema">✨ Pergunte aqui</button>
     <div class="who"><span id="hdr-sync" title="Os pedidos do ERP Fácil123 são sincronizados automaticamente a cada 30 minutos (somente leitura)">Fácil123 · …</span><span id="who-role" class="who-role" title="Seu perfil de acesso"></span><span id="who-email"></span><button id="btn-backup" title="Baixar uma cópia de todos os dados do CRM">⬇ Backup</button><button id="btn-logout">Sair</button></div>
   </header>
 
@@ -4082,7 +4083,7 @@ const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -12808,6 +12809,105 @@ document.addEventListener('click', e=>{ if(e.target.closest('[data-sbsug]')){ if
 
 sgInit();
 if(window._convite) conviteAbrir(); else checkSession();
+</script>
+<style>
+/* "Pergunte aqui" (12/11/2026, modelo do CRM Aliança): campo fixo no topo de todas as telas; a IA explica como usar o sistema */
+header .pq{ flex:1 1 320px; max-width:620px; margin:0 18px; display:flex; align-items:center; gap:6px; background:var(--surface-2); border:1.5px solid var(--brand); border-radius:999px; padding:4px 4px 4px 14px; min-width:0; }
+header .pq:focus-within{ box-shadow:0 0 0 3px rgba(0,80,113,.15); background:#fff; }
+header .pq[hidden], header .pq-mini[hidden]{ display:none !important; }
+header .pq .pq-ico{ font-size:15px; }
+header .pq input{ flex:1; min-width:0; border:0; background:transparent; font:500 14.5px 'Barlow',sans-serif; color:var(--ink); padding:8px 4px; outline:none; }
+header .pq button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 13.5px 'Barlow',sans-serif; padding:9px 16px; cursor:pointer; white-space:nowrap; }
+header .pq-mini{ display:none; border:1.5px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; font:600 13px 'Barlow',sans-serif; padding:7px 12px; margin:0 8px; cursor:pointer; white-space:nowrap; }
+@media (max-width:900px){ header .pq{ display:none !important; } header .pq-mini:not([hidden]){ display:inline-flex; } }
+header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:not([hidden]){ display:inline-flex; }
+#pq-painel{ position:fixed; z-index:9600; top:64px; right:16px; width:min(560px, calc(100vw - 32px)); max-height:calc(100vh - 90px); display:flex; flex-direction:column; background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:0 18px 50px rgba(17,24,39,.22); font:15px/1.5 'Barlow',sans-serif; color:var(--ink); }
+#pq-painel[hidden]{ display:none; }
+#pq-painel .pq-cab{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--border); }
+#pq-painel .pq-cab b{ flex:1; font-size:16px; }
+#pq-painel .pq-cab button{ border:0; background:none; font-size:18px; cursor:pointer; color:var(--ink-soft); }
+#pq-painel .pq-conv{ overflow-y:auto; padding:12px 14px; display:grid; gap:12px; }
+#pq-painel .pq-eu{ justify-self:end; max-width:85%; background:var(--brand-soft); border-radius:12px 12px 2px 12px; padding:8px 12px; }
+#pq-painel .pq-ia{ max-width:95%; background:var(--surface-2); border-radius:12px 12px 12px 2px; padding:10px 12px; white-space:pre-wrap; }
+#pq-painel .pq-ir{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; white-space:normal; }
+#pq-painel .pq-ir button{ border:1px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; padding:5px 12px; font:600 13.5px 'Barlow',sans-serif; cursor:pointer; }
+#pq-painel .pq-ir button.pq-sug{ border-color:var(--border); color:var(--ink-soft); }
+#pq-painel .pq-pe{ display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border); }
+#pq-painel .pq-pe input{ flex:1; min-width:0; border:1px solid var(--border); border-radius:999px; padding:9px 14px; font:inherit; }
+#pq-painel .pq-pe button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 13.5px 'Barlow',sans-serif; padding:0 16px; cursor:pointer; }
+#pq-painel .pq-nota{ font-size:12.5px; color:var(--ink-soft); padding:0 14px 10px; }
+</style>
+<script>
+// "Pergunte aqui": a pergunta vai para a função ajuda-sistema com a tela atual e as telas que a pessoa vê; a resposta traz "Ir para lá".
+// Sai para o time em 16/11 (crm_liberacoes 'ajuda'); antes, só o Administrador vê (borda roxa tracejada).
+(function(){
+  const PQ = { hist:[], ocupado:false };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function caber(){
+    const h = document.querySelector('#app header'), b = h && h.querySelector('.brand'), w = h && h.querySelector('.who'); if(!h || !b || !w) return;
+    const livre = w.getBoundingClientRect().left - b.getBoundingClientRect().right - 36;
+    h.classList.toggle('pq-compacto', livre < 340);
+  }
+  function ligar(){
+    const f = $('pq-form'), m = $('pq-mini'); if(!f || !m) return;
+    const pode = !!window._userEmail && typeof libLivre === 'function' && libLivre('ajuda');
+    f.hidden = m.hidden = !pode;
+    const soVoce = pode && LIB.pend.has('ajuda');
+    f.classList.toggle('so-voce', soVoce); m.classList.toggle('so-voce', soVoce);
+    f.title = m.title = soVoce ? 'Só você vê: sai para o time em ' + ((LIB.datas.ajuda || '2026-11-16').split('-').reverse().slice(0, 2).join('/')) : 'Pergunte aqui: tire qualquer dúvida do sistema';
+    if(pode) caber();
+  }
+  window.addEventListener('resize', caber);
+  setInterval(ligar, 4000); setTimeout(ligar, 1500);
+  function painel(){
+    let p = $('pq-painel'); if(p) return p;
+    p = document.createElement('div'); p.id = 'pq-painel'; p.setAttribute('role','dialog'); p.setAttribute('aria-label','Pergunte aqui'); p.hidden = true;
+    p.innerHTML = '<div class="pq-cab"><span aria-hidden="true">✨</span><b>Pergunte aqui</b><button type="button" id="pq-fechar" aria-label="Fechar">✕</button></div>'
+      + '<div class="pq-conv" id="pq-conv" aria-live="polite"></div>'
+      + '<form class="pq-pe" id="pq-form2" autocomplete="off"><input id="pq-in2" maxlength="600" placeholder="Escreva a sua dúvida…" aria-label="Escreva a sua dúvida"><button type="submit">Perguntar</button></form>'
+      + '<div class="pq-nota">A IA explica como usar a Torre. Não escreva nome, CNPJ ou telefone de clientes aqui.</div>';
+    document.body.appendChild(p);
+    $('pq-fechar').addEventListener('click', ()=>{ p.hidden = true; });
+    $('pq-form2').addEventListener('submit', e=>{ e.preventDefault(); const v = $('pq-in2').value.trim(); if(!v) return; if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } $('pq-in2').value = ''; perguntar(v); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !p.hidden) p.hidden = true; });
+    return p;
+  }
+  const telasVistas = ()=> [...new Set([...document.querySelectorAll('#rail .nav-btn')].filter(b=> !b.hidden).map(b=> b.dataset.view))];
+  function ir(destino){ const b = document.querySelector('#rail .nav-btn[data-view="' + destino + '"]'); if(b && !b.hidden) b.click(); else showToast('Essa tela não está no seu acesso.'); }
+  const EXEMPLOS = ['Como vejo os clientes parados do meu vendedor?', 'Como mando oferta no WhatsApp?', 'Onde vejo a tabela média por gerência?', 'Como mando uma sugestão?'];
+  function desenhar(){
+    const c = $('pq-conv'); if(!c) return;
+    if(!PQ.hist.length){ c.innerHTML = '<div class="pq-ia">Oi! Eu explico como usar a Torre de Controle: onde fica cada coisa e o passo a passo. Escreva a sua dúvida aqui embaixo ou toque num exemplo:<div class="pq-ir">'
+      + EXEMPLOS.map(x=>'<button type="button" data-pq-ex="'+esc(x)+'">'+esc(x)+'</button>').join('') + '</div></div>';
+      c.querySelectorAll('[data-pq-ex]').forEach(b=>b.addEventListener('click', ()=>perguntar(b.dataset.pqEx))); return; }
+    c.innerHTML = PQ.hist.map((h,i)=>'<div class="pq-eu">'+esc(h.p)+'</div>'
+      + (h.r==null ? '<div class="pq-ia">Pensando…</div>'
+        : '<div class="pq-ia">'+esc(h.r)+((h.ir&&h.ir.length)||h.sug ? '<div class="pq-ir">'+(h.ir||[]).map(x=>'<button type="button" data-pq-ir="'+esc(x.destino)+'">'+esc(x.rotulo)+' →</button>').join('')
+          +(h.sug?'<button type="button" class="pq-sug" data-pq-sug="'+i+'">Mandar para a equipe</button>':'')+'</div>' : '')+'</div>')).join('');
+    c.querySelectorAll('[data-pq-ir]').forEach(b=>b.addEventListener('click', ()=>{ $('pq-painel').hidden = true; uso('clique', 'pergunte aqui: ir ' + b.dataset.pqIr); ir(b.dataset.pqIr); }));
+    c.querySelectorAll('[data-pq-sug]').forEach(b=>b.addEventListener('click', ()=>{ const h = PQ.hist[+b.dataset.pqSug]; $('pq-painel').hidden = true;
+      try{ acompEscrever('botao', 'Sua dúvida: "' + h.p + '". Conte mais para a equipe responder.'); }catch(e){ const sb2 = document.querySelector('#rail .nav-btn[data-view="sugestoes"]'); if(sb2) sb2.click(); } }));
+    c.scrollTop = c.scrollHeight;
+  }
+  async function perguntar(texto){
+    if(PQ.ocupado) return; PQ.ocupado = true;
+    const p = painel(); p.hidden = false;
+    const item = { p:texto, r:null }; PQ.hist.push(item); desenhar();
+    try{
+      const v = typeof usoTelaAtual === 'function' ? usoTelaAtual() : '';
+      const tela = typeof usoNomeTela === 'function' ? usoNomeTela(v) : v;
+      const anteriores = PQ.hist.slice(0,-1).filter(h=>h.r).slice(-3).map(h=>({ p:h.p, r:h.r }));
+      uso('clique', 'pergunte aqui: perguntou');
+      const { data, error } = await sb.functions.invoke('ajuda-sistema', { body:{ pergunta:texto, rota:tela, telas:telasVistas(), historico:anteriores } });
+      if(error){ let m = 'Não consegui responder agora. Tente de novo em instantes.'; try{ const j = await error.context.json(); if(j && j.error) m = j.error; }catch(e){} item.r = m; item.sug = true; }
+      else { item.r = data.resposta || 'Não consegui responder essa agora.'; item.ir = data.ir || []; item.sug = !!data.sugerir_sugestao; }
+    }catch(e){ item.r = 'Não consegui responder agora. Confira a internet e tente de novo.'; item.sug = true; }
+    PQ.ocupado = false; desenhar(); const i2 = $('pq-in2'); if(i2) i2.focus();
+  }
+  document.addEventListener('submit', e=>{ if(e.target.id!=='pq-form') return; e.preventDefault(); const i = $('pq-in'); const v = i.value.trim(); if(!v){ const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); return; } if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } i.value = ''; perguntar(v); });
+  document.addEventListener('click', e=>{ if(e.target.closest('#pq-mini')){ const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); } });
+})();
 </script>
 </body>
 </html>
