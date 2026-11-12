@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261112-102052">
+<meta name="crm-versao" content="20261112-102550">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1914,6 +1914,7 @@ function authErro(e){
   const m = String((e && e.message) || e || '');
   if(/rate limit|too many|security purposes/i.test(m)) return 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.';
   if(/email not confirmed/i.test(m)) return 'Este e-mail ainda não foi confirmado. Use "Entrar com link no e-mail".';
+  if(/weak|easy to guess|pwned|leaked/i.test(m)) return 'Senha recusada por ser comum demais (aparece em listas de senhas vazadas). Escolha outra, menos óbvia.';
   if(/password/i.test(m)) return 'Senha recusada. Use de 10 a 72 caracteres, com letras e números.';
   if(/network|fetch/i.test(m)) return 'Sem conexão com o servidor. Confira a internet e tente de novo.';
   console.warn('auth', m);
