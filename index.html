@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261112-131206">
+<meta name="crm-versao" content="20261116-110713">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4083,7 +4083,7 @@ const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -9449,6 +9449,8 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'ciclo-2311', lib:'ciclo', dia:'2026-11-23', tela:'resumo', titulo:'Ranking do ciclo de comissão (26 a 25)', txt:'Pedido do Financeiro e do Luis na reunião: o ranking dos vendedores agora conta do dia 26 do mês anterior ao dia 25, o mesmo período que fecha a comissão. Em Vendas, escolha "Ciclo 26 a 25" ou "Mês corrido". O botão de copiar o ranking para o grupo acompanha a escolha.' },
+  { id:'pacote-2311', lib:'pacote', dia:'2026-11-23', tela:'parados', titulo:'Parados: um arquivo por vendedor', txt:'Pedido do Luis: em Clientes › Parados, o botão "Um arquivo por vendedor" baixa uma planilha para cada vendedor, só com os clientes dele parados há mais de 90 dias, para entregar direto a cada um. As planilhas não levam o endereço do cliente.' },
   { id:'rotas-mapa-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
   { id:'entregas-segunda', dia:'2026-11-09', tela:'sugestoes', titulo:'Toda segunda tem versão nova na Torre', txt:'A versão nova sai toda segunda-feira, com o que vocês sugerirem: de segunda a quarta a gente recolhe as sugestões, na reunião de quinta conversa sobre elas e na segunda seguinte entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
   { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-09', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
@@ -10463,7 +10465,7 @@ async function renderParados(){
       ${vendedores.length > 1 ? `<select id="pr-vend" aria-label="Vendedor"><option value="">Todos os vendedores</option>${vendedores.map(v=> `<option ${PDS.vend === v ? 'selected' : ''}>${escapeHtml(v)}</option>`).join('')}</select>` : ''}
       ${RT_MAPA && libLivre('nota') ? `<select id="pr-pg" aria-label="Pagamento" title="Rating de pagamento pelos boletos das empresas que faturam"><option value="">Pagamento: todos</option><option value="ok" ${PDS.pg === 'ok' ? 'selected' : ''}>Sem atraso e sem ligação a quem deve (pode vender)</option><option value="atraso" ${PDS.pg === 'atraso' ? 'selected' : ''}>Em atraso ou ligado a quem deve (${fmtNum(devendo.length)})</option></select>` : ''}
       <input id="pr-q" class="ca-inp" placeholder="Buscar cliente ou cidade" value="${escapeHtml(PDS.q)}" style="min-width:180px">
-      <span class="tb-esp"></span><button class="om-cancel" id="pr-csv" title="Baixar a lista para mandar aos vendedores">Exportar</button>
+      <span class="tb-esp"></span>${libLivre('pacote') ? `<button class="om-cancel${svC('pacote')}" id="pr-pacote"${svD('pacote')} title="Baixa uma planilha para cada vendedor, só com os clientes parados dele (sem o endereço do cliente), para entregar direto a cada um">Um arquivo por vendedor</button>` : ''}<button class="om-cancel" id="pr-csv" title="Baixar a lista para mandar aos vendedores">Exportar</button>
     </div>
     ${PDS.aba === 'vend' ? `
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Clientes parados</th><th class="n" title="Passaram dos 90 dias nos últimos 7 dias">Entraram na semana</th><th class="n">Comprados em 12 meses</th><th class="n">Compravam por mês</th></tr></thead>
@@ -10491,6 +10493,29 @@ async function renderParados(){
       .concat(L.map(r=>{ const x = rt(r); return [r.nome, r.cidade, r.uf, nomeV(r), r.telefone, fmtDate(r.ultima_compra), r.dias_sem_comprar, Number(r.fat_12m || 0).toFixed(2).replace('.', ','), r.pedidos_12m, Number(r.valor_mensal || 0).toFixed(2).replace('.', ','), nova(r) ? 'sim' : '',
         x ? (x.nota ?? 'sem histórico') : '', x ? Number(x.vencido || 0).toFixed(2).replace('.', ',') : '', x ? x.motivo : '']; })),
       'clientes-parados-' + new Date().toISOString().slice(0, 10) + '.csv');
+  });
+  // Pedido do Luis (13/11/2026): o pacote de cada vendedor vai direto para ele, sem passar pelo gerente. Uma planilha por vendedor, só com a carteira dele,
+  // sem o endereço do cliente (cidade, telefone e o que comprou bastam para ligar). Respeita a faixa e o filtro de pagamento da tela.
+  host.querySelector('#pr-pacote')?.addEventListener('click', async ev=>{
+    const b = ev.currentTarget, lista = base.filter(r=> !PDS.pg || (PDS.pg === 'atraso') === deve(r)), grupos = new Map();
+    lista.forEach(r=>{ const k = nomeV(r); if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(r); });
+    if(!grupos.size){ showToast('Nenhum cliente parado nesta seleção.'); return; }
+    if(!confirm(`Vai baixar ${grupos.size} planilhas, uma por vendedor, com ${fmtNum(lista.length)} clientes parados (${faixaNome}). As planilhas não levam o endereço do cliente. O navegador pode pedir para permitir vários downloads. Continuar?`)) return;
+    b.disabled = true;
+    try{ await docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }catch(e){ showToast('Não consegui carregar o gerador de planilhas. Tente de novo.'); b.disabled = false; return; }
+    const dia = new Date().toISOString().slice(0, 10), comNota = !!RT_MAPA && libLivre('nota'); let n = 0;
+    const slug = t=> String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'sem-vendedor';
+    for(const [v, rs] of grupos){
+      rs.sort((a, c)=> (Number(c.fat_12m) || 0) - (Number(a.fat_12m) || 0));
+      const cab = ['Cliente', 'Cidade', 'UF', 'Telefone', 'Última compra', 'Dias parado', 'Comprou em 12 meses (R$)', 'Pedidos 12m', 'Compra média por mês (R$)', 'Entrou na semana'].concat(comNota ? ['Nota de pagamento (0 a 10)', 'Antes de vender'] : []);
+      const linhas = rs.map(r=>{ const x = rt(r); return [r.nome || '', r.cidade || '', r.uf || '', r.telefone || '', fmtDate(r.ultima_compra), Number(r.dias_sem_comprar) || 0, Math.round(Number(r.fat_12m || 0) * 100) / 100, Number(r.pedidos_12m) || 0, Math.round(Number(r.valor_mensal || 0) * 100) / 100, nova(r) ? 'sim' : '']
+        .concat(comNota ? [x ? (x.nota ?? 'sem histórico') : '', deve(r) ? 'Combine com o financeiro: boleto em atraso ou ligado a quem deve' : ''] : []); });
+      const ws = XLSX.utils.aoa_to_sheet([cab].concat(linhas)); ws['!cols'] = cab.map((_, i)=> ({ wch:i === 0 ? 38 : i === 1 ? 22 : 16 }));
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Parados ' + faixaNome.slice(0, 18).replace(/[\\\/?*\[\]:]/g, ''));
+      XLSX.writeFile(wb, `parados-${slug(v)}-${dia}.xlsx`); n++;
+      await new Promise(r=> setTimeout(r, 500));
+    }
+    uso('clique', 'Parados: um arquivo por vendedor', { arquivos:n, clientes:lista.length }); showToast(`${n} planilhas baixadas, uma por vendedor.`); b.disabled = false;
   });
 }
 
@@ -12604,6 +12629,7 @@ function ctExportar(filtros){
 }
 // ---- RESUMO DA DIRETORIA (29/10/2026): as 4 prioridades do CEO e as vendas do mês num relance + o que pede atenção ----
 // Nasceu do uso real: o CEO percorreu o menu em 3 minutos sem abrir nada; aqui a resposta vem pronta e cada item leva ao detalhe.
+const RSM = { modo:'ciclo' };   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
 async function renderResumo(){
   const host = document.getElementById('rs'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Montando o resumo…</div>';
@@ -12611,7 +12637,8 @@ async function renderResumo(){
   const iniMes = d(new Date(h.getFullYear(), h.getMonth(), 1)), hoje = d(h);
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
-  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe] = await Promise.all([
+  const usaCiclo = libLivre('ciclo') && RSM.modo === 'ciclo', [cIni, cFimBruto] = cmCiclo(0), cFim = cFimBruto > hoje ? hoje : cFimBruto;
+  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe, tmC] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
     sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), Promise.resolve({ data:[] }),
     Promise.resolve({ data:[] }), sb.rpc('crm_promocoes_lista'),
@@ -12619,7 +12646,8 @@ async function renderResumo(){
     sb.rpc('crm_vendas_mensal', { p_desde:d(new Date(h.getFullYear() - 1, h.getMonth() - 11, 1)) }),
     ehGestao() ? sb.rpc('crm_financeiro_inadimplencia', { p_desde:d(new Date(h.getFullYear(), 0, 1)) }) : Promise.resolve({ data:null }),
     opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 180)).catch(()=> null),
-    ehMaster() ? sb.rpc('crm_esp_efeito') : Promise.resolve({ data:null }) ]);
+    ehMaster() ? sb.rpc('crm_esp_efeito') : Promise.resolve({ data:null }),
+    usaCiclo ? sb.rpc('crm_tabela_media', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }) ]);
   const erro = [tmA, pz].find(x=> x.error);
   if(erro){ host.innerHTML = `<div class="tb-aviso">Não consegui montar o resumo: ${escapeHtml(errAmigavel(erro.error))}</div>`; return; }
   const soma = (L, k)=> (L || []).reduce((a, r)=> a + Number(r[k] || 0), 0);
@@ -12666,9 +12694,11 @@ async function renderResumo(){
       return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg>
       <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span></div>`; })();
   // ranking dos vendedores no mês (o CEO manda no grupo)
-  const rk = A.filter(r=> Number(r.valor) > 0).slice().sort((a, b)=> b.valor - a.valor);
-  const tmProv = soma(A, 'valor_tabela_crm') / (soma(A, 'valor_com_tabela') || 1) < .95;   // tabela média provisória não vai para o grupo
-  const rkCopia = ()=> `*Ranking de vendas · ${h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}`).join('\n') + `\nTotal: ${fmtMoney(vMes)}`;
+  const RK = usaCiclo && tmC && !tmC.error && tmC.data ? tmC.data : A, noCiclo = RK !== A;
+  const rk = RK.filter(r=> Number(r.valor) > 0).slice().sort((a, b)=> b.valor - a.valor);
+  const dmCiclo = x=> new Date(x + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+  const tmProv = soma(RK, 'valor_tabela_crm') / (soma(RK, 'valor_com_tabela') || 1) < .95;   // tabela média provisória não vai para o grupo
+  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
   host.innerHTML = `
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
@@ -12678,9 +12708,9 @@ async function renderResumo(){
       ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r && r.cnF >= ES_CONCLUSIVO ? kpi('rank', 'Especialista comercial', fmtMoney(r.fechado), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.fechado > 0 ? 'rs-kpi-ok' : '') : ''; })()}
       ${F && libLivre('fin-inad') ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
-    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">Ranking dos vendedores no mês</h3><span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
-    <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">Vendido no mês</th><th class="n">Tabela média</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
-    <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td><td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || '<tr><td colspan="6" class="vazio">Nenhuma venda no mês ainda.</td></tr>'}</tbody></table></div>
+    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
+    <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
+    <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td><td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="6" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
     <h3 style="font-size:15px;margin:16px 0 4px">Vendas mês a mês</h3>
     ${graf}
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
@@ -12689,7 +12719,8 @@ async function renderResumo(){
   host.querySelectorAll('[data-ir]').forEach(b=> b.addEventListener('click', ()=> rsIr(b.dataset.ir)));
   host.querySelector('#rs-rk-copia')?.addEventListener('click', async ()=>{ const t = rkCopia(); try{ await navigator.clipboard.writeText(t); showToast('Ranking copiado: é só colar no grupo.'); }catch(_){ prompt('Copie o ranking:', t); } uso('clique', 'vendas: copiar ranking'); });
   const navRk = { ids:rk.map(r=> r.seller_id), nomes:Object.fromEntries(rk.map(r=> [r.seller_id, r.vendedor])), info:{} };
-  host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), iniMes, hoje, 'mês atual', 'tm', navRk)));
+  host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), noCiclo ? cIni : iniMes, noCiclo ? cFim : hoje, noCiclo ? 'ciclo ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : 'mês atual', 'tm', navRk)));
+  host.querySelectorAll('[data-rsm]').forEach(b=> b.addEventListener('click', ()=>{ RSM.modo = b.dataset.rsm; uso('clique', 'vendas: ranking ' + RSM.modo); renderResumo(); }));
 }
 function rsIr(alvo){
   if(alvo === 'rank'){ const r = document.getElementById('rs-rank'); if(r) r.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
