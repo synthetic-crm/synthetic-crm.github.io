@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261116-110713">
+<meta name="crm-versao" content="20261116-111437">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9450,7 +9450,7 @@ setInterval(libConfere, 10*60000);
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
   { id:'ciclo-2311', lib:'ciclo', dia:'2026-11-23', tela:'resumo', titulo:'Ranking do ciclo de comissão (26 a 25)', txt:'Pedido do Financeiro e do Luis na reunião: o ranking dos vendedores agora conta do dia 26 do mês anterior ao dia 25, o mesmo período que fecha a comissão. Em Vendas, escolha "Ciclo 26 a 25" ou "Mês corrido". O botão de copiar o ranking para o grupo acompanha a escolha.' },
-  { id:'pacote-2311', lib:'pacote', dia:'2026-11-23', tela:'parados', titulo:'Parados: um arquivo por vendedor', txt:'Pedido do Luis: em Clientes › Parados, o botão "Um arquivo por vendedor" baixa uma planilha para cada vendedor, só com os clientes dele parados há mais de 90 dias, para entregar direto a cada um. As planilhas não levam o endereço do cliente.' },
+  { id:'pacote-2311', lib:'pacote', dia:'2026-11-23', tela:'parados', titulo:'Parados: uma planilha, uma aba por vendedor', txt:'Pedido do Luis: em Clientes › Parados, o botão "Um arquivo, uma aba por vendedor" baixa uma planilha só, com uma aba para cada vendedor e os clientes dele parados há mais de 90 dias, para entregar a cada um a aba dele. A planilha não leva o endereço do cliente.' },
   { id:'rotas-mapa-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
   { id:'entregas-segunda', dia:'2026-11-09', tela:'sugestoes', titulo:'Toda segunda tem versão nova na Torre', txt:'A versão nova sai toda segunda-feira, com o que vocês sugerirem: de segunda a quarta a gente recolhe as sugestões, na reunião de quinta conversa sobre elas e na segunda seguinte entra no sistema. Viu algo que dá para melhorar, um número estranho ou uma tela que faz falta? Use o botão Sugestões ou o balão 💬 no canto da tela: toda sugestão recebe resposta. Se algo não funciona e impede o uso, marque "Urgente": resolvemos em até 48 horas.' },
   { id:'financeiro-1106', lib:'fin-inad', dia:'2026-11-09', tela:'financeiro', titulo:'Novo: Financeiro com inadimplência e baixas', txt:'Pedido do Financeiro na reunião de 05/11. Quanto os clientes devem em atraso hoje, por idade do atraso, e mês a mês quanto entrou em atraso e quanto foi baixado, com o gráfico. A lista por cliente acompanha a cobrança sem a planilha puxada do Fácil. Confira com os seus números e conte pelo botão Sugestões o que não bater.' },
@@ -10465,7 +10465,7 @@ async function renderParados(){
       ${vendedores.length > 1 ? `<select id="pr-vend" aria-label="Vendedor"><option value="">Todos os vendedores</option>${vendedores.map(v=> `<option ${PDS.vend === v ? 'selected' : ''}>${escapeHtml(v)}</option>`).join('')}</select>` : ''}
       ${RT_MAPA && libLivre('nota') ? `<select id="pr-pg" aria-label="Pagamento" title="Rating de pagamento pelos boletos das empresas que faturam"><option value="">Pagamento: todos</option><option value="ok" ${PDS.pg === 'ok' ? 'selected' : ''}>Sem atraso e sem ligação a quem deve (pode vender)</option><option value="atraso" ${PDS.pg === 'atraso' ? 'selected' : ''}>Em atraso ou ligado a quem deve (${fmtNum(devendo.length)})</option></select>` : ''}
       <input id="pr-q" class="ca-inp" placeholder="Buscar cliente ou cidade" value="${escapeHtml(PDS.q)}" style="min-width:180px">
-      <span class="tb-esp"></span>${libLivre('pacote') ? `<button class="om-cancel${svC('pacote')}" id="pr-pacote"${svD('pacote')} title="Baixa uma planilha para cada vendedor, só com os clientes parados dele (sem o endereço do cliente), para entregar direto a cada um">Um arquivo por vendedor</button>` : ''}<button class="om-cancel" id="pr-csv" title="Baixar a lista para mandar aos vendedores">Exportar</button>
+      <span class="tb-esp"></span>${libLivre('pacote') ? `<button class="om-cancel${svC('pacote')}" id="pr-pacote"${svD('pacote')} title="Baixa um arquivo só, com uma aba para cada vendedor e só os clientes parados dele (sem o endereço do cliente); a primeira aba é o resumo">Um arquivo, uma aba por vendedor</button>` : ''}<button class="om-cancel" id="pr-csv" title="Baixar a lista para mandar aos vendedores">Exportar</button>
     </div>
     ${PDS.aba === 'vend' ? `
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Vendedor</th><th class="n">Clientes parados</th><th class="n" title="Passaram dos 90 dias nos últimos 7 dias">Entraram na semana</th><th class="n">Comprados em 12 meses</th><th class="n">Compravam por mês</th></tr></thead>
@@ -10500,22 +10500,30 @@ async function renderParados(){
     const b = ev.currentTarget, lista = base.filter(r=> !PDS.pg || (PDS.pg === 'atraso') === deve(r)), grupos = new Map();
     lista.forEach(r=>{ const k = nomeV(r); if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(r); });
     if(!grupos.size){ showToast('Nenhum cliente parado nesta seleção.'); return; }
-    if(!confirm(`Vai baixar ${grupos.size} planilhas, uma por vendedor, com ${fmtNum(lista.length)} clientes parados (${faixaNome}). As planilhas não levam o endereço do cliente. O navegador pode pedir para permitir vários downloads. Continuar?`)) return;
     b.disabled = true;
     try{ await docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }catch(e){ showToast('Não consegui carregar o gerador de planilhas. Tente de novo.'); b.disabled = false; return; }
-    const dia = new Date().toISOString().slice(0, 10), comNota = !!RT_MAPA && libLivre('nota'); let n = 0;
-    const slug = t=> String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'sem-vendedor';
-    for(const [v, rs] of grupos){
-      rs.sort((a, c)=> (Number(c.fat_12m) || 0) - (Number(a.fat_12m) || 0));
-      const cab = ['Cliente', 'Cidade', 'UF', 'Telefone', 'Última compra', 'Dias parado', 'Comprou em 12 meses (R$)', 'Pedidos 12m', 'Compra média por mês (R$)', 'Entrou na semana'].concat(comNota ? ['Nota de pagamento (0 a 10)', 'Antes de vender'] : []);
-      const linhas = rs.map(r=>{ const x = rt(r); return [r.nome || '', r.cidade || '', r.uf || '', r.telefone || '', fmtDate(r.ultima_compra), Number(r.dias_sem_comprar) || 0, Math.round(Number(r.fat_12m || 0) * 100) / 100, Number(r.pedidos_12m) || 0, Math.round(Number(r.valor_mensal || 0) * 100) / 100, nova(r) ? 'sim' : '']
-        .concat(comNota ? [x ? (x.nota ?? 'sem histórico') : '', deve(r) ? 'Combine com o financeiro: boleto em atraso ou ligado a quem deve' : ''] : []); });
-      const ws = XLSX.utils.aoa_to_sheet([cab].concat(linhas)); ws['!cols'] = cab.map((_, i)=> ({ wch:i === 0 ? 38 : i === 1 ? 22 : 16 }));
-      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Parados ' + faixaNome.slice(0, 18).replace(/[\\\/?*\[\]:]/g, ''));
-      XLSX.writeFile(wb, `parados-${slug(v)}-${dia}.xlsx`); n++;
-      await new Promise(r=> setTimeout(r, 500));
-    }
-    uso('clique', 'Parados: um arquivo por vendedor', { arquivos:n, clientes:lista.length }); showToast(`${n} planilhas baixadas, uma por vendedor.`); b.disabled = false;
+    try{
+      const comNota = !!RT_MAPA && libLivre('nota'), wb = XLSX.utils.book_new(), usados = new Set();
+      const nomeAba = v=>{ let t = String(v).replace(/[\\/?*\[\]:]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 28) || 'Sem vendedor', k = t, i = 2; while(usados.has(k.toLowerCase())) k = t.slice(0, 26) + ' ' + i++; usados.add(k.toLowerCase()); return k; };
+      const ordem = [...grupos.entries()].sort((a, c)=> c[1].length - a[1].length);
+      // primeira aba: o resumo de quem tem quantos clientes parados
+      const resumo = [['Vendedor', 'Clientes parados', 'Entraram na semana', 'Comprados em 12 meses (R$)', 'Aba']].concat(ordem.map(([v, rs])=> [v, rs.length, rs.filter(nova).length, Math.round(soma(rs, 'fat_12m') * 100) / 100, '']));
+      const abas = ordem.map(([v])=> nomeAba(v));
+      resumo.forEach((l, i)=>{ if(i) l[4] = abas[i - 1]; });
+      const wsR = XLSX.utils.aoa_to_sheet(resumo); wsR['!cols'] = [{ wch:30 }, { wch:16 }, { wch:18 }, { wch:26 }, { wch:30 }]; usados.add('resumo'); XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
+      ordem.forEach(([v, rs], i)=>{
+        rs.sort((a, c)=> (Number(c.fat_12m) || 0) - (Number(a.fat_12m) || 0));
+        const cab = ['Cliente', 'Cidade', 'UF', 'Telefone', 'Última compra', 'Dias parado', 'Comprou em 12 meses (R$)', 'Pedidos 12m', 'Compra média por mês (R$)', 'Entrou na semana'].concat(comNota ? ['Nota de pagamento (0 a 10)', 'Antes de vender'] : []);
+        const linhas = rs.map(r=>{ const x = rt(r); return [r.nome || '', r.cidade || '', r.uf || '', r.telefone || '', fmtDate(r.ultima_compra), Number(r.dias_sem_comprar) || 0, Math.round(Number(r.fat_12m || 0) * 100) / 100, Number(r.pedidos_12m) || 0, Math.round(Number(r.valor_mensal || 0) * 100) / 100, nova(r) ? 'sim' : '']
+          .concat(comNota ? [x ? (x.nota ?? 'sem histórico') : '', deve(r) ? 'Combine com o financeiro: boleto em atraso ou ligado a quem deve' : ''] : []); });
+        const ws = XLSX.utils.aoa_to_sheet([cab].concat(linhas)); ws['!cols'] = cab.map((_, j)=> ({ wch:j === 0 ? 38 : j === 1 ? 22 : 16 }));
+        XLSX.utils.book_append_sheet(wb, ws, abas[i]);
+      });
+      XLSX.writeFile(wb, 'parados-por-vendedor-' + new Date().toISOString().slice(0, 10) + '.xlsx');
+      uso('clique', 'Parados: um arquivo, uma aba por vendedor', { abas:grupos.size, clientes:lista.length });
+      showToast(`Planilha baixada: ${fmtNum(lista.length)} clientes em ${grupos.size} abas, uma por vendedor (sem endereço).`);
+    }catch(e){ showToast('Não consegui montar a planilha: ' + errMsg(e)); }
+    b.disabled = false;
   });
 }
 
