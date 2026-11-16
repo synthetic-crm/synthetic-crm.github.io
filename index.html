@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261116-111437">
+<meta name="crm-versao" content="20261116-182348">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4083,7 +4083,7 @@ const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -9449,6 +9449,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'pontos-2311', lib:'pontos', dia:'2026-11-23', tela:'resumo', titulo:'Pontuação por vendedor no ranking', txt:'Pedido do Luis: a pontuação de cada vendedor é o vendido no período vezes a tabela média, dividido pelo prazo médio. Vende mais, em tabela mais alta e com prazo menor: mais pontos. Em Vendas, o ranking ganhou as colunas Prazo médio e Pontos e a opção "Por pontuação". A conta vem explicada abaixo da tabela.' },
   { id:'ciclo-2311', lib:'ciclo', dia:'2026-11-23', tela:'resumo', titulo:'Ranking do ciclo de comissão (26 a 25)', txt:'Pedido do Financeiro e do Luis na reunião: o ranking dos vendedores agora conta do dia 26 do mês anterior ao dia 25, o mesmo período que fecha a comissão. Em Vendas, escolha "Ciclo 26 a 25" ou "Mês corrido". O botão de copiar o ranking para o grupo acompanha a escolha.' },
   { id:'pacote-2311', lib:'pacote', dia:'2026-11-23', tela:'parados', titulo:'Parados: uma planilha, uma aba por vendedor', txt:'Pedido do Luis: em Clientes › Parados, o botão "Um arquivo, uma aba por vendedor" baixa uma planilha só, com uma aba para cada vendedor e os clientes dele parados há mais de 90 dias, para entregar a cada um a aba dele. A planilha não leva o endereço do cliente.' },
   { id:'rotas-mapa-lib', lib:'rota', dia:'2026-11-05', tela:'rota', titulo:'Rotas no mapa', txt:'O roteiro da semana agora aparece no mapa, com uma cor por dia e o número da visita. Dentro do dia, a ordem vai de um cliente para o mais próximo, e cada dia tem o botão para abrir o caminho no Google Maps. O ponto vem do CEP do cliente.' },
@@ -12637,7 +12638,7 @@ function ctExportar(filtros){
 }
 // ---- RESUMO DA DIRETORIA (29/10/2026): as 4 prioridades do CEO e as vendas do mês num relance + o que pede atenção ----
 // Nasceu do uso real: o CEO percorreu o menu em 3 minutos sem abrir nada; aqui a resposta vem pronta e cada item leva ao detalhe.
-const RSM = { modo:'ciclo' };   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
+const RSM = { modo:'ciclo', ord:'vendido' };   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
 async function renderResumo(){
   const host = document.getElementById('rs'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Montando o resumo…</div>';
@@ -12646,7 +12647,7 @@ async function renderResumo(){
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
   const usaCiclo = libLivre('ciclo') && RSM.modo === 'ciclo', [cIni, cFimBruto] = cmCiclo(0), cFim = cFimBruto > hoje ? hoje : cFimBruto;
-  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe, tmC] = await Promise.all([
+  const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe, tmC, pzR] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
     sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), Promise.resolve({ data:[] }),
     Promise.resolve({ data:[] }), sb.rpc('crm_promocoes_lista'),
@@ -12655,7 +12656,8 @@ async function renderResumo(){
     ehGestao() ? sb.rpc('crm_financeiro_inadimplencia', { p_desde:d(new Date(h.getFullYear(), 0, 1)) }) : Promise.resolve({ data:null }),
     opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 180)).catch(()=> null),
     ehMaster() ? sb.rpc('crm_esp_efeito') : Promise.resolve({ data:null }),
-    usaCiclo ? sb.rpc('crm_tabela_media', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }) ]);
+    usaCiclo ? sb.rpc('crm_tabela_media', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }),
+    libLivre('pontos') ? sb.rpc('crm_prazo_medio', usaCiclo ? { p_ini:cIni, p_fim:cFim } : { p_ini:iniMes, p_fim:hoje }) : Promise.resolve({ data:null }) ]);
   const erro = [tmA, pz].find(x=> x.error);
   if(erro){ host.innerHTML = `<div class="tb-aviso">Não consegui montar o resumo: ${escapeHtml(errAmigavel(erro.error))}</div>`; return; }
   const soma = (L, k)=> (L || []).reduce((a, r)=> a + Number(r[k] || 0), 0);
@@ -12706,7 +12708,14 @@ async function renderResumo(){
   const rk = RK.filter(r=> Number(r.valor) > 0).slice().sort((a, b)=> b.valor - a.valor);
   const dmCiclo = x=> new Date(x + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
   const tmProv = soma(RK, 'valor_tabela_crm') / (soma(RK, 'valor_com_tabela') || 1) < .95;   // tabela média provisória não vai para o grupo
-  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
+  // Pontuação por vendedor (pedido do Luis, 13 e 16/11/2026): vendido no período (R$ mil) × tabela média ÷ prazo médio (dias), no MESMO período do ranking.
+  // Sem tabela média ou sem prazo (nenhum pedido com boleto identificado), o vendedor fica sem pontos: não dá para dividir por nada.
+  const comPts = libLivre('pontos') && !!(pzR && !pzR.error && pzR.data);
+  const PZR = new Map(((comPts && pzR.data) || []).map(x=> [x.seller_id, Number(x.prazo_medio)]));
+  const fmtPts = v=> v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 });
+  rk.forEach(r=>{ const tm = Number(r.tabela_media), pzv = PZR.get(r.seller_id); r.prazoR = comPts && pzv > 0 ? pzv : null; r.pontos = comPts && tm > 0 && pzv > 0 ? Number(r.valor) / 1000 * tm / pzv : null; });
+  if(comPts && RSM.ord === 'pontos') rk.sort((a, b)=> (b.pontos ?? -1) - (a.pontos ?? -1));
+  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
   host.innerHTML = `
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
@@ -12716,18 +12725,19 @@ async function renderResumo(){
       ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r && r.cnF >= ES_CONCLUSIVO ? kpi('rank', 'Especialista comercial', fmtMoney(r.fechado), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.fechado > 0 ? 'rs-kpi-ok' : '') : ''; })()}
       ${F && libLivre('fin-inad') ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
-    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
-    <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
-    <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td><td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="6" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
+    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}${comPts ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.ord === 'vendido' ? 'on' : ''}" data-rso="vendido">Por vendido</button><button class="cm-chip ${RSM.ord === 'pontos' ? 'on' : ''}${svC('pontos')}" data-rso="pontos"${svD('pontos')}>Por pontuação</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
+    <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th>${comPts ? '<th class="n" title="Prazo médio dos pedidos com boleto identificado, no mesmo período">Prazo médio</th><th class="n" title="Vendido em R$ mil × tabela média ÷ prazo médio (dias)">Pontos</th>' : ''}<th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
+    <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td>${comPts ? `<td class="n">${r.prazoR ? Math.round(r.prazoR) + ' d' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td>` : ''}<td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="${comPts ? 8 : 6}" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
     <h3 style="font-size:15px;margin:16px 0 4px">Vendas mês a mês</h3>
     ${graf}
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
     <ul class="rs-lista">${att.map(([ic, t, ir])=> `<li><span class="rs-ic">${ic}</span><span class="t">${t}</span><button class="cm-chip" data-ir="${ir}">Abrir ›</button></li>`).join('') || '<li><span class="t">Nada fora do esperado hoje.</span></li>'}</ul>
-    <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.</div>`;
+    <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.${comPts ? '<details class="tb-como"><summary>ⓘ Como é a pontuação</summary><b>Pontos = vendido no período (em R$ mil) × tabela média ÷ prazo médio (em dias)</b>, no mesmo período do ranking (ciclo 26 a 25 ou mês corrido). Quem vende mais, em tabela mais alta e com prazo menor, ganha mais pontos. Sem tabela média ou sem pedido com boleto identificado (prazo), o vendedor fica sem pontos. O prazo conta só os pedidos com boleto nas empresas do grupo, como na tela Prazo médio.</details>' : ''}</div>`;
   host.querySelectorAll('[data-ir]').forEach(b=> b.addEventListener('click', ()=> rsIr(b.dataset.ir)));
   host.querySelector('#rs-rk-copia')?.addEventListener('click', async ()=>{ const t = rkCopia(); try{ await navigator.clipboard.writeText(t); showToast('Ranking copiado: é só colar no grupo.'); }catch(_){ prompt('Copie o ranking:', t); } uso('clique', 'vendas: copiar ranking'); });
   const navRk = { ids:rk.map(r=> r.seller_id), nomes:Object.fromEntries(rk.map(r=> [r.seller_id, r.vendedor])), info:{} };
   host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), noCiclo ? cIni : iniMes, noCiclo ? cFim : hoje, noCiclo ? 'ciclo ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : 'mês atual', 'tm', navRk)));
+  host.querySelectorAll('[data-rso]').forEach(b=> b.addEventListener('click', ()=>{ RSM.ord = b.dataset.rso; uso('clique', 'vendas: ranking por ' + RSM.ord); renderResumo(); }));
   host.querySelectorAll('[data-rsm]').forEach(b=> b.addEventListener('click', ()=>{ RSM.modo = b.dataset.rsm; uso('clique', 'vendas: ranking ' + RSM.modo); renderResumo(); }));
 }
 function rsIr(alvo){
