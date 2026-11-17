@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261116-183012">
+<meta name="crm-versao" content="20261117-135919">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12715,7 +12715,7 @@ async function renderResumo(){
   const fmtPts = v=> v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 });
   rk.forEach(r=>{ const tm = Number(r.tabela_media), pzv = PZR.get(r.seller_id); r.prazoR = comPts && pzv > 0 ? pzv : null; r.pontos = comPts && tm > 0 && pzv > 0 ? Number(r.valor) / 1000 * tm / pzv : null; });
   if(comPts && RSM.ord === 'pontos') rk.sort((a, b)=> (b.pontos ?? -1) - (a.pontos ?? -1));
-  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.slice(0, 15).map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
+  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
   host.innerHTML = `
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
