@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261118-094659">
+<meta name="crm-versao" content="20261118-100440">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12891,25 +12891,28 @@ header .pq:focus-within{ box-shadow:0 0 0 3px rgba(0,80,113,.15); background:#ff
 header .pq[hidden], header .pq-mini[hidden]{ display:none !important; }
 header .pq .pq-ico{ font-size:15px; }
 header .pq input{ flex:1; min-width:0; border:0; background:transparent; font:500 14.5px 'Barlow',sans-serif; color:var(--ink); padding:8px 4px; outline:none; }
-header .pq button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 13.5px 'Barlow',sans-serif; padding:9px 16px; cursor:pointer; white-space:nowrap; }
-header .pq-mini{ display:none; border:1.5px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; font:600 13px 'Barlow',sans-serif; padding:7px 12px; margin:0 8px; cursor:pointer; white-space:nowrap; }
+header .pq button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 14px 'Barlow',sans-serif; padding:11px 18px; min-height:40px; cursor:pointer; white-space:nowrap; }
+header .pq-mini{ display:none; border:1.5px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; font:600 14px 'Barlow',sans-serif; padding:10px 14px; min-height:44px; margin:0 8px; cursor:pointer; white-space:nowrap; }
 @media (max-width:900px){ header .pq{ display:none !important; } header .pq-mini:not([hidden]){ display:inline-flex; } }
 header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:not([hidden]){ display:inline-flex; }
-#pq-painel{ position:fixed; z-index:9600; top:64px; right:16px; width:min(560px, calc(100vw - 32px)); max-height:calc(100vh - 90px); display:flex; flex-direction:column; background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:0 18px 50px rgba(17,24,39,.22); font:15px/1.5 'Barlow',sans-serif; color:var(--ink); }
+#pq-painel{ position:fixed; z-index:9600; top:64px; right:16px; width:min(560px, calc(100vw - 32px)); max-height:calc(100vh - 160px); max-height:calc(100dvh - 160px); display:flex; flex-direction:column; background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:0 18px 50px rgba(17,24,39,.22); font:15px/1.5 'Barlow',sans-serif; color:var(--ink); }
 #pq-painel[hidden]{ display:none; }
+@media (max-width:600px){ #pq-painel{ left:8px; right:8px; top:56px; width:auto; } }
+#pq-painel button:focus-visible, #pq-painel input:focus-visible, header .pq-mini:focus-visible, header .pq button:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
 #pq-painel .pq-cab{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--border); }
 #pq-painel .pq-cab b{ flex:1; font-size:16px; }
-#pq-painel .pq-cab button{ border:0; background:none; font-size:18px; cursor:pointer; color:var(--ink-soft); }
+#pq-painel .pq-cab button{ border:0; background:none; font-size:18px; cursor:pointer; color:var(--ink-soft); min-width:44px; min-height:44px; }
 #pq-painel .pq-conv{ overflow-y:auto; padding:12px 14px; display:grid; gap:12px; }
 #pq-painel .pq-eu{ justify-self:end; max-width:85%; background:var(--brand-soft); border-radius:12px 12px 2px 12px; padding:8px 12px; }
 #pq-painel .pq-ia{ max-width:95%; background:var(--surface-2); border-radius:12px 12px 12px 2px; padding:10px 12px; white-space:pre-wrap; }
 #pq-painel .pq-ir{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; white-space:normal; }
-#pq-painel .pq-ir button{ border:1px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; padding:5px 12px; font:600 13.5px 'Barlow',sans-serif; cursor:pointer; }
+#pq-painel .pq-ir button{ border:1px solid var(--brand); background:#fff; color:var(--ink); border-radius:999px; padding:8px 14px; min-height:44px; font:600 15px 'Barlow',sans-serif; cursor:pointer; }
 #pq-painel .pq-ir button.pq-sug{ border-color:var(--border); color:var(--ink-soft); }
 #pq-painel .pq-pe{ display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border); }
-#pq-painel .pq-pe input{ flex:1; min-width:0; border:1px solid var(--border); border-radius:999px; padding:9px 14px; font:inherit; }
-#pq-painel .pq-pe button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 13.5px 'Barlow',sans-serif; padding:0 16px; cursor:pointer; }
-#pq-painel .pq-nota{ font-size:12.5px; color:var(--ink-soft); padding:0 14px 10px; }
+#pq-painel .pq-pe input{ flex:1; min-width:0; border:1px solid var(--border); border-radius:999px; padding:9px 14px; min-height:44px; font:inherit; }
+#pq-painel .pq-pe button{ border:0; border-radius:999px; background:var(--brand); color:#fff; font:600 15px 'Barlow',sans-serif; padding:0 18px; min-height:44px; cursor:pointer; }
+#pq-painel .pq-pe button:disabled, #pq-painel .pq-pe input:disabled{ opacity:.55; cursor:wait; }
+#pq-painel .pq-nota{ font-size:14px; color:var(--ink); padding:0 14px 12px; }
 </style>
 <script>
 // "Pergunte aqui": a pergunta vai para a função ajuda-sistema com a tela atual e as telas que a pessoa vê; a resposta traz "Ir para lá".
@@ -12936,51 +12939,56 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
   setInterval(ligar, 4000); setTimeout(ligar, 1500);
   function painel(){
     let p = $('pq-painel'); if(p) return p;
-    p = document.createElement('div'); p.id = 'pq-painel'; p.setAttribute('role','dialog'); p.setAttribute('aria-label','Pergunte aqui'); p.hidden = true;
+    p = document.createElement('div'); p.id = 'pq-painel'; p.setAttribute('role','dialog'); p.setAttribute('aria-modal','true'); p.setAttribute('aria-label','Pergunte aqui'); p.hidden = true;
     p.innerHTML = '<div class="pq-cab"><span aria-hidden="true">✨</span><b>Pergunte aqui</b><button type="button" id="pq-fechar" aria-label="Fechar">✕</button></div>'
       + '<div class="pq-conv" id="pq-conv" aria-live="polite"></div>'
       + '<form class="pq-pe" id="pq-form2" autocomplete="off"><input id="pq-in2" maxlength="600" placeholder="Escreva a sua dúvida…" aria-label="Escreva a sua dúvida"><button type="submit">Perguntar</button></form>'
-      + '<div class="pq-nota">A IA explica como usar a Torre. Não escreva nome, CNPJ ou telefone de clientes aqui.</div>';
+      + '<div class="pq-nota">A resposta vem de uma IA e pode errar. Se não funcionar, toque em “Mandar para a equipe”. Não escreva nome, CNPJ ou telefone de clientes.</div>';
     document.body.appendChild(p);
-    $('pq-fechar').addEventListener('click', ()=>{ p.hidden = true; });
+    $('pq-fechar').addEventListener('click', ()=> fechar());
     $('pq-form2').addEventListener('submit', e=>{ e.preventDefault(); const v = $('pq-in2').value.trim(); if(!v) return; if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } $('pq-in2').value = ''; perguntar(v); });
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !p.hidden) p.hidden = true; });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !p.hidden) fechar(); });
     return p;
   }
+  // devolve o foco ao botão que abriu o painel (teclado e leitor de tela)
+  function fechar(){ const p = $('pq-painel'); if(p) p.hidden = true; const o = PQ.abriuPor; PQ.abriuPor = null; if(o && document.contains(o) && !o.hidden) try{ o.focus(); }catch(e){} }
   const telasVistas = ()=> [...new Set([...document.querySelectorAll('#rail .nav-btn')].filter(b=> !b.hidden).map(b=> b.dataset.view))];
   function ir(destino){ const b = document.querySelector('#rail .nav-btn[data-view="' + destino + '"]'); if(b && !b.hidden) b.click(); else showToast('Essa tela não está no seu acesso.'); }
-  const EXEMPLOS = ['Como vejo os clientes parados do meu vendedor?', 'Como mando oferta no WhatsApp?', 'Onde vejo a tabela média por gerência?', 'Como mando uma sugestão?'];
+  const EXEMPLOS = ['Como vejo os clientes parados?', 'Como mando oferta no WhatsApp?', 'Onde vejo a tabela média por gerência?', 'Como mando uma sugestão?'];
   function desenhar(){
     const c = $('pq-conv'); if(!c) return;
     if(!PQ.hist.length){ c.innerHTML = '<div class="pq-ia">Oi! Eu explico como usar a Torre de Controle: onde fica cada coisa e o passo a passo. Escreva a sua dúvida aqui embaixo ou toque num exemplo:<div class="pq-ir">'
       + EXEMPLOS.map(x=>'<button type="button" data-pq-ex="'+esc(x)+'">'+esc(x)+'</button>').join('') + '</div></div>';
       c.querySelectorAll('[data-pq-ex]').forEach(b=>b.addEventListener('click', ()=>perguntar(b.dataset.pqEx))); return; }
     c.innerHTML = PQ.hist.map((h,i)=>'<div class="pq-eu">'+esc(h.p)+'</div>'
-      + (h.r==null ? '<div class="pq-ia">Pensando…</div>'
-        : '<div class="pq-ia">'+esc(h.r)+((h.ir&&h.ir.length)||h.sug ? '<div class="pq-ir">'+(h.ir||[]).map(x=>'<button type="button" data-pq-ir="'+esc(x.destino)+'">'+esc(x.rotulo)+' →</button>').join('')
-          +(h.sug?'<button type="button" class="pq-sug" data-pq-sug="'+i+'">Mandar para a equipe</button>':'')+'</div>' : '')+'</div>')).join('');
-    c.querySelectorAll('[data-pq-ir]').forEach(b=>b.addEventListener('click', ()=>{ $('pq-painel').hidden = true; uso('clique', 'pergunte aqui: ir ' + b.dataset.pqIr); ir(b.dataset.pqIr); }));
+      + (h.r==null ? '<div class="pq-ia">Pensando… (até 30 segundos)</div>'
+        : '<div class="pq-ia">'+esc(h.r)+((h.ir&&h.ir.length)||true ? '<div class="pq-ir">'+(h.ir||[]).map(x=>'<button type="button" data-pq-ir="'+esc(x.destino)+'">'+esc(x.rotulo)+' →</button>').join('')
+          +'<button type="button" class="pq-sug" data-pq-sug="'+i+'">Mandar para a equipe</button></div>' : '')+'</div>')).join('');
+    c.querySelectorAll('[data-pq-ir]').forEach(b=>b.addEventListener('click', ()=>{ PQ.abriuPor = null; $('pq-painel').hidden = true; uso('clique', 'pergunte aqui: ir ' + b.dataset.pqIr); ir(b.dataset.pqIr); }));
     c.querySelectorAll('[data-pq-sug]').forEach(b=>b.addEventListener('click', ()=>{ const h = PQ.hist[+b.dataset.pqSug]; $('pq-painel').hidden = true;
       try{ acompEscrever('botao', 'Sua dúvida: "' + h.p + '". Conte mais para a equipe responder.'); }catch(e){ const sb2 = document.querySelector('#rail .nav-btn[data-view="sugestoes"]'); if(sb2) sb2.click(); } }));
     c.scrollTop = c.scrollHeight;
   }
+  function trava(on){ ['pq-in2', 'pq-in'].forEach(id=>{ const i = $(id); if(i) i.disabled = on; }); document.querySelectorAll('#pq-form2 button, #pq-form button').forEach(b=> b.disabled = on); }
   async function perguntar(texto){
     if(PQ.ocupado) return; PQ.ocupado = true;
     const p = painel(); p.hidden = false;
     const item = { p:texto, r:null }; PQ.hist.push(item); desenhar();
+    trava(true);
     try{
       const v = typeof usoTelaAtual === 'function' ? usoTelaAtual() : '';
       const tela = typeof usoNomeTela === 'function' ? usoNomeTela(v) : v;
       const anteriores = PQ.hist.slice(0,-1).filter(h=>h.r).slice(-3).map(h=>({ p:h.p, r:h.r }));
       uso('clique', 'pergunte aqui: perguntou');
-      const { data, error } = await sb.functions.invoke('ajuda-sistema', { body:{ pergunta:texto, rota:tela, telas:telasVistas(), recursos:LIB_CHAVES.filter(libLivre), historico:anteriores } });
+      const lento = new Promise((_, no)=> setTimeout(()=> no(new Error('lento')), 30000));
+      const { data, error } = await Promise.race([sb.functions.invoke('ajuda-sistema', { body:{ pergunta:texto, rota:tela, telas:telasVistas(), recursos:LIB_CHAVES.filter(libLivre), historico:anteriores } }), lento]);
       if(error){ let m = 'Não consegui responder agora. Tente de novo em instantes.'; try{ const j = await error.context.json(); if(j && j.error) m = j.error; }catch(e){} item.r = m; item.sug = true; }
       else { item.r = data.resposta || 'Não consegui responder essa agora.'; item.ir = data.ir || []; item.sug = !!data.sugerir_sugestao; }
-    }catch(e){ item.r = 'Não consegui responder agora. Confira a internet e tente de novo.'; item.sug = true; }
-    PQ.ocupado = false; desenhar(); const i2 = $('pq-in2'); if(i2) i2.focus();
+    }catch(e){ item.r = e && e.message === 'lento' ? 'A IA demorou demais. Tente de novo ou mande para a equipe.' : 'Não consegui responder agora. Confira a internet e tente de novo.'; item.sug = true; }
+    PQ.ocupado = false; trava(false); desenhar(); const i2 = $('pq-in2'); if(i2) i2.focus();
   }
-  document.addEventListener('submit', e=>{ if(e.target.id!=='pq-form') return; e.preventDefault(); const i = $('pq-in'); const v = i.value.trim(); if(!v){ const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); return; } if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } i.value = ''; perguntar(v); });
-  document.addEventListener('click', e=>{ if(e.target.closest('#pq-mini')){ const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); } });
+  document.addEventListener('submit', e=>{ if(e.target.id!=='pq-form') return; e.preventDefault(); const i = $('pq-in'); const v = i.value.trim(); if(!v){ PQ.abriuPor = $('pq-in'); const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); return; } if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } i.value = ''; perguntar(v); });
+  document.addEventListener('click', e=>{ if(e.target.closest('#pq-mini')){ PQ.abriuPor = $('pq-mini'); const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); } });
 })();
 </script>
 </body>
