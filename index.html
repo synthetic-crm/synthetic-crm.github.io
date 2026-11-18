@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261118-100440">
+<meta name="crm-versao" content="20261118-101924">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9466,7 +9466,7 @@ const NOVIDADES = [
   { id:'whatsapp', dia:'2026-11-05', tela:'parados', titulo:'Mensagem pronta no WhatsApp: oferta e cobrança', txt:'No detalhe do cliente, "Mandar oferta" monta a mensagem com o que ele comprava e a promoção ativa; o financeiro tem "Cobrar" com os boletos em atraso. Você revisa e manda pelo seu WhatsApp.' },
   { id:'rede', dia:'2026-11-05', tela:'parados', titulo:'Parados: "rede compra"', txt:'Marca o cliente que parou nesta loja, mas outra loja da mesma rede (mesma raiz de CNPJ) comprou nos últimos 90 dias.' },
   { id:'devedor-cnpj-lib', lib:'nota', dia:'2026-11-05', tela:'financeiro', titulo:'Aviso de cliente que pode ser do mesmo dono de quem deve', txt:'Quando um cliente tem a mesma raiz de CNPJ, o mesmo telefone, e-mail ou endereço de alguém com boleto em atraso, aparece ⚠ ao lado da nota, com quem ele está ligado. Também em Parados.' },
-  { id:'relatorios-lib', lib:'fin-rel', dia:'2026-11-05', tela:'financeiro', titulo:'Relatórios: clientes com endereço e clientes novos por vendedor', txt:'No Financeiro › Relatórios: a lista de clientes com endereço completo, por cidade e bairro, para montar a rota; e os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda.' },
+  { id:'relatorios-lib', lib:'fin-rel', dia:'2026-11-18', tela:'financeiro', titulo:'Relatórios: clientes novos por vendedor e vendas das promoções', txt:'No Financeiro › Relatórios: os clientes novos de cada vendedor, sem contar transferência nem cadastro sem venda, e quem vendeu cada promoção, cada um com Exportar. A lista com endereço do cliente fica só com o Administrador e o CEO.' },
   { id:'rating-lib', lib:'nota', dia:'2026-11-05', tela:'parados', titulo:'Nota de pagamento de cada cliente, de 0 a 10', txt:'Pelo histórico de boletos, com o porquê da nota: quem paga em dia, quem atrasa e quem está devendo. Aparece em Parados (com filtro para tirar da lista quem está em atraso) e no detalhe do cliente, que ganhou a aba Boletos.' },
   { id:'carteira-lib', lib:'carteira', dia:'2026-11-05', tela:'operacao', titulo:'Carteira de clientes de volta ao menu', txt:'O funil e as compras de cada cliente na linha do tempo voltaram para todos.' },
   { id:'parados-faixas', dia:'2026-11-04', tela:'parados', titulo:'Parados: os mais fáceis de recuperar em destaque', txt:'O quadro principal separa quem parou há 91 a 180 dias (mais fácil de trazer de volta) de quem parou há mais tempo.' },
@@ -10961,7 +10961,10 @@ async function frPromo(host, chips, liga, nomeV){
 }
 const FR_SIT = { '':'Todas as situações', ativo:'Ativos', novo:'Novos', em_risco:'Em risco', parado:'Parados' };
 async function fiRelatorios(host){
-  const chips = `<div class="cm-chips" style="margin:0 0 10px"><button class="cm-chip ${FR.rel === 'ender' ? 'on' : ''}" data-frrel="ender">Clientes com endereço (para a rota)</button><button class="cm-chip ${FR.rel === 'novos' ? 'on' : ''}" data-frrel="novos">Clientes novos por vendedor</button><button class="cm-chip ${FR.rel === 'promo' ? 'on' : ''}" data-frrel="promo">Vendas das promoções</button></div>`;
+  // endereço de cliente: só Administrador e CEO (pedido do Luis, 18/11/2026); a regra também está no banco (crm_relatorio_enderecos)
+  const vEnder = !!(window._perfil && ['admin', 'master'].includes(window._perfil.role));
+  if(!vEnder && FR.rel === 'ender') FR.rel = 'novos';
+  const chips = `<div class="cm-chips" style="margin:0 0 10px">${vEnder ? `<button class="cm-chip ${FR.rel === 'ender' ? 'on' : ''}" data-frrel="ender">Clientes com endereço (para a rota)</button>` : ''}<button class="cm-chip ${FR.rel === 'novos' ? 'on' : ''}" data-frrel="novos">Clientes novos por vendedor</button><button class="cm-chip ${FR.rel === 'promo' ? 'on' : ''}" data-frrel="promo">Vendas das promoções</button></div>`;
   const liga = ()=> host.querySelectorAll('[data-frrel]').forEach(b=> b.addEventListener('click', ()=>{ FR.rel = b.dataset.frrel; uso('clique', 'relatório: ' + FR.rel); fiRelatorios(host); }));
   const nomeV = v=> nomeBonito(v || '') || 'Sem vendedor';
   if(FR.rel === 'promo') return frPromo(host, chips, liga, nomeV);
