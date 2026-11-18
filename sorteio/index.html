@@ -112,7 +112,7 @@
         <select id="ramo"><option value="">Selecione…</option></select><div class="err"></div></div>
       <div class="f full hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="f full" data-c="consentimento">
-        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a guardar meus dados (nome, empresa, cidade, UF, WhatsApp, e-mail e ramo) por até 12 meses, para um consultor falar comigo pelo <b>WhatsApp ou e-mail</b> sobre lubrificantes para minha empresa e para a entrega do meu kit. Não repassam meus dados a terceiros. Posso pedir a exclusão a qualquer momento <span id="lgpd-contato">com a equipe no estande</span>. <a href="privacidade.html">Ler a política de privacidade</a>.</label></div>
+        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a guardar meus dados (nome, empresa, cidade, UF, WhatsApp, e-mail e ramo) por até 12 meses, para a equipe da Synthetic falar comigo pelo <b>WhatsApp ou e-mail</b> sobre lubrificantes para minha empresa e para a entrega do meu kit. Não repassam meus dados a terceiros. Posso pedir a exclusão a qualquer momento <span id="lgpd-contato">com a equipe no estande</span>. <a href="privacidade.html">Ler a política de privacidade</a>.</label></div>
         <div class="err"></div></div>
       <div class="f full"><button class="btn" id="girar" type="submit"><span id="btn-txt">QUERO MEU KIT</span></button>
         <div class="aviso" id="aviso" role="alert"></div>
@@ -133,13 +133,13 @@
     <h2 id="res-t"></h2>
     <div class="brinde" id="res-b"></div>
     <p id="res-p"></p>
-    <div id="res-cod-box"><p>Seu código de retirada</p><div class="cod" id="res-cod"></div></div>
+    <div id="res-cod-box" class="oculto"><div class="cod" id="res-cod"></div></div>
     <div class="barra"><i id="barra"></i></div>
     <div class="espera" id="espera"></div>
     <button class="btn sec" id="proximo" type="button">Próximo participante</button>
   </section>
 </main>
-<a id="gestao" href="balcao.html" title="Balcão da equipe Synthetic" aria-label="Balcão da equipe">⚙ Equipe</a>
+<a id="gestao" href="admin.html" title="Gestão da equipe Synthetic" aria-label="Gestão da equipe">⚙ Equipe</a>
 
 <script>
 "use strict";
@@ -303,7 +303,7 @@ function mostrarResultado(r){
   if (r.status === "premio"){
     if (modoKit()){ $("res-t").textContent = "Parabéns! Você ganhou o kit Synthetic:"; $("res-b").textContent = "Boné + Caderneta + Caneta"; }
     else { $("res-t").textContent = "Parabéns! Você ganhou:"; $("res-b").textContent = r.premio.nome; }
-    $("res-p").textContent = (vitrine && vitrine.mensagem_retirada) || "Retire seu brinde no estande."; $("res-cod").textContent = r.codigo_retirada; cod.classList.remove("oculto");
+    $("res-p").textContent = (vitrine && vitrine.mensagem_retirada) || "Retire seu brinde no estande."; 
   } else if (r.status === "nada"){
     $("res-t").textContent = "Não foi dessa vez!"; $("res-b").textContent = r.premio ? r.premio.nome : ""; $("res-p").textContent = "Obrigado por participar. Converse com nosso time no estande!";
   } else {
@@ -314,7 +314,7 @@ function mostrarResultado(r){
 function iniciarVolta(){
   const s = (vitrine && vitrine.segundos_retorno) || 20, b = $("barra");
   b.style.transition = "none"; b.style.transform = "scaleX(1)"; void b.offsetWidth; b.style.transition = "transform " + s + "s linear"; b.style.transform = "scaleX(0)";
-  $("espera").textContent = "Esta tela volta ao início em " + s + " segundos. Anote ou tire uma foto do código. Toque na tela para ganhar mais tempo.";
+  $("espera").textContent = "Esta tela volta ao início em " + s + " segundos.";
   clearTimeout(volta); volta = setTimeout(reiniciar, s*1000);
 }
 let prorroga = 0;

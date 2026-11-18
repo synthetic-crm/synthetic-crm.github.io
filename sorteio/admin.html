@@ -34,7 +34,7 @@
 </style>
 </head>
 <body>
-<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Kit de brindes · Gestão</h1><span id="quem"></span><a class="btn" href="balcao.html" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">Balcão de entrega</a><a class="btn" href="./" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">← Cadastro</a><button id="sair" class="oculto" type="button">Sair</button></header>
+<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Kit de brindes · Gestão</h1><span id="quem"></span><a class="btn" href="./" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">← Cadastro</a><button id="sair" class="oculto" type="button">Sair</button></header>
 
 <div id="login" class="card">
   <h2>Entrar</h2>
@@ -47,23 +47,22 @@
   <section class="card"><h2>Resumo</h2><div class="kpis" id="kpis"></div></section>
   <section class="card"><h2>Estoque de brindes</h2>
     <div class="scroll"><table><thead><tr><th>Brinde</th><th>Estoque físico restante</th><th>Ativo</th><th></th></tr></thead><tbody id="tb-premios"></tbody></table></div>
-    <p style="color:var(--muted);font-size:.95rem;margin-bottom:0">Cada kit leva 1 de cada brinde ativo. O cadastro só <b>reserva</b> o kit (por algumas horas); o estoque físico baixa quando o atendente confirma a <b>entrega no balcão</b>. Assim cadastro falso não esgota o estoque. O kit acaba quando o brinde mais escasso, já descontadas as reservas, zera.</p>
+    <p style="color:var(--muted);font-size:.95rem;margin-bottom:0">Cada cadastro leva 1 de cada brinde ativo e baixa o estoque na hora. Quando o brinde mais escasso zera, o cadastro continua, mas sem kit (a pessoa fica na lista). Ajuste os números aqui quando quiser.</p>
   </section>
   <section class="card"><h2>Configuração</h2>
     <div class="barra"><label>Evento <input id="c-evento" type="text" maxlength="60"></label>
       <label>Volta ao início (s) <input id="c-seg" type="number" min="5" max="120" style="width:90px"></label>
-      <label>Reserva vale (horas) <input id="c-res" type="number" min="1" max="72" style="width:90px"></label>
-      <label><input id="c-ativo" type="checkbox" style="min-height:0;width:22px;height:22px"> Cadastro aberto</label></div>
+            <label><input id="c-ativo" type="checkbox" style="min-height:0;width:22px;height:22px"> Cadastro aberto</label></div>
     <div class="barra"><label style="flex:1">Mensagem de retirada <input id="c-msg" type="text" maxlength="200" style="width:100%"></label>
       </div>
     <div class="barra"><label style="flex:1">Contato para pedido de exclusão (e-mail ou WhatsApp da Synthetic, aparece no texto de privacidade) <input id="c-contato" type="text" maxlength="120" style="width:100%"></label>
       <button id="c-salvar" class="p" type="button">Salvar</button><span id="c-st"></span></div>
   </section>
   <section class="card"><h2>Cadastros</h2>
-    <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade, código…"><select id="filtro"><option value="">Todos</option><option value="pend">Kit a entregar</option><option value="ent">Entregues</option></select>
-      <button id="csv-tudo" class="p" type="button">Exportar CSV completo</button><button id="csv-contatos" type="button">Baixar lista de contatos</button></div>
+    <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade…">
+      <button id="csv-tudo" class="p" type="button">Exportar CSV completo</button></div>
     <div class="barra"><label>Apagar cadastros anteriores a <input id="ap-data" type="date"></label><button id="ap-btn" type="button">Apagar em lote</button><span id="ap-st"></span><span style="color:var(--muted);font-size:.95rem">Prazo de guarda prometido: 12 meses (feira + 12 meses = 18/11/2027).</span></div>
-    <div class="scroll"><table><thead><tr><th>Entregue</th><th>Código</th><th>Quando</th><th>Nome</th><th>Empresa</th><th>Cidade/UF</th><th>WhatsApp</th><th>E-mail</th><th>Ramo</th><th>Kit</th><th></th></tr></thead><tbody id="tb-part"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th>Quando</th><th>Nome</th><th>Empresa</th><th>Cidade/UF</th><th>WhatsApp</th><th>E-mail</th><th>Ramo</th><th>Kit</th><th></th></tr></thead><tbody id="tb-part"></tbody></table></div>
   </section>
 </main>
 
@@ -94,10 +93,8 @@ function render(){
   const P = D.participantes, premios = D.premios, ent = D.entregues;
   const k = $("kpis"); k.textContent = "";
   const kp = (n, l) => { const d = el("div", null, "kpi"); d.appendChild(el("b", n)); d.appendChild(el("small", l)); k.appendChild(d); };
-  const kit = P.filter(p => p.resultado === "premio"), at = premios.filter(p => p.tipo === "brinde" && p.ativo);
-  const fis = at.length ? Math.min(...at.map(p => p.estoque)) : 0, res = D.reservados || 0;
-  kp(P.length, "cadastros"); kp(kit.filter(p => p.entregue).length, "kits entregues"); kp(res, "kits reservados (aguardando retirada)");
-  kp(Math.max(fis - res, 0), "kits ainda disponíveis"); kp(fis, "kits no estoque físico");
+  const at = premios.filter(p => p.tipo === "brinde" && p.ativo), fis = at.length ? Math.min(...at.map(p => p.estoque)) : 0;
+  kp(P.length, "cadastros"); kp(fis, "kits ainda no estoque");
   const ult = P[0]; kp(ult ? new Date(ult.criado_em).toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" }) : "—", "último cadastro");
   const tb = $("tb-premios"); tb.textContent = "";
   premios.filter(p => p.tipo === "brinde").forEach(p => {
@@ -110,23 +107,17 @@ function render(){
     [nome, est, at].forEach(x => { const td = el("td"); td.appendChild(x); tr.appendChild(td); });
     const tdb = el("td"); tdb.appendChild(b); tr.appendChild(tdb); tb.appendChild(tr);
   });
-  const c = D.config; $("c-evento").value = c.evento; $("c-seg").value = c.segundos_retorno; $("c-ativo").checked = c.ativo; $("c-msg").value = c.mensagem_retirada; $("c-res").value = c.reserva_horas; $("c-contato").value = c.contato_privacidade || "";
+  const c = D.config; $("c-evento").value = c.evento; $("c-seg").value = c.segundos_retorno; $("c-ativo").checked = c.ativo; $("c-msg").value = c.mensagem_retirada; $("c-contato").value = c.contato_privacidade || "";
   lista();
 }
 function lista(){
-  const q = $("busca").value.trim().toLowerCase(), f = $("filtro").value, tb = $("tb-part"); tb.textContent = "";
+  const q = $("busca").value.trim().toLowerCase(), tb = $("tb-part"); tb.textContent = "";
   D.participantes.filter(p => {
-    if (f === "pend" && !(p.resultado === "premio" && !p.entregue)) return false;
-    if (f === "ent" && !p.entregue) return false;
-    return !q || [p.nome, p.empresa, p.cidade, p.codigo_retirada, p.email, p.whatsapp].join(" ").toLowerCase().includes(q);
+    return !q || [p.nome, p.empresa, p.cidade, p.email, p.whatsapp].join(" ").toLowerCase().includes(q);
   }).forEach(p => {
-    const tr = el("tr"), td0 = el("td", null, "chk");
-    if (p.resultado === "premio"){ const c = el("input"); c.type = "checkbox"; c.checked = p.entregue; c.title = "Marcar como entregue";
-      c.onchange = async () => { c.disabled = true; const { error } = await sb.rpc("sorteio_admin_entregar", { p_id:p.id, p_entregue:c.checked }); if (error){ alert("Erro: " + error.message); c.checked = !c.checked; } c.disabled = false; p.entregue = c.checked; carregar(); };
-      td0.appendChild(c); } else td0.textContent = "—";
-    tr.appendChild(td0);
-    [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa || "", [p.cidade, p.uf].filter(Boolean).join("/"), p.whatsapp, p.email, p.ramo || ""].forEach(v => tr.appendChild(el("td", v)));
-    const tdp = el("td"); tdp.appendChild(p.resultado === "premio" ? el("span", p.entregue ? "kit entregue" : "kit reservado", "tag") : el("span", p.resultado === "esgotado" ? "sem kit (esgotado)" : "—", "tag x")); tr.appendChild(tdp);
+    const tr = el("tr");
+    [fmt(p.criado_em), p.nome, p.empresa || "", [p.cidade, p.uf].filter(Boolean).join("/"), p.whatsapp, p.email, p.ramo || ""].forEach(v => tr.appendChild(el("td", v)));
+    const tdp = el("td"); tdp.appendChild(p.resultado === "premio" ? el("span", "ganhou o kit", "tag") : el("span", p.resultado === "esgotado" ? "sem kit (esgotado)" : "—", "tag x")); tr.appendChild(tdp);
     const tdx = el("td"), bx = el("button", "Excluir"); bx.title = "Excluir este cadastro (pedido do titular)"; bx.style.cssText = "min-height:44px;padding:4px 12px;font-size:1rem";
     bx.onclick = async () => { if (!confirm("Excluir definitivamente o cadastro de " + p.nome + "? Não dá para desfazer.")) return; const { error } = await sb.rpc("sorteio_admin_excluir", { p_id:p.id }); if (error) alert("Erro: " + error.message); else carregar(); };
     tdx.appendChild(bx); tr.appendChild(tdx);
@@ -141,16 +132,14 @@ function baixar(nome, cab, linhas){
 }
 const hoje = () => new Date().toISOString().slice(0, 10);
 $("csv-tudo").onclick = () => baixar("cadastros-kit-" + hoje() + ".csv",
-  ["Codigo","Data/hora","Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo","Resultado","Brinde","Entregue","Entregue em","Entregue por"],
-  D.participantes.map(p => [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado, p.resultado === "premio" ? "Kit" : "", p.entregue ? "Sim" : "Nao", fmt(p.entregue_em), p.entregue_por]));
-$("csv-contatos").onclick = () => baixar("contatos-kit-" + hoje() + ".csv",
-  ["Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo"], D.participantes.map(p => [p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo]));
-$("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_contato:$("c-contato").value, p_reserva:parseInt($("c-res").value, 10) || null });
+  ["Data/hora","Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo","Kit"],
+  D.participantes.map(p => [fmt(p.criado_em), p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado === "premio" ? "Ganhou" : "Sem kit (esgotado)"]));
+$("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_contato:$("c-contato").value });
   $("c-salvar").disabled = false; $("c-st").textContent = error ? "Erro: " + error.message : "Salvo."; $("c-st").className = error ? "msg" : "ok"; };
 $("ap-btn").onclick = async () => { const d = $("ap-data").value; if (!d){ $("ap-st").textContent = "Escolha a data."; return; }
   if (!confirm("Apagar DEFINITIVAMENTE todos os cadastros anteriores a " + d.split("-").reverse().join("/") + "? Baixe o CSV antes. Não dá para desfazer.")) return;
   const { data, error } = await sb.rpc("sorteio_admin_apagar_ate", { p_data:d }); $("ap-st").textContent = error ? "Erro: " + error.message : data + " cadastro(s) apagado(s)."; if (!error) carregar(); };
-$("busca").oninput = lista; $("filtro").onchange = lista;
+$("busca").oninput = lista; 
 $("fl").onsubmit = async e => { e.preventDefault(); $("lmsg").textContent = "";
   const { error } = await sb.auth.signInWithPassword({ email:$("em").value.trim(), password:$("pw").value }); $("pw").value = "";
   if (error) $("lmsg").textContent = "E-mail ou senha incorretos."; else entrar(); };
