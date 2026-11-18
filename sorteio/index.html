@@ -83,6 +83,9 @@
   body[data-tela=resultado] #roda-col{ display:none; }
   .oculto{ display:none!important; }
   @media (prefers-reduced-motion:reduce){ #roda{ transition-duration:1.2s; } }
+  body[data-modo=kit] #roda-col{ display:none!important; }
+  body[data-modo=kit] main{ grid-template-columns:1fr!important; justify-items:center; }
+  body[data-modo=kit] #cartao-form, body[data-modo=kit] #res{ width:min(100%, max(640px, 56vw)); }
 </style>
 </head>
 <body data-tela="form">
@@ -90,8 +93,8 @@
 <main>
   <section id="cartao-form" class="card intro" aria-label="Cadastro para a roleta">
     <span class="ev" id="ev">Roleta de brindes</span>
-    <h1>Gire a roleta e ganhe um brinde!</h1>
-    <p>Preencha seus dados, toque em <b>Girar</b> e leve para casa um brinde da Synthetic.</p>
+    <h1 id="h1">Cadastre-se e ganhe um brinde!</h1>
+    <p id="intro-p">Preencha seus dados e leve para casa um brinde da Synthetic.</p>
     <div class="chips" id="chips" aria-label="Brindes"></div>
     <form id="f" novalidate autocomplete="off">
       <div class="f full" data-c="nome"><label for="nome">Nome</label><input id="nome" type="text" autocomplete="name" maxlength="80" required><div class="err"></div></div>
@@ -107,7 +110,7 @@
       <div class="f full" data-c="consentimento">
         <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a usar meus dados (nome, empresa, WhatsApp e e-mail) para <b>contato comercial</b> e para a entrega do brinde, conforme a LGPD. Posso pedir a exclusão a qualquer momento.</label></div>
         <div class="err"></div></div>
-      <div class="f full"><button class="btn" id="girar" type="submit">GIRAR A ROLETA</button>
+      <div class="f full"><button class="btn" id="girar" type="submit"><span id="btn-txt">QUERO MEU BRINDE</span></button>
         <div class="aviso" id="aviso" role="alert"></div>
         <div class="nota">Uma participação por pessoa. Não pedimos CPF.</div></div>
     </form>
@@ -178,7 +181,15 @@ function desenhar(){
   });
   g.restore();
 }
-function chips(){ const c = $("chips"); c.textContent = ""; segs.filter(s => s.tipo === "brinde").forEach(s => { const e = document.createElement("span"); e.textContent = s.nome; c.appendChild(e); });
+const modoKit = () => vitrine && vitrine.modo === "kit";
+function textoBotao(){ return modoKit() ? "QUERO MEU KIT" : "GIRAR A ROLETA"; }
+function aplicaModo(){
+  document.body.dataset.modo = (vitrine && vitrine.modo) || "roleta";
+  if (modoKit()){ $("h1").textContent = "Cadastre-se e ganhe seu kit Synthetic!"; $("intro-p").innerHTML = ""; $("intro-p").appendChild(document.createTextNode("Preencha seus dados e leve para casa o kit com tudo dentro do saquinho: ")); const b = document.createElement("b"); b.textContent = "boné, caderneta e caneta."; $("intro-p").appendChild(b); }
+  else { $("h1").textContent = "Gire a roleta e ganhe um brinde!"; $("intro-p").textContent = "Preencha seus dados, toque em Girar e leve para casa um brinde da Synthetic."; }
+  $("girar").textContent = textoBotao();
+}
+function chips(){ aplicaModo(); const c = $("chips"); c.textContent = ""; segs.filter(s => s.tipo === "brinde").forEach(s => { const e = document.createElement("span"); e.textContent = s.nome; c.appendChild(e); });
   $("roda").setAttribute("aria-label", "Roleta com: " + segs.map(s => s.nome).join(", ")); }
 function carregarFonteEDesenhar(){ chips(); (document.fonts && document.fonts.load ? document.fonts.load("800 60px 'Roboto Condensed'") : Promise.resolve()).then(desenhar, desenhar); }
 
@@ -250,14 +261,14 @@ $("f").addEventListener("submit", async ev => {
     token = null; limparRascunho();
     await girarPara(r);
   } catch(e){
-    aviso("Sem internet ou conexão fraca. Seus dados estão guardados: toque em GIRAR A ROLETA para tentar de novo.");
-  } finally { enviando = false; $("girar").disabled = false; $("girar").textContent = "GIRAR A ROLETA"; }
+    aviso("Sem internet ou conexão fraca. Seus dados estão guardados: toque no botão verde para tentar de novo.");
+  } finally { enviando = false; $("girar").disabled = false; $("girar").textContent = textoBotao(); }
 });
 
 /* ---------- animação (só mostra o resultado que veio do servidor) ---------- */
 function girarPara(r){
   return new Promise(res => {
-    if (r.status === "esgotado" || !segs.length){ mostrarResultado(r); return res(); }
+    if (modoKit() || r.status === "esgotado" || !segs.length){ mostrarResultado(r); return res(); }
     let i = segs.findIndex(s => s.codigo === (r.premio && r.premio.codigo));
     if (i < 0){ // brinde acabou da vitrine depois de carregada: mostra o resultado direto
       mostrarResultado(r); return res(); }
@@ -280,7 +291,8 @@ function mostrarResultado(r){
   document.body.dataset.tela = "resultado"; window.scrollTo({ top:0 });
   const cod = $("res-cod-box"); cod.classList.add("oculto");
   if (r.status === "premio"){
-    $("res-t").textContent = "Parabéns! Você ganhou:"; $("res-b").textContent = r.premio.nome;
+    if (modoKit()){ $("res-t").textContent = "Parabéns! Você ganhou o kit Synthetic:"; $("res-b").textContent = "Boné + Caderneta + Caneta"; }
+    else { $("res-t").textContent = "Parabéns! Você ganhou:"; $("res-b").textContent = r.premio.nome; }
     $("res-p").textContent = (vitrine && vitrine.mensagem_retirada) || "Retire seu brinde no estande."; $("res-cod").textContent = r.codigo_retirada; cod.classList.remove("oculto");
   } else if (r.status === "nada"){
     $("res-t").textContent = "Não foi dessa vez!"; $("res-b").textContent = r.premio ? r.premio.nome : ""; $("res-p").textContent = "Obrigado por participar. Converse com nosso time no estande!";
