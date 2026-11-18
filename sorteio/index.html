@@ -98,13 +98,13 @@
     <div class="chips" id="chips" aria-label="Brindes"></div>
     <form id="f" novalidate autocomplete="off">
       <div class="f full" data-c="nome"><label for="nome">Nome</label><input id="nome" type="text" autocomplete="name" maxlength="80" required><div class="err"></div></div>
-      <div class="f full" data-c="empresa"><label for="empresa">Empresa <small>(opcional)</small></label><input id="empresa" type="text" autocomplete="organization" maxlength="80"><div class="err"></div></div>
-      <div class="f" data-c="cidade"><label for="cidade">Cidade <small>(opcional)</small></label><input id="cidade" type="text" autocomplete="address-level2" maxlength="60"><div class="err"></div></div>
-      <div class="f" data-c="uf"><label for="uf">UF <small>(opcional)</small></label>
-        <select id="uf"><option value="">—</option></select><div class="err"></div></div>
+      <div class="f full" data-c="empresa"><label for="empresa">Empresa</label><input id="empresa" type="text" autocomplete="organization" maxlength="80" required><div class="err"></div></div>
+      <div class="f" data-c="cidade"><label for="cidade">Cidade</label><input id="cidade" type="text" autocomplete="address-level2" maxlength="60" required><div class="err"></div></div>
+      <div class="f" data-c="uf"><label for="uf">UF</label>
+        <select id="uf"><option value="">Escolha</option></select><div class="err"></div></div>
       <div class="f" data-c="whatsapp"><label for="whatsapp">WhatsApp com DDD</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="16" required><div class="err"></div></div>
       <div class="f" data-c="email"><label for="email">E-mail</label><input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required><div class="err"></div></div>
-      <div class="f full" data-c="ramo"><label for="ramo">Ramo de atividade <small>(opcional)</small></label>
+      <div class="f full" data-c="ramo"><label for="ramo">Ramo de atividade</label>
         <select id="ramo"><option value="">Selecione…</option></select><div class="err"></div></div>
       <div class="f full hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="f full" data-c="consentimento">
@@ -236,6 +236,10 @@ function validar(){
   if ($("nome").value.trim().length < 2) bad("nome", "Informe seu nome.");
   const wa = $("whatsapp").value.replace(/\D/g,""); if (wa.length < 10 || wa.length > 11) bad("whatsapp", "Informe o WhatsApp com DDD.");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim())) bad("email", "Informe um e-mail válido.");
+  if ($("empresa").value.trim().length < 2) bad("empresa", "Informe a empresa.");
+  if ($("cidade").value.trim().length < 2) bad("cidade", "Informe a cidade.");
+  if (!$("uf").value) bad("uf", "Escolha a UF.");
+  if (!$("ramo").value) bad("ramo", "Escolha o ramo de atividade.");
   if (!$("ok").checked) bad("consentimento", "Marque a autorização para participar.");
   if (primeiro){ const el = primeiro === "consentimento" ? $("ok") : $(primeiro); el.focus(); el.scrollIntoView({ block:"center", behavior:"smooth" }); }
   return !primeiro;
