@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Roleta · Administração · Synthetic</title>
+<title>Kit CADA · Gestão · Synthetic</title>
 <link rel="icon" href="assets/logo-synthetic.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -34,7 +34,7 @@
 </style>
 </head>
 <body>
-<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Roleta de brindes · Administração</h1><span id="quem"></span><a class="btn" href="./" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">← Voltar ao cadastro</a><button id="sair" class="oculto" type="button">Sair</button></header>
+<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Kit de brindes · Gestão</h1><span id="quem"></span><a class="btn" href="balcao.html" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">Balcão de entrega</a><a class="btn" href="./" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">← Cadastro</a><button id="sair" class="oculto" type="button">Sair</button></header>
 
 <div id="login" class="card">
   <h2>Entrar</h2>
@@ -46,21 +46,23 @@
 <main id="painel" class="oculto">
   <section class="card"><h2>Resumo</h2><div class="kpis" id="kpis"></div></section>
   <section class="card"><h2>Estoque de brindes</h2>
-    <div class="scroll"><table><thead><tr><th>Brinde</th><th>Estoque restante</th><th>Peso (chance)</th><th>Ativo</th><th>Entregues</th><th></th></tr></thead><tbody id="tb-premios"></tbody></table></div>
-    <p style="color:var(--muted);font-size:.9rem;margin-bottom:0">No modo Kit cada participante leva 1 de cada brinde ativo (o kit acaba quando o primeiro zera) e o peso não é usado. No modo Roleta, peso: chance relativa (1 e 1 e 1 = igual). O brinde sai da roleta sozinho quando o estoque zera. "Tente de novo" fica desligado por padrão: ligue e dê peso para ele aparecer.</p>
+    <div class="scroll"><table><thead><tr><th>Brinde</th><th>Estoque físico restante</th><th>Ativo</th><th></th></tr></thead><tbody id="tb-premios"></tbody></table></div>
+    <p style="color:var(--muted);font-size:.95rem;margin-bottom:0">Cada kit leva 1 de cada brinde ativo. O cadastro só <b>reserva</b> o kit (por algumas horas); o estoque físico baixa quando o atendente confirma a <b>entrega no balcão</b>. Assim cadastro falso não esgota o estoque. O kit acaba quando o brinde mais escasso, já descontadas as reservas, zera.</p>
   </section>
   <section class="card"><h2>Configuração</h2>
     <div class="barra"><label>Evento <input id="c-evento" type="text" maxlength="60"></label>
       <label>Volta ao início (s) <input id="c-seg" type="number" min="5" max="120" style="width:90px"></label>
-      <label>Modo <select id="c-modo"><option value="kit">Kit (todos ganham os 3)</option><option value="roleta">Roleta (1 brinde sorteado)</option></select></label>
-      <label><input id="c-ativo" type="checkbox" style="min-height:0;width:22px;height:22px"> Sorteio aberto</label></div>
+      <label>Reserva vale (horas) <input id="c-res" type="number" min="1" max="72" style="width:90px"></label>
+      <label><input id="c-ativo" type="checkbox" style="min-height:0;width:22px;height:22px"> Cadastro aberto</label></div>
     <div class="barra"><label style="flex:1">Mensagem de retirada <input id="c-msg" type="text" maxlength="200" style="width:100%"></label>
+      </div>
+    <div class="barra"><label style="flex:1">Contato para pedido de exclusão (e-mail ou WhatsApp da Synthetic, aparece no texto de privacidade) <input id="c-contato" type="text" maxlength="120" style="width:100%"></label>
       <button id="c-salvar" class="p" type="button">Salvar</button><span id="c-st"></span></div>
   </section>
-  <section class="card"><h2>Participantes</h2>
-    <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade, código…"><select id="filtro"><option value="">Todos</option><option value="pend">Brinde a entregar</option><option value="ent">Entregues</option></select>
+  <section class="card"><h2>Cadastros</h2>
+    <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade, código…"><select id="filtro"><option value="">Todos</option><option value="pend">Kit a entregar</option><option value="ent">Entregues</option></select>
       <button id="csv-tudo" class="p" type="button">Exportar CSV completo</button><button id="csv-contatos" type="button">Baixar lista de contatos</button></div>
-    <div class="scroll"><table><thead><tr><th>Entregue</th><th>Código</th><th>Quando</th><th>Nome</th><th>Empresa</th><th>Cidade/UF</th><th>WhatsApp</th><th>E-mail</th><th>Ramo</th><th>Brinde</th></tr></thead><tbody id="tb-part"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th>Entregue</th><th>Código</th><th>Quando</th><th>Nome</th><th>Empresa</th><th>Cidade/UF</th><th>WhatsApp</th><th>E-mail</th><th>Ramo</th><th>Kit</th><th></th></tr></thead><tbody id="tb-part"></tbody></table></div>
   </section>
 </main>
 
@@ -91,24 +93,23 @@ function render(){
   const P = D.participantes, premios = D.premios, ent = D.entregues;
   const k = $("kpis"); k.textContent = "";
   const kp = (n, l) => { const d = el("div", null, "kpi"); d.appendChild(el("b", n)); d.appendChild(el("small", l)); k.appendChild(d); };
-  const ganhos = P.filter(p => p.resultado === "premio");
-  kp(P.length, "participantes"); kp(ganhos.length, "brindes sorteados"); kp(ganhos.filter(p => p.entregue).length, "brindes entregues");
-  kp(premios.filter(p => p.tipo === "brinde").reduce((s,p) => s + p.estoque, 0), "itens em estoque");
-  const at = premios.filter(p => p.tipo === "brinde" && p.ativo); kp(D.config.modo === "kit" ? (at.length ? Math.min(...at.map(p => p.estoque)) : 0) : "—", "kits ainda possíveis");
+  const kit = P.filter(p => p.resultado === "premio"), at = premios.filter(p => p.tipo === "brinde" && p.ativo);
+  const fis = at.length ? Math.min(...at.map(p => p.estoque)) : 0, res = D.reservados || 0;
+  kp(P.length, "cadastros"); kp(kit.filter(p => p.entregue).length, "kits entregues"); kp(res, "kits reservados (aguardando retirada)");
+  kp(Math.max(fis - res, 0), "kits ainda disponíveis"); kp(fis, "kits no estoque físico");
   const ult = P[0]; kp(ult ? new Date(ult.criado_em).toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" }) : "—", "último cadastro");
   const tb = $("tb-premios"); tb.textContent = "";
-  premios.forEach(p => {
+  premios.filter(p => p.tipo === "brinde").forEach(p => {
     const tr = el("tr"); const nome = el("input"); nome.type = "text"; nome.value = p.nome; nome.maxLength = 40;
     const est = el("input"); est.type = "number"; est.min = 0; if (p.tipo === "brinde") est.value = p.estoque; else { est.disabled = true; est.placeholder = "∞"; }
-    const peso = el("input"); peso.type = "number"; peso.min = 0; peso.value = p.peso;
     const at = el("input"); at.type = "checkbox"; at.checked = p.ativo; at.style.cssText = "min-height:0;width:24px;height:24px";
     const b = el("button", "Salvar");
-    b.onclick = async () => { b.disabled = true; const { error } = await sb.rpc("sorteio_admin_premio", { p_id:p.id, p_nome:nome.value, p_estoque:(p.tipo === "brinde" && est.value !== "" && parseInt(est.value, 10) !== p.estoque) ? parseInt(est.value, 10) : null, p_peso:parseInt(peso.value, 10) || 0, p_ativo:at.checked });
+    b.onclick = async () => { b.disabled = true; const { error } = await sb.rpc("sorteio_admin_premio", { p_id:p.id, p_nome:nome.value, p_estoque:(p.tipo === "brinde" && est.value !== "" && parseInt(est.value, 10) !== p.estoque) ? parseInt(est.value, 10) : null, p_peso:p.peso, p_ativo:at.checked });
       b.disabled = false; if (error) alert("Erro: " + error.message); else carregar(); };
-    [nome, est, peso, at].forEach(x => { const td = el("td"); td.appendChild(x); tr.appendChild(td); });
-    tr.appendChild(el("td", p.tipo === "brinde" ? String(ent[p.id] || 0) : "—")); const tdb = el("td"); tdb.appendChild(b); tr.appendChild(tdb); tb.appendChild(tr);
+    [nome, est, at].forEach(x => { const td = el("td"); td.appendChild(x); tr.appendChild(td); });
+    const tdb = el("td"); tdb.appendChild(b); tr.appendChild(tdb); tb.appendChild(tr);
   });
-  const c = D.config; $("c-evento").value = c.evento; $("c-seg").value = c.segundos_retorno; $("c-ativo").checked = c.ativo; $("c-msg").value = c.mensagem_retirada; $("c-modo").value = c.modo;
+  const c = D.config; $("c-evento").value = c.evento; $("c-seg").value = c.segundos_retorno; $("c-ativo").checked = c.ativo; $("c-msg").value = c.mensagem_retirada; $("c-res").value = c.reserva_horas; $("c-contato").value = c.contato_privacidade || "";
   lista();
 }
 function lista(){
@@ -124,7 +125,10 @@ function lista(){
       td0.appendChild(c); } else td0.textContent = "—";
     tr.appendChild(td0);
     [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa || "", [p.cidade, p.uf].filter(Boolean).join("/"), p.whatsapp, p.email, p.ramo || ""].forEach(v => tr.appendChild(el("td", v)));
-    const tdp = el("td"); tdp.appendChild(p.resultado === "premio" ? el("span", p.premio_nome, "tag") : el("span", p.resultado === "esgotado" ? "sem brinde (esgotado)" : "—", "tag x")); tr.appendChild(tdp);
+    const tdp = el("td"); tdp.appendChild(p.resultado === "premio" ? el("span", p.entregue ? "kit entregue" : "kit reservado", "tag") : el("span", p.resultado === "esgotado" ? "sem kit (esgotado)" : "—", "tag x")); tr.appendChild(tdp);
+    const tdx = el("td"), bx = el("button", "Excluir"); bx.title = "Excluir este cadastro (pedido do titular)"; bx.style.cssText = "min-height:36px;padding:4px 10px;font-size:.85rem";
+    bx.onclick = async () => { if (!confirm("Excluir definitivamente o cadastro de " + p.nome + "? Não dá para desfazer.")) return; const { error } = await sb.rpc("sorteio_admin_excluir", { p_id:p.id }); if (error) alert("Erro: " + error.message); else carregar(); };
+    tdx.appendChild(bx); tr.appendChild(tdx);
     tb.appendChild(tr);
   });
 }
@@ -135,12 +139,12 @@ function baixar(nome, cab, linhas){
   const a = el("a"); a.href = URL.createObjectURL(new Blob([txt], { type:"text/csv;charset=utf-8" })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
 const hoje = () => new Date().toISOString().slice(0, 10);
-$("csv-tudo").onclick = () => baixar("roleta-participantes-" + hoje() + ".csv",
+$("csv-tudo").onclick = () => baixar("cadastros-kit-" + hoje() + ".csv",
   ["Codigo","Data/hora","Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo","Resultado","Brinde","Entregue","Entregue em","Entregue por"],
-  D.participantes.map(p => [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado, p.premio_nome, p.entregue ? "Sim" : "Nao", fmt(p.entregue_em), p.entregue_por]));
-$("csv-contatos").onclick = () => baixar("roleta-contatos-" + hoje() + ".csv",
+  D.participantes.map(p => [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado, p.resultado === "premio" ? "Kit" : "", p.entregue ? "Sim" : "Nao", fmt(p.entregue_em), p.entregue_por]));
+$("csv-contatos").onclick = () => baixar("contatos-kit-" + hoje() + ".csv",
   ["Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo"], D.participantes.map(p => [p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo]));
-$("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_modo:$("c-modo").value });
+$("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_contato:$("c-contato").value, p_reserva:parseInt($("c-res").value, 10) || null });
   $("c-salvar").disabled = false; $("c-st").textContent = error ? "Erro: " + error.message : "Salvo."; $("c-st").className = error ? "msg" : "ok"; };
 $("busca").oninput = lista; $("filtro").onchange = lista;
 $("fl").onsubmit = async e => { e.preventDefault(); $("lmsg").textContent = "";

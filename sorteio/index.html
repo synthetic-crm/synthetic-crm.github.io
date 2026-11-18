@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<title>Roleta de brindes · Synthetic Lubrificantes</title>
+<title>Kit de brindes · Synthetic Lubrificantes</title>
 <link rel="icon" href="assets/logo-synthetic.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,6 +86,7 @@
   body[data-modo=kit] #roda-col{ display:none!important; }
   body[data-modo=kit] main{ grid-template-columns:1fr!important; justify-items:center; }
   body[data-modo=kit] #cartao-form, body[data-modo=kit] #res{ width:min(100%, max(640px, 56vw)); }
+  .lgpd a{ color:var(--brand); font-weight:700; }
   #gestao{ position:fixed; right:10px; bottom:8px; z-index:5; color:#fff; opacity:.35; font-size:.9rem; text-decoration:none; padding:12px 14px; min-height:44px; }
   #gestao:hover,#gestao:focus-visible{ opacity:1; }
   body[data-tela=girando] #gestao{ display:none; }
@@ -94,8 +95,8 @@
 <body data-tela="form">
 <header><img src="assets/logo-synthetic.png" alt="Synthetic Lubrificantes Especiais"></header>
 <main>
-  <section id="cartao-form" class="card intro" aria-label="Cadastro para a roleta">
-    <span class="ev" id="ev">Roleta de brindes</span>
+  <section id="cartao-form" class="card intro" aria-label="Cadastro para o kit de brindes">
+    <span class="ev" id="ev">Kit de brindes</span>
     <h1 id="h1">Cadastre-se e ganhe um brinde!</h1>
     <p id="intro-p">Preencha seus dados e leve para casa um brinde da Synthetic.</p>
     <div class="chips" id="chips" aria-label="Brindes"></div>
@@ -111,7 +112,7 @@
         <select id="ramo"><option value="">Selecione…</option></select><div class="err"></div></div>
       <div class="f full hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="f full" data-c="consentimento">
-        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a usar meus dados (nome, empresa, WhatsApp e e-mail) para <b>contato comercial</b> e para a entrega do brinde, conforme a LGPD. Posso pedir a exclusão a qualquer momento.</label></div>
+        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a guardar meus dados (nome, empresa, cidade, UF, WhatsApp, e-mail e ramo) por até 12 meses, para um consultor falar comigo pelo <b>WhatsApp ou e-mail</b> sobre lubrificantes para minha empresa e para a entrega do meu kit. Não repassam meus dados a terceiros. Posso pedir a exclusão a qualquer momento <span id="lgpd-contato">com a equipe no estande</span>. <a href="privacidade.html" target="_blank" rel="noopener">Ler a política de privacidade</a>.</label></div>
         <div class="err"></div></div>
       <div class="f full"><button class="btn" id="girar" type="submit"><span id="btn-txt">QUERO MEU BRINDE</span></button>
         <div class="aviso" id="aviso" role="alert"></div>
@@ -138,7 +139,7 @@
     <button class="btn sec" id="proximo" type="button">Próximo participante</button>
   </section>
 </main>
-<a id="gestao" href="admin.html" title="Gestão (equipe Synthetic)" aria-label="Gestão da equipe">⚙ Gestão</a>
+<a id="gestao" href="balcao.html" title="Balcão da equipe Synthetic" aria-label="Balcão da equipe">⚙ Equipe</a>
 
 <script>
 "use strict";
@@ -201,7 +202,8 @@ function carregarFonteEDesenhar(){ chips(); (document.fonts && document.fonts.lo
 async function carregar(){
   try {
     vitrine = await rpc("sorteio_vitrine");
-    $("ev").textContent = vitrine.evento || "Roleta de brindes";
+    if (vitrine.contato_privacidade) $("lgpd-contato").textContent = "em " + vitrine.contato_privacidade;
+    $("ev").textContent = vitrine.evento || "Kit de brindes";
     segs = (vitrine.premios || []).map(p => ({ codigo:p.codigo, nome:p.nome, cor:p.cor, tipo:p.tipo }));
     if (!vitrine.ativo){ aviso("O sorteio está encerrado. Obrigado!"); $("girar").disabled = true; }
     carregarFonteEDesenhar();
