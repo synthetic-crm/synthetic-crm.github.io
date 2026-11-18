@@ -10,11 +10,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
   body{ margin:0; min-height:100vh; display:grid; place-items:center; font-family:'Barlow',sans-serif; background:#005071; color:#fff; text-align:center; padding:16px; }
-  .folha{ background:#fff; color:#0e1b24; border-radius:24px; padding:clamp(16px,3vw,48px); width:min(100%, 720px); box-shadow:0 10px 40px rgba(0,0,0,.3); }
+  .folha{ background:#fff; color:#0e1b24; border-radius:24px; padding:clamp(16px,3vw,48px); width:min(100%, max(720px, 60vw)); box-shadow:0 10px 40px rgba(0,0,0,.3); }
   .logo{ background:#005071; border-radius:14px; padding:12px 20px; display:inline-block; } .logo img{ height:56px; display:block; }
   h1{ font-family:'Roboto Condensed',sans-serif; font-size:clamp(1.8rem,5vw,3rem); color:#005071; margin:.5em 0 .1em; line-height:1.05; }
   p{ font-size:clamp(1rem,2.4vw,1.4rem); margin:.3em 0; }
-  #qr{ margin:16px auto; width:min(100%, 480px); } #qr img{ width:100%; height:auto; image-rendering:pixelated; display:block; }
+  #qr{ margin:16px auto; width:min(100%, 70vh, 900px); } #qr img{ width:100%; height:auto; image-rendering:pixelated; display:block; }
   .url{ font-weight:700; color:#005071; word-break:break-all; }
   button{ font:inherit; font-weight:700; min-height:48px; padding:8px 20px; border-radius:12px; border:2px solid #005071; background:#87dc18; color:#0e1b24; cursor:pointer; margin:6px; }
   @media print{ body{ background:#fff; } .nao-imprime{ display:none; } .folha{ box-shadow:none; } }

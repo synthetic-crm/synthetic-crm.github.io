@@ -33,7 +33,7 @@
 <main>
   <section id="login" class="card">
     <h2>Entrar</h2>
-    <form id="fl"><input id="em" type="email" placeholder="e-mail do CRM" autocomplete="username" style="text-transform:none;letter-spacing:0;font-size:1.1rem" required><input id="pw" type="password" placeholder="senha" autocomplete="current-password" style="text-transform:none;letter-spacing:0;font-size:1.1rem" required>
+    <form id="fl"><input id="em" type="email" placeholder="e-mail do CRM" aria-label="E-mail" autocomplete="username" style="text-transform:none;letter-spacing:0;font-size:1.1rem" required><input id="pw" type="password" placeholder="senha" aria-label="Senha" autocomplete="current-password" style="text-transform:none;letter-spacing:0;font-size:1.1rem" required>
     <button class="btn" type="submit">Entrar</button><div id="lmsg" class="msg" role="alert"></div></form>
     <p style="color:var(--muted)">Use o mesmo login do CRM Synthetic.</p>
   </section>
@@ -67,22 +67,23 @@ function mostra(cls, titulo, linhas, acao){
 }
 $("fb").onsubmit = async e => { e.preventDefault(); atual = null; const c = $("cod").value.trim(); if (c.length < 5){ mostra("nao", "Digite os 5 caracteres do código", []); return; }
   $("buscar").disabled = true;
-  const { data, error } = await sb.rpc("sorteio_balcao_buscar", { p_codigo:c }); $("buscar").disabled = false;
+  const { data, error } = await sb.rpc("sorteio_balcao_buscar", { p_codigo:c }); $("buscar").disabled = false; $("cod").select();
   if (error){ mostra("nao", /negado|42501/.test(error.message + error.code) ? "Sem permissão. Entre com seu login do CRM." : "Falha de conexão. Tente de novo.", []); return; }
+  if (data.bloqueado){ mostra("nao", "Muitas tentativas erradas", ["Espere 5 minutos e confira o código com o visitante."]); return; }
   $("restam").textContent = "Kits no estoque físico: " + data.restam;
   if (!data.ok){ mostra("nao", "Código não encontrado", ["Confira o código na tela do visitante."]); return; }
-  atual = data;
+  atual = data; atual.codigo = c.toUpperCase();
   if (data.entregue){ mostra("ja", data.nome, [data.empresa || "", "Kit JÁ ENTREGUE em " + new Date(data.entregue_em).toLocaleString("pt-BR")]); return; }
-  mostra("", data.nome, [data.empresa || "", "Kit: boné + caderneta + caneta"], { t:"ENTREGAR KIT", f:entregar });
+  mostra("", data.nome, [data.empresa || "", "Kit: boné + caderneta + caneta"].concat(data.restam <= 0 ? ["ATENÇÃO: estoque físico zerado. Confira se há kit na mesa antes de entregar."] : []), { t:"ENTREGAR KIT", f:entregar });
 };
 async function entregar(){
-  if (!atual) return; const { error } = await sb.rpc("sorteio_balcao_entregar", { p_id:atual.id });
+  if (!atual) return; const { error } = await sb.rpc("sorteio_balcao_entregar", { p_codigo:atual.codigo });
   if (error){ mostra("nao", "Não foi possível registrar. Tente de novo.", []); return; }
   mostra("", "Kit entregue!", [atual.nome], { t:"PRÓXIMO", sec:true, f:() => { $("out").textContent = ""; $("cod").value = ""; $("cod").focus(); $("restam").textContent = ""; } });
-  atual = null;
+  atual = null; setTimeout(() => { if (!atual){ $("out").textContent = ""; $("cod").value = ""; $("cod").focus(); $("restam").textContent = ""; } }, 2500);
 }
 $("cod").addEventListener("input", e => { e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase(); });
-let oc; const zera = () => { clearTimeout(oc); oc = setTimeout(async () => { await sb.auth.signOut({ scope:"local" }); location.href = "./"; }, 5*60*1000); };
+let oc; const zera = () => { clearTimeout(oc); oc = setTimeout(async () => { await sb.auth.signOut({ scope:"local" }); entrar(); }, 30*60*1000); };
 ["pointerdown","keydown"].forEach(ev => document.addEventListener(ev, () => { if (!$("bal").classList.contains("oculto")) zera(); }, { passive:true }));
 entrar();
 </script>

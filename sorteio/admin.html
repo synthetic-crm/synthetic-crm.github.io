@@ -23,12 +23,12 @@
   .kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
   .kpi{ background:#e6f0f3; border-radius:10px; padding:12px; } .kpi b{ display:block; font-family:'Roboto Condensed',sans-serif; font-size:2rem; color:var(--brand); } .kpi small{ color:var(--muted); }
   table{ width:100%; border-collapse:collapse; font-size:.95rem; } th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
-  th{ font-size:.8rem; text-transform:uppercase; color:var(--muted); letter-spacing:.04em; } .scroll{ overflow-x:auto; }
+  th{ font-size:.9rem; text-transform:uppercase; color:var(--muted); letter-spacing:.04em; } .scroll{ overflow-x:auto; }
   td input[type=number]{ width:90px; } td input[type=text]{ width:140px; }
   .barra{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; } .barra input[type=search]{ flex:1; min-width:180px; }
   #login{ max-width:420px; margin:10vh auto; } #login form{ display:grid; gap:10px; }
   .msg{ color:var(--red); font-weight:600; } .ok{ color:var(--green-deep); font-weight:600; }
-  .oculto{ display:none!important; } .tag{ display:inline-block; padding:2px 8px; border-radius:99px; background:#eef8df; color:var(--green-deep); font-weight:700; font-size:.8rem; }
+  .oculto{ display:none!important; } .tag{ display:inline-block; padding:2px 8px; border-radius:99px; background:#eef8df; color:var(--green-deep); font-weight:700; font-size:.9rem; }
   .tag.x{ background:#fdead0; color:#8a4500; }
   td.chk input{ width:28px; height:28px; }
 </style>
@@ -62,6 +62,7 @@
   <section class="card"><h2>Cadastros</h2>
     <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade, código…"><select id="filtro"><option value="">Todos</option><option value="pend">Kit a entregar</option><option value="ent">Entregues</option></select>
       <button id="csv-tudo" class="p" type="button">Exportar CSV completo</button><button id="csv-contatos" type="button">Baixar lista de contatos</button></div>
+    <div class="barra"><label>Apagar cadastros anteriores a <input id="ap-data" type="date"></label><button id="ap-btn" type="button">Apagar em lote</button><span id="ap-st"></span><span style="color:var(--muted);font-size:.95rem">Prazo de guarda prometido: 12 meses (feira + 12 meses = 18/11/2027).</span></div>
     <div class="scroll"><table><thead><tr><th>Entregue</th><th>Código</th><th>Quando</th><th>Nome</th><th>Empresa</th><th>Cidade/UF</th><th>WhatsApp</th><th>E-mail</th><th>Ramo</th><th>Kit</th><th></th></tr></thead><tbody id="tb-part"></tbody></table></div>
   </section>
 </main>
@@ -121,12 +122,12 @@ function lista(){
   }).forEach(p => {
     const tr = el("tr"), td0 = el("td", null, "chk");
     if (p.resultado === "premio"){ const c = el("input"); c.type = "checkbox"; c.checked = p.entregue; c.title = "Marcar como entregue";
-      c.onchange = async () => { c.disabled = true; const { error } = await sb.rpc("sorteio_admin_entregar", { p_id:p.id, p_entregue:c.checked }); if (error){ alert("Erro: " + error.message); c.checked = !c.checked; } c.disabled = false; p.entregue = c.checked; };
+      c.onchange = async () => { c.disabled = true; const { error } = await sb.rpc("sorteio_admin_entregar", { p_id:p.id, p_entregue:c.checked }); if (error){ alert("Erro: " + error.message); c.checked = !c.checked; } c.disabled = false; p.entregue = c.checked; carregar(); };
       td0.appendChild(c); } else td0.textContent = "—";
     tr.appendChild(td0);
     [p.codigo_retirada, fmt(p.criado_em), p.nome, p.empresa || "", [p.cidade, p.uf].filter(Boolean).join("/"), p.whatsapp, p.email, p.ramo || ""].forEach(v => tr.appendChild(el("td", v)));
     const tdp = el("td"); tdp.appendChild(p.resultado === "premio" ? el("span", p.entregue ? "kit entregue" : "kit reservado", "tag") : el("span", p.resultado === "esgotado" ? "sem kit (esgotado)" : "—", "tag x")); tr.appendChild(tdp);
-    const tdx = el("td"), bx = el("button", "Excluir"); bx.title = "Excluir este cadastro (pedido do titular)"; bx.style.cssText = "min-height:36px;padding:4px 10px;font-size:.85rem";
+    const tdx = el("td"), bx = el("button", "Excluir"); bx.title = "Excluir este cadastro (pedido do titular)"; bx.style.cssText = "min-height:44px;padding:4px 12px;font-size:1rem";
     bx.onclick = async () => { if (!confirm("Excluir definitivamente o cadastro de " + p.nome + "? Não dá para desfazer.")) return; const { error } = await sb.rpc("sorteio_admin_excluir", { p_id:p.id }); if (error) alert("Erro: " + error.message); else carregar(); };
     tdx.appendChild(bx); tr.appendChild(tdx);
     tb.appendChild(tr);
@@ -146,6 +147,9 @@ $("csv-contatos").onclick = () => baixar("contatos-kit-" + hoje() + ".csv",
   ["Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo"], D.participantes.map(p => [p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo]));
 $("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_contato:$("c-contato").value, p_reserva:parseInt($("c-res").value, 10) || null });
   $("c-salvar").disabled = false; $("c-st").textContent = error ? "Erro: " + error.message : "Salvo."; $("c-st").className = error ? "msg" : "ok"; };
+$("ap-btn").onclick = async () => { const d = $("ap-data").value; if (!d){ $("ap-st").textContent = "Escolha a data."; return; }
+  if (!confirm("Apagar DEFINITIVAMENTE todos os cadastros anteriores a " + d.split("-").reverse().join("/") + "? Baixe o CSV antes. Não dá para desfazer.")) return;
+  const { data, error } = await sb.rpc("sorteio_admin_apagar_ate", { p_data:d }); $("ap-st").textContent = error ? "Erro: " + error.message : data + " cadastro(s) apagado(s)."; if (!error) carregar(); };
 $("busca").oninput = lista; $("filtro").onchange = lista;
 $("fl").onsubmit = async e => { e.preventDefault(); $("lmsg").textContent = "";
   const { error } = await sb.auth.signInWithPassword({ email:$("em").value.trim(), password:$("pw").value }); $("pw").value = "";
