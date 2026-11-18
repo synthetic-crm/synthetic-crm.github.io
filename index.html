@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261118-094240">
+<meta name="crm-versao" content="20261118-094659">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12973,7 +12973,7 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
       const tela = typeof usoNomeTela === 'function' ? usoNomeTela(v) : v;
       const anteriores = PQ.hist.slice(0,-1).filter(h=>h.r).slice(-3).map(h=>({ p:h.p, r:h.r }));
       uso('clique', 'pergunte aqui: perguntou');
-      const { data, error } = await sb.functions.invoke('ajuda-sistema', { body:{ pergunta:texto, rota:tela, telas:telasVistas(), historico:anteriores } });
+      const { data, error } = await sb.functions.invoke('ajuda-sistema', { body:{ pergunta:texto, rota:tela, telas:telasVistas(), recursos:LIB_CHAVES.filter(libLivre), historico:anteriores } });
       if(error){ let m = 'Não consegui responder agora. Tente de novo em instantes.'; try{ const j = await error.context.json(); if(j && j.error) m = j.error; }catch(e){} item.r = m; item.sug = true; }
       else { item.r = data.resposta || 'Não consegui responder essa agora.'; item.ir = data.ir || []; item.sug = !!data.sugerir_sugestao; }
     }catch(e){ item.r = 'Não consegui responder agora. Confira a internet e tente de novo.'; item.sug = true; }
