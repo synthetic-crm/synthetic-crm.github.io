@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261118-101924">
+<meta name="crm-versao" content="20261118-151940">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12793,7 +12793,7 @@ async function cmDetalhe(ini, fim){
 // Apresentação pelo calendário de entregas: para o time, o que ainda não saiu aparece como em construção ("~" na frente)
 const sbL = k=> libLivre(k) ? '' : '~';
 function sbFin(){
-  const L = [libLivre('fin-inad') && 'quem deve e há quanto tempo, as baixas mês a mês', libLivre('nota') && 'a nota de pagamento de cada cliente', libLivre('fin-desc') && 'o lote de duplicatas para descontar', libLivre('fin-rel') && 'os relatórios de endereços e clientes novos'].filter(Boolean);
+  const L = [libLivre('fin-inad') && 'quem deve e há quanto tempo, as baixas mês a mês', libLivre('nota') && 'a nota de pagamento de cada cliente', libLivre('fin-desc') && 'o lote de duplicatas para descontar', libLivre('fin-rel') && 'os relatórios de clientes novos e de vendas das promoções'].filter(Boolean);
   if(!L.length) return '';
   const t = L.length > 1 ? L.slice(0, -1).join(', ') + ' e ' + L[L.length - 1] : L[0];
   return t.charAt(0).toUpperCase() + t.slice(1) + '.';
@@ -12946,7 +12946,7 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
     p.innerHTML = '<div class="pq-cab"><span aria-hidden="true">✨</span><b>Pergunte aqui</b><button type="button" id="pq-fechar" aria-label="Fechar">✕</button></div>'
       + '<div class="pq-conv" id="pq-conv" aria-live="polite"></div>'
       + '<form class="pq-pe" id="pq-form2" autocomplete="off"><input id="pq-in2" maxlength="600" placeholder="Escreva a sua dúvida…" aria-label="Escreva a sua dúvida"><button type="submit">Perguntar</button></form>'
-      + '<div class="pq-nota">A resposta vem de uma IA e pode errar. Se não funcionar, toque em “Mandar para a equipe”. Não escreva nome, CNPJ ou telefone de clientes.</div>';
+      + '<div class="pq-nota">A resposta vem de uma IA e pode errar. Se não funcionar, toque em “Mandar para a equipe”. Não escreva nome, CNPJ ou telefone de clientes: as perguntas são lidas pelo Administrador e o texto vai a um provedor de IA.</div>';
     document.body.appendChild(p);
     $('pq-fechar').addEventListener('click', ()=> fechar());
     $('pq-form2').addEventListener('submit', e=>{ e.preventDefault(); const v = $('pq-in2').value.trim(); if(!v) return; if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } $('pq-in2').value = ''; perguntar(v); });
