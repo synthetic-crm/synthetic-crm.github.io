@@ -34,7 +34,7 @@
 </style>
 </head>
 <body>
-<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Roleta de brindes · Administração</h1><span id="quem"></span><button id="sair" class="oculto" type="button">Sair</button></header>
+<header><img src="assets/logo-synthetic.png" alt="Synthetic"><h1>Roleta de brindes · Administração</h1><span id="quem"></span><a class="btn" href="./" style="text-decoration:none;display:inline-flex;align-items:center;color:#fff;border-color:#fff;background:transparent">← Voltar ao cadastro</a><button id="sair" class="oculto" type="button">Sair</button></header>
 
 <div id="login" class="card">
   <h2>Entrar</h2>
@@ -45,7 +45,7 @@
 
 <main id="painel" class="oculto">
   <section class="card"><h2>Resumo</h2><div class="kpis" id="kpis"></div></section>
-  <section class="card"><h2>Brindes e estoque</h2>
+  <section class="card"><h2>Estoque de brindes</h2>
     <div class="scroll"><table><thead><tr><th>Brinde</th><th>Estoque restante</th><th>Peso (chance)</th><th>Ativo</th><th>Entregues</th><th></th></tr></thead><tbody id="tb-premios"></tbody></table></div>
     <p style="color:var(--muted);font-size:.9rem;margin-bottom:0">No modo Kit cada participante leva 1 de cada brinde ativo (o kit acaba quando o primeiro zera) e o peso não é usado. No modo Roleta, peso: chance relativa (1 e 1 e 1 = igual). O brinde sai da roleta sozinho quando o estoque zera. "Tente de novo" fica desligado por padrão: ligue e dê peso para ele aparecer.</p>
   </section>
@@ -93,7 +93,9 @@ function render(){
   const kp = (n, l) => { const d = el("div", null, "kpi"); d.appendChild(el("b", n)); d.appendChild(el("small", l)); k.appendChild(d); };
   const ganhos = P.filter(p => p.resultado === "premio");
   kp(P.length, "participantes"); kp(ganhos.length, "brindes sorteados"); kp(ganhos.filter(p => p.entregue).length, "brindes entregues");
-  kp(premios.filter(p => p.tipo === "brinde").reduce((s,p) => s + p.estoque, 0), "em estoque");
+  kp(premios.filter(p => p.tipo === "brinde").reduce((s,p) => s + p.estoque, 0), "itens em estoque");
+  const at = premios.filter(p => p.tipo === "brinde" && p.ativo); kp(D.config.modo === "kit" ? (at.length ? Math.min(...at.map(p => p.estoque)) : 0) : "—", "kits ainda possíveis");
+  const ult = P[0]; kp(ult ? new Date(ult.criado_em).toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" }) : "—", "último cadastro");
   const tb = $("tb-premios"); tb.textContent = "";
   premios.forEach(p => {
     const tr = el("tr"); const nome = el("input"); nome.type = "text"; nome.value = p.nome; nome.maxLength = 40;
@@ -145,6 +147,8 @@ $("fl").onsubmit = async e => { e.preventDefault(); $("lmsg").textContent = "";
   const { error } = await sb.auth.signInWithPassword({ email:$("em").value.trim(), password:$("pw").value }); $("pw").value = "";
   if (error) $("lmsg").textContent = "E-mail ou senha incorretos."; else entrar(); };
 $("sair").onclick = async () => { await sb.auth.signOut({ scope:"local" }); D = null; entrar(); };
+let ocioso; const zera = () => { clearTimeout(ocioso); ocioso = setTimeout(async () => { if (D){ await sb.auth.signOut({ scope:"local" }); location.href = "./"; } }, 3*60*1000); };
+["pointerdown","keydown","scroll"].forEach(e => document.addEventListener(e, zera, { passive:true })); zera();
 entrar();
 </script>
 </body>

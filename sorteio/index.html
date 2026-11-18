@@ -86,6 +86,9 @@
   body[data-modo=kit] #roda-col{ display:none!important; }
   body[data-modo=kit] main{ grid-template-columns:1fr!important; justify-items:center; }
   body[data-modo=kit] #cartao-form, body[data-modo=kit] #res{ width:min(100%, max(640px, 56vw)); }
+  #gestao{ position:fixed; right:10px; bottom:8px; z-index:5; color:#fff; opacity:.35; font-size:.9rem; text-decoration:none; padding:12px 14px; min-height:44px; }
+  #gestao:hover,#gestao:focus-visible{ opacity:1; }
+  body[data-tela=girando] #gestao{ display:none; }
 </style>
 </head>
 <body data-tela="form">
@@ -135,6 +138,7 @@
     <button class="btn sec" id="proximo" type="button">Próximo participante</button>
   </section>
 </main>
+<a id="gestao" href="admin.html" title="Gestão (equipe Synthetic)" aria-label="Gestão da equipe">⚙ Gestão</a>
 
 <script>
 "use strict";
