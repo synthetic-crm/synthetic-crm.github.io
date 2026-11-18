@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#005071">
+<title>Roleta de brindes · Synthetic Lubrificantes</title>
+<link rel="icon" href="assets/logo-synthetic.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+  :root{ --brand:#005071; --brand-deep:#003a52; --ink:#0e1b24; --green:#87dc18; --green-deep:#3f7a00; --blue:#0a9be0;
+         --red:#c23a2b; --card:#ffffff; --muted:#5f6d78; --line:#dde3e8; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; min-height:100%; }
+  body{ font-family:'Barlow',system-ui,sans-serif; font-size:18px; color:var(--ink); -webkit-font-smoothing:antialiased;
+        background:radial-gradient(120% 90% at 20% 0%, #0a6a93 0%, var(--brand) 40%, #002b3f 100%) fixed; min-height:100vh; min-height:100dvh; overflow-x:hidden; }
+  h1,h2,h3{ font-family:'Roboto Condensed',sans-serif; margin:0; letter-spacing:-.01em; }
+  header{ display:flex; align-items:center; justify-content:center; padding:clamp(10px,2vh,24px) 16px 0; }
+  header img{ height:clamp(48px,9vh,120px); width:auto; }
+  main{ display:grid; gap:clamp(16px,3vw,56px); padding:clamp(12px,2vh,32px) 16px clamp(20px,4vh,48px); align-items:center; }
+  /* tela larga (tablet horizontal / monitor): formulário e roleta lado a lado */
+  @media (min-width:900px) and (orientation:landscape){ main{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); padding-inline:clamp(24px,4vw,96px); } }
+  .card{ background:var(--card); border-radius:20px; padding:clamp(16px,2.2vw,40px); box-shadow:0 10px 40px rgba(0,0,0,.28); }
+  .intro h1{ font-size:clamp(1.9rem,4.2vw,4rem); color:var(--brand); line-height:1.05; font-weight:800; }
+  .intro p{ font-size:clamp(1rem,1.6vw,1.6rem); color:var(--ink); margin:.4em 0 .9em; }
+  .intro .ev{ display:inline-block; background:var(--green); color:var(--ink); font-weight:700; border-radius:999px; padding:4px 14px; font-size:clamp(.85rem,1.2vw,1.2rem); margin-bottom:.5em; }
+  form{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 14px; }
+  .f{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .f.full{ grid-column:1/-1; }
+  @media (max-width:560px){ form{ grid-template-columns:1fr; } }
+  label{ font-weight:600; font-size:clamp(1.05rem,1.4vw,1.4rem); color:var(--ink); }
+  :focus-visible{ outline:4px solid var(--brand); outline-offset:2px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 .9em; } .chips span{ background:var(--brand); color:#fff; font-weight:700; border-radius:999px; padding:6px 16px; font-size:1.1rem; }
+  .espera{ font-size:1.05rem; color:var(--muted); margin:6px 0 10px; }
+  label small{ color:var(--muted); font-weight:500; }
+  input[type=text],input[type=tel],input[type=email],select{ width:100%; min-height:54px; padding:10px 14px; font:inherit; font-size:max(16px,1.05rem);
+        border:2px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); }
+  input:focus,select:focus{ outline:3px solid #87dc1888; border-color:var(--brand); }
+  .err{ color:var(--red); font-weight:700; font-size:1.05rem; min-height:0; }
+  .err:not(:empty)::before{ content:"⚠ "; }
+  .bad input,.bad select{ border-color:var(--red); }
+  .lgpd{ display:flex; gap:12px; align-items:flex-start; background:#eef8df; border:2px solid #cfe9a8; border-radius:12px; padding:12px; font-size:clamp(.9rem,1.15vw,1.1rem); line-height:1.35; }
+  .lgpd input{ width:36px; height:36px; flex:none; margin:0; accent-color:var(--brand); }
+  .lgpd label{ font-weight:500; }
+  .lgpd.bad{ border-color:var(--red); }
+  .hp{ position:absolute!important; left:-9999px; width:1px; height:1px; opacity:0; }
+  button{ font:inherit; cursor:pointer; }
+  .btn{ min-height:64px; padding:12px 28px; border:0; border-radius:14px; background:var(--green); color:var(--ink); font-family:'Roboto Condensed',sans-serif; font-weight:800;
+        font-size:clamp(1.4rem,2.4vw,2.4rem); letter-spacing:.01em; box-shadow:0 5px 0 var(--green-deep); width:100%; }
+  .btn:active{ transform:translateY(3px); box-shadow:0 2px 0 var(--green-deep); }
+  .btn[disabled]{ opacity:.6; cursor:wait; }
+  .btn.sec{ background:#fff; color:var(--brand); box-shadow:0 4px 0 #b9c7cf; border:2px solid var(--brand); font-size:1.2rem; min-height:56px; }
+  .aviso{ margin-top:10px; padding:12px 14px; border-radius:12px; background:#fdead0; color:#6b3600; font-weight:700; font-size:1.1rem; display:none; }
+  .aviso.on{ display:block; }
+  .nota{ font-size:1rem; color:var(--muted); margin-top:8px; }
+  /* roleta */
+  #roda-col{ display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .roda-wrap{ position:relative; width:min(92vw, 64vh, 900px); width:min(92vw, 64dvh, 900px); aspect-ratio:1; }
+  @media (min-width:900px) and (orientation:landscape){ .roda-wrap{ width:min(44vw, 74dvh); } }
+  #roda{ width:100%; height:100%; transition:transform 6s cubic-bezier(.12,.62,.08,1); filter:drop-shadow(0 12px 28px rgba(0,0,0,.45)); will-change:transform; }
+  .pino{ position:absolute; top:-3%; left:50%; width:11%; transform:translateX(-50%); z-index:3; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  .hub{ position:absolute; inset:0; margin:auto; width:20%; height:20%; border-radius:50%; background:#fff; z-index:2; display:grid; place-items:center; box-shadow:0 0 0 6px var(--brand), 0 4px 16px rgba(0,0,0,.4); }
+  .hub img{ width:78%; filter:invert(1) hue-rotate(180deg) brightness(.6); }
+  body[data-tela=form] #roda-col{ }
+  @media (max-width:899px), (orientation:portrait){ body[data-tela=form] #roda-col{ display:none; } }
+  body[data-tela=resultado] .intro, body[data-tela=girando] .intro{ display:none; }
+  body[data-tela=resultado] main, body[data-tela=girando] main{ grid-template-columns:1fr; justify-items:center; }
+  /* resultado */
+  #res{ display:none; text-align:center; width:min(96vw,1000px); width:100%; }
+  body[data-tela=resultado] #res{ display:block; }
+  #res h2{ font-size:clamp(1.6rem,3.6vw,3.6rem); color:var(--brand); font-weight:800; }
+  #res .brinde{ font-family:'Roboto Condensed',sans-serif; font-size:clamp(3rem,9vw,9rem); font-weight:800; color:var(--ink); line-height:1; margin:.15em 0; }
+  #res .cod{ display:inline-block; font-family:'Roboto Condensed',sans-serif; font-size:clamp(2rem,5vw,5rem); font-weight:800; letter-spacing:.18em; background:var(--ink); color:var(--green); border-radius:16px; padding:.1em .5em .1em .68em; }
+  #res p{ font-size:clamp(1.1rem,2vw,2rem); margin:.5em 0; }
+  .barra{ height:8px; background:#dde3e8; border-radius:99px; overflow:hidden; margin:14px 0 10px; } .barra i{ display:block; height:100%; width:100%; background:var(--green); transform-origin:left; }
+  body[data-tela=girando] form, body[data-tela=resultado] form{ display:none; }
+  body[data-tela=girando] #cartao-form, body[data-tela=resultado] #cartao-form{ display:none; }
+  #girando-msg{ display:none; color:#fff; font-family:'Roboto Condensed',sans-serif; font-weight:700; font-size:clamp(1.6rem,3vw,3rem); text-align:center; }
+  body[data-tela=girando] #girando-msg{ display:block; }
+  body[data-tela=resultado] #roda-col{ display:none; }
+  .oculto{ display:none!important; }
+  @media (prefers-reduced-motion:reduce){ #roda{ transition-duration:1.2s; } }
+</style>
+</head>
+<body data-tela="form">
+<header><img src="assets/logo-synthetic.png" alt="Synthetic Lubrificantes Especiais"></header>
+<main>
+  <section id="cartao-form" class="card intro" aria-label="Cadastro para a roleta">
+    <span class="ev" id="ev">Roleta de brindes</span>
+    <h1>Gire a roleta e ganhe um brinde!</h1>
+    <p>Preencha seus dados, toque em <b>Girar</b> e leve para casa um brinde da Synthetic.</p>
+    <div class="chips" id="chips" aria-label="Brindes"></div>
+    <form id="f" novalidate autocomplete="off">
+      <div class="f full" data-c="nome"><label for="nome">Nome</label><input id="nome" type="text" autocomplete="name" maxlength="80" required><div class="err"></div></div>
+      <div class="f full" data-c="empresa"><label for="empresa">Empresa <small>(opcional)</small></label><input id="empresa" type="text" autocomplete="organization" maxlength="80"><div class="err"></div></div>
+      <div class="f" data-c="cidade"><label for="cidade">Cidade <small>(opcional)</small></label><input id="cidade" type="text" autocomplete="address-level2" maxlength="60"><div class="err"></div></div>
+      <div class="f" data-c="uf"><label for="uf">UF <small>(opcional)</small></label>
+        <select id="uf"><option value="">—</option></select><div class="err"></div></div>
+      <div class="f" data-c="whatsapp"><label for="whatsapp">WhatsApp com DDD</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="16" required><div class="err"></div></div>
+      <div class="f" data-c="email"><label for="email">E-mail</label><input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required><div class="err"></div></div>
+      <div class="f full" data-c="ramo"><label for="ramo">Ramo de atividade <small>(opcional)</small></label>
+        <select id="ramo"><option value="">Selecione…</option></select><div class="err"></div></div>
+      <div class="f full hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" type="text" tabindex="-1" autocomplete="off"></div>
+      <div class="f full" data-c="consentimento">
+        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a usar meus dados (nome, empresa, WhatsApp e e-mail) para <b>contato comercial</b> e para a entrega do brinde, conforme a LGPD. Posso pedir a exclusão a qualquer momento.</label></div>
+        <div class="err"></div></div>
+      <div class="f full"><button class="btn" id="girar" type="submit">GIRAR A ROLETA</button>
+        <div class="aviso" id="aviso" role="alert"></div>
+        <div class="nota">Uma participação por pessoa. Não pedimos CPF.</div></div>
+    </form>
+  </section>
+
+  <section id="roda-col" aria-label="Roleta">
+    <div id="girando-msg" aria-live="polite">Girando… boa sorte!</div>
+    <div class="roda-wrap">
+      <svg class="pino" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 78 L4 16 A28 28 0 1 1 56 16 Z" fill="#87dc18" stroke="#0e1b24" stroke-width="4"/><circle cx="30" cy="24" r="8" fill="#0e1b24"/></svg>
+      <canvas id="roda" width="1000" height="1000" role="img" aria-label="Roleta com os brindes"></canvas>
+      <div class="hub"><img src="assets/logo-synthetic.png" alt=""></div>
+    </div>
+  </section>
+
+  <section id="res" class="card" aria-live="polite">
+    <h2 id="res-t"></h2>
+    <div class="brinde" id="res-b"></div>
+    <p id="res-p"></p>
+    <div id="res-cod-box"><p>Seu código de retirada</p><div class="cod" id="res-cod"></div></div>
+    <div class="barra"><i id="barra"></i></div>
+    <div class="espera" id="espera"></div>
+    <button class="btn sec" id="proximo" type="button">Próximo participante</button>
+  </section>
+</main>
+
+<script>
+"use strict";
+const SB_URL = "https://kszwycktftzpmxzpyvdt.supabase.co";
+const SB_KEY = "sb_publishable_vI74WHyJWs2hm-4wlRfVhw__FKP8Vl2";   // chave pública (anon): só consegue chamar as 3 funções do sorteio
+const UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
+const RAMOS = ["Oficina mecânica","Troca de óleo","Autopeças","Concessionária","Transportadora","Frota","Agro","Indústria","Distribuidor","Outro"];
+const $ = id => document.getElementById(id);
+const DRAFT = "sorteio_rascunho_v1";
+let geracao = 0, timerFim = null;
+let vitrine = null, token = null, enviando = false, volta = null, ociosoTimer = null, tokenToken = 0;
+
+function opt(sel, arr){ arr.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); }); }
+opt($("uf"), UFS); opt($("ramo"), RAMOS);
+
+async function rpc(nome, corpo, ms = 15000){
+  const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms);
+  try {
+    const r = await fetch(SB_URL + "/rest/v1/rpc/" + nome, { method:"POST", signal:ac.signal,
+      headers:{ apikey:SB_KEY, Authorization:"Bearer " + SB_KEY, "Content-Type":"application/json" }, body:JSON.stringify(corpo || {}) });
+    if (!r.ok) throw new Error("http " + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+/* ---------- roleta (desenho) ---------- */
+let segs = [], angulo = 0;
+function desenhar(){
+  const c = $("roda"), g = c.getContext("2d"), W = c.width, R = W/2 - 14;
+  g.clearRect(0,0,W,W);
+  const n = Math.max(segs.length, 1), a = 2*Math.PI/n;
+  g.save(); g.translate(W/2, W/2);
+  g.beginPath(); g.arc(0,0,R+10,0,7); g.fillStyle = "#fff"; g.fill();
+  segs.forEach((s,i) => {
+    const a0 = -Math.PI/2 + i*a, a1 = a0 + a;
+    g.beginPath(); g.moveTo(0,0); g.arc(0,0,R,a0,a1); g.closePath();
+    g.fillStyle = s.cor; g.fill(); g.lineWidth = 6; g.strokeStyle = "#fff"; g.stroke();
+    g.save(); g.rotate(a0 + a/2); g.textAlign = "right"; g.textBaseline = "middle";
+    const hx = /^#[0-9a-f]{6}$/i.test(s.cor) ? s.cor : "#005071", lum = (0.299*parseInt(hx.slice(1,3),16) + 0.587*parseInt(hx.slice(3,5),16) + 0.114*parseInt(hx.slice(5,7),16)) / 255;
+    g.fillStyle = lum > .55 ? "#0e1b24" : "#fff";
+    let fs = n <= 4 ? 110 : n <= 6 ? 84 : 64; g.font = "800 " + fs + "px 'Roboto Condensed', sans-serif";
+    while (g.measureText(s.nome).width > R*0.62 && fs > 44){ fs -= 4; g.font = "800 " + fs + "px 'Roboto Condensed', sans-serif"; }
+    g.fillText(s.nome, R - 40, 0); g.restore();
+  });
+  g.restore();
+}
+function chips(){ const c = $("chips"); c.textContent = ""; segs.filter(s => s.tipo === "brinde").forEach(s => { const e = document.createElement("span"); e.textContent = s.nome; c.appendChild(e); });
+  $("roda").setAttribute("aria-label", "Roleta com: " + segs.map(s => s.nome).join(", ")); }
+function carregarFonteEDesenhar(){ chips(); (document.fonts && document.fonts.load ? document.fonts.load("800 60px 'Roboto Condensed'") : Promise.resolve()).then(desenhar, desenhar); }
+
+/* ---------- carga ---------- */
+async function carregar(){
+  try {
+    vitrine = await rpc("sorteio_vitrine");
+    $("ev").textContent = vitrine.evento || "Roleta de brindes";
+    segs = (vitrine.premios || []).map(p => ({ codigo:p.codigo, nome:p.nome, cor:p.cor, tipo:p.tipo }));
+    if (!vitrine.ativo){ aviso("O sorteio está encerrado. Obrigado!"); $("girar").disabled = true; }
+    carregarFonteEDesenhar();
+    novoToken();
+  } catch(e){ aviso("Sem conexão com a internet. Confira o Wi‑Fi e recarregue a página."); }
+}
+async function novoToken(){
+  const id = ++tokenToken;
+  try { const t = await rpc("sorteio_iniciar"); if (id === tokenToken) token = t; } catch(e){ token = null; }
+}
+
+/* ---------- rascunho (não perde o preenchimento) ---------- */
+const CAMPOS = ["nome","empresa","cidade","uf","whatsapp","email","ramo"];
+function salvarRascunho(){ try { const d = {}; CAMPOS.forEach(c => d[c] = $(c).value); d.ok = $("ok").checked; d.t = Date.now(); sessionStorage.setItem(DRAFT, JSON.stringify(d)); } catch(e){} reiniciaOcioso(); }
+function lerRascunho(){ try { const d = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); if (!d || Date.now() - d.t > 2*60*1000) return; CAMPOS.forEach(c => { if (d[c]) $(c).value = d[c]; }); $("ok").checked = !!d.ok; } catch(e){} }
+function limparRascunho(){ try { sessionStorage.removeItem(DRAFT); } catch(e){} }
+function reiniciaOcioso(){ clearTimeout(ociosoTimer); ociosoTimer = setTimeout(() => { if (!enviando && document.body.dataset.tela === "form"){ $("f").reset(); limparRascunho(); } }, 3*60*1000); }
+$("f").addEventListener("input", salvarRascunho);
+$("whatsapp").addEventListener("input", e => {
+  let d = e.target.value.replace(/\D/g,"").slice(0,11), s = d;
+  if (d.length > 6) s = "(" + d.slice(0,2) + ") " + d.slice(2, d.length > 10 ? 7 : 6) + "-" + d.slice(d.length > 10 ? 7 : 6);
+  else if (d.length > 2) s = "(" + d.slice(0,2) + ") " + d.slice(2);
+  e.target.value = s;
+});
+
+/* ---------- formulário ---------- */
+function aviso(msg){ const a = $("aviso"); a.textContent = msg || ""; a.classList.toggle("on", !!msg); }
+function erro(campo, msg){
+  const box = document.querySelector('[data-c="' + campo + '"]'); if (!box) return;
+  box.classList.toggle("bad", !!msg); box.querySelector(".err").textContent = msg || "";
+  if (campo === "consentimento") $("lgpd").classList.toggle("bad", !!msg);
+}
+function validar(){
+  CAMPOS.concat("consentimento").forEach(c => erro(c, ""));
+  let primeiro = null; const bad = (c, m) => { erro(c, m); primeiro = primeiro || c; };
+  if ($("nome").value.trim().length < 2) bad("nome", "Informe seu nome.");
+  const wa = $("whatsapp").value.replace(/\D/g,""); if (wa.length < 10 || wa.length > 11) bad("whatsapp", "Informe o WhatsApp com DDD.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim())) bad("email", "Informe um e-mail válido.");
+  if (!$("ok").checked) bad("consentimento", "Marque a autorização para participar.");
+  if (primeiro){ const el = primeiro === "consentimento" ? $("ok") : $(primeiro); el.focus(); el.scrollIntoView({ block:"center", behavior:"smooth" }); }
+  return !primeiro;
+}
+
+$("f").addEventListener("submit", async ev => {
+  ev.preventDefault(); if (enviando) return; aviso("");
+  if (!validar()) return;
+  enviando = true; $("girar").disabled = true; $("girar").textContent = "ENVIANDO…";
+  try {
+    if (!token) { token = await rpc("sorteio_iniciar"); }
+    const corpo = { p_nome:$("nome").value, p_empresa:$("empresa").value, p_cidade:$("cidade").value, p_uf:$("uf").value, p_whatsapp:$("whatsapp").value,
+                    p_email:$("email").value, p_ramo:$("ramo").value, p_consentimento:$("ok").checked, p_token:token, p_armadilha:$("site").value };
+    let r;
+    try { r = await rpc("sorteio_participar", corpo); }
+    catch(e){ r = await rpc("sorteio_participar", corpo); }   // 2ª tentativa com o mesmo token: o servidor devolve o mesmo resultado, sem sortear duas vezes
+    if (!r.ok){
+      if (r.campo) erro(r.campo, r.mensagem);
+      if (r.status === "repetido") mostrarSimples("Você já participou!", r.mensagem);
+      else { aviso(r.mensagem || "Não foi possível participar agora."); if (/Sessão|Calma/.test(r.mensagem || "")) novoToken(); }
+      return;
+    }
+    token = null; limparRascunho();
+    await girarPara(r);
+  } catch(e){
+    aviso("Sem internet ou conexão fraca. Seus dados estão guardados: toque em GIRAR A ROLETA para tentar de novo.");
+  } finally { enviando = false; $("girar").disabled = false; $("girar").textContent = "GIRAR A ROLETA"; }
+});
+
+/* ---------- animação (só mostra o resultado que veio do servidor) ---------- */
+function girarPara(r){
+  return new Promise(res => {
+    if (r.status === "esgotado" || !segs.length){ mostrarResultado(r); return res(); }
+    let i = segs.findIndex(s => s.codigo === (r.premio && r.premio.codigo));
+    if (i < 0){ // brinde acabou da vitrine depois de carregada: mostra o resultado direto
+      mostrarResultado(r); return res(); }
+    document.body.dataset.tela = "girando"; window.scrollTo({ top:0 });
+    const n = segs.length, a = 360/n, jitter = (Math.random() - .5) * a * 0.6;
+    const alvo = 360*6 + (360 - (i + .5)*a) + jitter;
+    const roda = $("roda"); roda.style.transition = "none"; roda.style.transform = "rotate(0deg)"; void roda.offsetWidth;
+    roda.style.transition = ""; roda.style.transform = "rotate(" + alvo + "deg)";
+    const minha = ++geracao; let feito = false;
+    const fim = () => { if (feito) return; feito = true; roda.removeEventListener("transitionend", fim);
+      timerFim = setTimeout(() => { if (minha === geracao){ mostrarResultado(r); } res(); }, 900); };
+    roda.addEventListener("transitionend", fim);
+    setTimeout(fim, 7500);
+  });
+}
+function mostrarSimples(t, p){
+  document.body.dataset.tela = "resultado"; $("res-t").textContent = t; $("res-b").textContent = ""; $("res-p").textContent = p; $("res-cod-box").classList.add("oculto"); iniciarVolta();
+}
+function mostrarResultado(r){
+  document.body.dataset.tela = "resultado"; window.scrollTo({ top:0 });
+  const cod = $("res-cod-box"); cod.classList.add("oculto");
+  if (r.status === "premio"){
+    $("res-t").textContent = "Parabéns! Você ganhou:"; $("res-b").textContent = r.premio.nome;
+    $("res-p").textContent = (vitrine && vitrine.mensagem_retirada) || "Retire seu brinde no estande."; $("res-cod").textContent = r.codigo_retirada; cod.classList.remove("oculto");
+  } else if (r.status === "nada"){
+    $("res-t").textContent = "Não foi dessa vez!"; $("res-b").textContent = r.premio ? r.premio.nome : ""; $("res-p").textContent = "Obrigado por participar. Converse com nosso time no estande!";
+  } else {
+    $("res-t").textContent = "Obrigado por participar!"; $("res-b").textContent = ""; $("res-p").textContent = "Os brindes acabaram, mas seu cadastro foi feito e nosso time vai falar com você.";
+  }
+  iniciarVolta();
+}
+function iniciarVolta(){
+  const s = (vitrine && vitrine.segundos_retorno) || 20, b = $("barra");
+  b.style.transition = "none"; b.style.transform = "scaleX(1)"; void b.offsetWidth; b.style.transition = "transform " + s + "s linear"; b.style.transform = "scaleX(0)";
+  $("espera").textContent = "Esta tela volta ao início em " + s + " segundos. Anote ou tire uma foto do código. Toque na tela para ganhar mais tempo.";
+  clearTimeout(volta); volta = setTimeout(reiniciar, s*1000);
+}
+document.addEventListener("pointerdown", e => { if (document.body.dataset.tela === "resultado" && !e.target.closest("#proximo")) iniciarVolta(); });
+function reiniciar(){
+  geracao++; clearTimeout(timerFim); clearTimeout(volta); $("f").reset(); limparRascunho(); ["nome","whatsapp","email","consentimento"].forEach(c => erro(c,""));
+  const roda = $("roda"); roda.style.transition = "none"; roda.style.transform = "rotate(0deg)";
+  document.body.dataset.tela = "form"; aviso(""); window.scrollTo({ top:0 }); novoToken(); carregar_leve(); reiniciaOcioso();
+}
+async function carregar_leve(){ try { vitrine = await rpc("sorteio_vitrine", {}, 8000); segs = (vitrine.premios || []).map(p => ({ codigo:p.codigo, nome:p.nome, cor:p.cor, tipo:p.tipo })); desenhar(); } catch(e){} }
+$("proximo").addEventListener("click", reiniciar);
+
+lerRascunho(); carregar(); reiniciaOcioso();
+</script>
+</body>
+</html>
