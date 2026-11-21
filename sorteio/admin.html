@@ -58,6 +58,10 @@
     <div class="barra"><label style="flex:1">Contato para pedido de exclusão (e-mail ou WhatsApp da Synthetic, aparece no texto de privacidade) <input id="c-contato" type="text" maxlength="120" style="width:100%"></label>
       <button id="c-salvar" class="p" type="button">Salvar</button><span id="c-st"></span></div>
   </section>
+  <section class="card"><h2>Cadastros recusados (sem dado pessoal)</h2>
+    <p style="color:var(--muted);font-size:.95rem;margin-top:0">Quantas vezes o formulário recusou um envio, por campo e motivo. Serve para ver onde as pessoas travam. Guardado por 90 dias.</p>
+    <div class="scroll"><table><thead><tr><th>Campo</th><th>Motivo</th><th>Total</th><th>Últimas 24 h</th></tr></thead><tbody id="tb-rec"></tbody></table></div>
+  </section>
   <section class="card"><h2>Cadastros</h2>
     <div class="barra"><input id="busca" type="search" placeholder="Buscar nome, empresa, cidade…">
       <button id="csv-tudo" class="p" type="button">Exportar CSV completo</button></div>
@@ -87,7 +91,14 @@ async function carregar(){
     $("lmsg").textContent = /negado|42501/.test(error.message + error.code) ? "Seu usuário não tem acesso (somente Administrador)." : "Erro ao carregar: " + error.message;
     await sb.auth.signOut({ scope:"local" }); return;
   }
-  D = data; $("login").classList.add("oculto"); $("painel").classList.remove("oculto"); render();
+  D = data; $("login").classList.add("oculto"); $("painel").classList.remove("oculto"); render(); recusas();
+}
+const MOTIVO = { erro:"dado inválido ou sessão", repetido:"já cadastrado", limite:"muitas tentativas", encerrado:"encerrado" };
+async function recusas(){
+  const tb = $("tb-rec"); tb.textContent = "";
+  const { data, error } = await sb.rpc("sorteio_admin_recusas");
+  if (error || !Array.isArray(data) || !data.length){ const tr = el("tr"); tr.appendChild(el("td", error ? "Indisponível agora." : "Nenhuma recusa registrada.")); tb.appendChild(tr); return; }
+  data.forEach(r => { const tr = el("tr"); [r.campo, MOTIVO[r.status] || r.status, r.total, r.ultimas_24h].forEach(v => tr.appendChild(el("td", v))); tb.appendChild(tr); });
 }
 function render(){
   const P = D.participantes, premios = D.premios, ent = D.entregues;
@@ -132,8 +143,8 @@ function baixar(nome, cab, linhas){
 }
 const hoje = () => new Date().toISOString().slice(0, 10);
 $("csv-tudo").onclick = () => baixar("cadastros-kit-" + hoje() + ".csv",
-  ["Data/hora","Nome","Empresa","Cidade","UF","WhatsApp","E-mail","Ramo","Kit"],
-  D.participantes.map(p => [fmt(p.criado_em), p.nome, p.empresa, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado === "premio" ? "Ganhou" : "Sem kit (esgotado)"]));
+  ["Data/hora","Nome","Empresa","CEP","Cidade","UF","WhatsApp","E-mail","Ramo","Kit"],
+  D.participantes.map(p => [fmt(p.criado_em), p.nome, p.empresa, p.cep, p.cidade, p.uf, p.whatsapp, p.email, p.ramo, p.resultado === "premio" ? "Ganhou" : "Sem kit (esgotado)"]));
 $("c-salvar").onclick = async () => { $("c-salvar").disabled = true; $("c-st").textContent = "Salvando…"; const { error } = await sb.rpc("sorteio_admin_config", { p_evento:$("c-evento").value, p_ativo:$("c-ativo").checked, p_segundos:parseInt($("c-seg").value, 10) || 12, p_mensagem:$("c-msg").value, p_contato:$("c-contato").value });
   $("c-salvar").disabled = false; $("c-st").textContent = error ? "Erro: " + error.message : "Salvo."; $("c-st").className = error ? "msg" : "ok"; };
 $("ap-btn").onclick = async () => { const d = $("ap-data").value; if (!d){ $("ap-st").textContent = "Escolha a data."; return; }

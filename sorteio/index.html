@@ -86,6 +86,7 @@
   body[data-modo=kit] #roda-col{ display:none!important; }
   body[data-modo=kit] main{ grid-template-columns:1fr!important; justify-items:center; }
   body[data-modo=kit] #cartao-form, body[data-modo=kit] #res{ width:min(100%, max(640px, 56vw)); }
+  .dica{ font-size:.95rem; color:var(--muted); }
   .lgpd a{ color:var(--brand); font-weight:700; }
   #gestao{ position:fixed; right:10px; bottom:8px; z-index:5; color:#fff; opacity:.7; font-size:.9rem; text-decoration:none; padding:12px 14px; min-height:44px; }
   #gestao:hover,#gestao:focus-visible{ opacity:1; }
@@ -102,17 +103,18 @@
     <div class="chips" id="chips" aria-label="Brindes"></div>
     <form id="f" novalidate autocomplete="off">
       <div class="f full" data-c="nome"><label for="nome">Nome</label><input id="nome" type="text" autocomplete="name" maxlength="80" required><div class="err"></div></div>
-      <div class="f full" data-c="empresa"><label for="empresa">Empresa</label><input id="empresa" type="text" autocomplete="organization" maxlength="80" required><div class="err"></div></div>
-      <div class="f" data-c="cidade"><label for="cidade">Cidade</label><input id="cidade" type="text" autocomplete="address-level2" maxlength="60" required><div class="err"></div></div>
+      <div class="f" data-c="whatsapp"><label for="whatsapp">WhatsApp com DDD</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="22" required><div class="err"></div></div>
+      <div class="f" data-c="cep"><label for="cep">CEP</label><input id="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9" required><div class="err"></div><div class="dica" id="cep-dica"></div></div>
+      <div class="f" data-c="cidade"><label for="cidade">Cidade <small>(vem do CEP)</small></label><input id="cidade" type="text" autocomplete="address-level2" maxlength="60"><div class="err"></div></div>
       <div class="f" data-c="uf"><label for="uf">UF</label>
         <select id="uf"><option value="">Escolha</option></select><div class="err"></div></div>
-      <div class="f" data-c="whatsapp"><label for="whatsapp">WhatsApp com DDD</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="16" required><div class="err"></div></div>
-      <div class="f" data-c="email"><label for="email">E-mail</label><input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required><div class="err"></div></div>
-      <div class="f full" data-c="ramo"><label for="ramo">Ramo de atividade</label>
+      <div class="f full" data-c="empresa"><label for="empresa">Empresa</label><input id="empresa" type="text" autocomplete="organization" maxlength="80" required><div class="err"></div><div class="dica">Se for autônomo, escreva Autônomo.</div></div>
+      <div class="f" data-c="email"><label for="email">E-mail <small>(opcional)</small></label><input id="email" type="email" inputmode="email" autocomplete="email" maxlength="120"><div class="err"></div></div>
+      <div class="f" data-c="ramo"><label for="ramo">Ramo de atividade <small>(opcional)</small></label>
         <select id="ramo"><option value="">Selecione…</option></select><div class="err"></div></div>
       <div class="f full hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="f full" data-c="consentimento">
-        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a guardar meus dados (nome, empresa, cidade, UF, WhatsApp, e-mail e ramo) por até 12 meses, para a equipe da Synthetic falar comigo pelo <b>WhatsApp ou e-mail</b> sobre lubrificantes para minha empresa e para a entrega do meu kit. Não repassam meus dados a terceiros. Posso pedir a exclusão a qualquer momento <span id="lgpd-contato">com a equipe no estande</span>. <a href="privacidade.html">Ler a política de privacidade</a>.</label></div>
+        <div class="lgpd" id="lgpd"><input id="ok" type="checkbox"><label for="ok">Autorizo a <b>Synthetic Lubrificantes</b> a guardar meus dados (nome, empresa, WhatsApp, CEP, cidade, UF e, se eu informar, e-mail e ramo) por até 12 meses, para a equipe da Synthetic falar comigo pelo <b>WhatsApp ou e-mail</b> sobre lubrificantes para minha empresa e para a entrega do meu kit. Não repassam meus dados a terceiros. Posso pedir a exclusão a qualquer momento <span id="lgpd-contato">com a equipe no estande</span>. <a href="privacidade.html">Ler a política de privacidade</a>.</label></div>
         <div class="err"></div></div>
       <div class="f full"><button class="btn" id="girar" type="submit"><span id="btn-txt">QUERO MEU KIT</span></button>
         <div class="aviso" id="aviso" role="alert"></div>
@@ -216,18 +218,39 @@ async function novoToken(){
 }
 
 /* ---------- rascunho (não perde o preenchimento) ---------- */
-const CAMPOS = ["nome","empresa","cidade","uf","whatsapp","email","ramo"];
+const CAMPOS = ["nome","whatsapp","cep","cidade","uf","empresa","email","ramo"];
 function salvarRascunho(){ try { const d = {}; CAMPOS.forEach(c => d[c] = $(c).value); d.ok = $("ok").checked; d.t = Date.now(); sessionStorage.setItem(DRAFT, JSON.stringify(d)); } catch(e){} reiniciaOcioso(); }
 function lerRascunho(){ try { const d = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); if (!d || Date.now() - d.t > 10*60*1000) return; CAMPOS.forEach(c => { if (d[c]) $(c).value = d[c]; }); $("ok").checked = !!d.ok; } catch(e){} }
 function limparRascunho(){ try { sessionStorage.removeItem(DRAFT); } catch(e){} }
 function reiniciaOcioso(){ clearTimeout(ociosoTimer); ociosoTimer = setTimeout(() => { if (!enviando && document.body.dataset.tela === "form"){ $("f").reset(); limparRascunho(); } }, 3*60*1000); }
 $("f").addEventListener("input", salvarRascunho);
+/* WhatsApp tolerante: aceita +55, espaços, traços, parênteses; celular (11 dígitos) ou fixo (10) */
+function digitosWa(v){ let d = String(v || "").replace(/\D/g,"").replace(/^0+/, ""); if (d.length >= 12 && d.slice(0,2) === "55") d = d.slice(2); return d.slice(0,11); }
 $("whatsapp").addEventListener("input", e => {
-  let d = e.target.value.replace(/\D/g,"").slice(0,11), s = d;
+  const d = digitosWa(e.target.value); let s = d;
   if (d.length > 6) s = "(" + d.slice(0,2) + ") " + d.slice(2, d.length > 10 ? 7 : 6) + "-" + d.slice(d.length > 10 ? 7 : 6);
   else if (d.length > 2) s = "(" + d.slice(0,2) + ") " + d.slice(2);
   e.target.value = s;
 });
+/* CEP -> cidade/UF (ViaCEP, consulta pública). Se falhar, a pessoa preenche na mão e o cadastro segue. */
+let cepFeito = "";
+$("cep").addEventListener("input", e => {
+  const d = e.target.value.replace(/\D/g,"").slice(0,8); e.target.value = d.length > 5 ? d.slice(0,5) + "-" + d.slice(5) : d;
+  if (d.length === 8 && d !== cepFeito) buscaCep(d); else if (d.length < 8){ cepFeito = ""; $("cep-dica").textContent = ""; }
+});
+async function buscaCep(d){
+  cepFeito = d; $("cep-dica").textContent = "Buscando cidade…";
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 5000);
+  try {
+    const r = await fetch("https://viacep.com.br/ws/" + d + "/json/", { signal:ac.signal }); const j = await r.json();
+    if (j && !j.erro && j.localidade){
+      if (cepFeito !== d) return;
+      $("cidade").value = j.localidade; if (UFS.includes(j.uf)) $("uf").value = j.uf;
+      $("cep-dica").textContent = "Confira a cidade e a UF ao lado."; erro("cep",""); salvarRascunho();
+    } else { $("cep-dica").textContent = "Não achamos esse CEP. Confira, ou preencha cidade e UF ao lado."; }
+  } catch(e){ $("cep-dica").textContent = "Sem consulta agora. Preencha cidade e UF ao lado."; }
+  finally { clearTimeout(t); }
+}
 
 /* ---------- formulário ---------- */
 function aviso(msg){ const a = $("aviso"); a.textContent = msg || ""; a.classList.toggle("on", !!msg); }
@@ -236,17 +259,26 @@ function erro(campo, msg){
   box.classList.toggle("bad", !!msg); box.querySelector(".err").textContent = msg || "";
   if (campo === "consentimento") $("lgpd").classList.toggle("bad", !!msg);
 }
+/* regras por campo: devolvem a mensagem em linguagem simples, ou "" se estiver ok */
+const REGRAS = {
+  nome:  () => $("nome").value.trim().length < 2 ? "Escreva seu nome." : "",
+  empresa: () => $("empresa").value.trim().length < 2 ? "Informe a empresa." : "",
+  whatsapp: () => { const d = digitosWa($("whatsapp").value);
+    if (!d) return "Escreva seu WhatsApp com DDD.";
+    if (d.length < 10) return "Faltam números: use DDD + telefone (ex.: 11 99999-9999).";
+    if (parseInt(d.slice(0,2), 10) < 11) return "Esse DDD não existe. Confira os 2 primeiros números.";
+    if (d.length === 11 && d[2] !== "9") return "Celular tem 9 na frente do número (ex.: 11 99999-9999).";
+    return ""; },
+  cep:   () => { const d = $("cep").value.replace(/\D/g,""); return d.length === 8 ? "" : (d ? "O CEP tem 8 números." : "Escreva seu CEP."); },
+  email: () => { const v = $("email").value.trim(); return !v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? "" : "E-mail com erro. Confira ou deixe em branco."; },
+  consentimento: () => $("ok").checked ? "" : "Marque a autorização para participar."
+};
+function validarCampo(c){ const m = REGRAS[c] ? REGRAS[c]() : ""; erro(c, m); return m; }
+["nome","empresa","whatsapp","cep","email"].forEach(c => $(c).addEventListener("blur", () => { if ($(c).value.trim() !== "") validarCampo(c); }));
 function validar(){
   CAMPOS.concat("consentimento").forEach(c => erro(c, ""));
-  let primeiro = null; const bad = (c, m) => { erro(c, m); primeiro = primeiro || c; };
-  if ($("nome").value.trim().length < 2) bad("nome", "Informe seu nome.");
-  const wa = $("whatsapp").value.replace(/\D/g,""); if (wa.length < 10 || wa.length > 11) bad("whatsapp", "Informe o WhatsApp com DDD.");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim())) bad("email", "Informe um e-mail válido.");
-  if ($("empresa").value.trim().length < 2) bad("empresa", "Informe a empresa.");
-  if ($("cidade").value.trim().length < 2) bad("cidade", "Informe a cidade.");
-  if (!$("uf").value) bad("uf", "Escolha a UF.");
-  if (!$("ramo").value) bad("ramo", "Escolha o ramo de atividade.");
-  if (!$("ok").checked) bad("consentimento", "Marque a autorização para participar.");
+  let primeiro = null;
+  ["nome","empresa","whatsapp","cep","email","consentimento"].forEach(c => { if (validarCampo(c) && !primeiro) primeiro = c; });
   if (primeiro){ const el = primeiro === "consentimento" ? $("ok") : $(primeiro); el.focus(); el.scrollIntoView({ block:"center", behavior:"smooth" }); }
   return !primeiro;
 }
@@ -258,7 +290,7 @@ $("f").addEventListener("submit", async ev => {
   try {
     if (!token) { token = await rpc("sorteio_iniciar"); }
     const corpo = { p_nome:$("nome").value, p_empresa:$("empresa").value, p_cidade:$("cidade").value, p_uf:$("uf").value, p_whatsapp:$("whatsapp").value,
-                    p_email:$("email").value, p_ramo:$("ramo").value, p_consentimento:$("ok").checked, p_token:token, p_armadilha:$("site").value };
+                    p_email:$("email").value, p_ramo:$("ramo").value, p_consentimento:$("ok").checked, p_token:token, p_armadilha:$("site").value, p_cep:$("cep").value };
     let r;
     try { r = await rpc("sorteio_participar", corpo); }
     catch(e){ r = await rpc("sorteio_participar", corpo); }   // 2ª tentativa com o mesmo token: o servidor devolve o mesmo resultado, sem sortear duas vezes
@@ -320,13 +352,28 @@ function iniciarVolta(){
 let prorroga = 0;
 document.addEventListener("pointerdown", e => { if (document.body.dataset.tela === "resultado" && !e.target.closest("#proximo") && prorroga < 3){ prorroga++; iniciarVolta(); } });
 function reiniciar(){
-  prorroga = 0; geracao++; clearTimeout(timerFim); clearTimeout(volta); $("f").reset(); limparRascunho(); ["nome","whatsapp","email","consentimento"].forEach(c => erro(c,""));
+  prorroga = 0; geracao++; clearTimeout(timerFim); clearTimeout(volta); $("f").reset(); limparRascunho(); cepFeito = ""; $("cep-dica").textContent = ""; ["nome","empresa","whatsapp","cep","email","consentimento"].forEach(c => erro(c,""));
+  conferirVersao(true);
   const roda = $("roda"); roda.style.transition = "none"; roda.style.transform = "rotate(0deg)";
   document.body.dataset.tela = "form"; aviso(""); window.scrollTo({ top:0 }); novoToken(); carregar_leve(); reiniciaOcioso();
 }
 async function carregar_leve(){ try { vitrine = await rpc("sorteio_vitrine", {}, 8000); segs = (vitrine.premios || []).map(p => ({ codigo:p.codigo, nome:p.nome, cor:p.cor, tipo:p.tipo })); desenhar(); } catch(e){} }
 $("proximo").addEventListener("click", reiniciar);
 
+/* versão nova sem clique: confere versao.json (sem cache) ao voltar ao início e a cada 2 min com a tela parada. NUNCA recarrega com alguém digitando. */
+const VERSAO = "2026-11-21-a";
+let ultimaDigitacao = 0;
+["input","keydown","pointerdown"].forEach(ev => document.addEventListener(ev, () => { ultimaDigitacao = Date.now(); }, { passive:true }));
+function alguemUsando(){ if (enviando) return true; if (document.body.dataset.tela !== "form") return true;
+  if (CAMPOS.some(c => $(c).value) || $("ok").checked) return true; return Date.now() - ultimaDigitacao < 60000; }
+async function conferirVersao(voltouAoInicio){
+  try {
+    if (!voltouAoInicio && alguemUsando()) return;
+    const r = await fetch("versao.json?t=" + Date.now(), { cache:"no-store" }); if (!r.ok) return; const j = await r.json();
+    if (j && j.v && j.v !== VERSAO && !enviando && document.body.dataset.tela === "form" && !(CAMPOS.some(c => $(c).value) || $("ok").checked)) location.replace(location.pathname + "?v=" + encodeURIComponent(j.v));
+  } catch(e){}
+}
+setInterval(() => conferirVersao(false), 2*60*1000);
 lerRascunho(); carregar(); reiniciaOcioso();
 </script>
 </body>
