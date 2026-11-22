@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261118-152800">
+<meta name="crm-versao" content="20261122-095041">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -520,6 +520,7 @@
     <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
     <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
+    <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="leadscada" data-grupo="clientes" title="Leads quentes do Aulão de Câmbio Automático: quem atender esta semana, o que oferecer e a abertura pronta para o WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg><span>Leads</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada segunda)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
@@ -551,6 +552,7 @@
     <div id="view-especialista" class="view"><div class="tb" id="es"></div></div>
     <div id="view-caixalucro" class="view"><div class="tb" id="cl"></div></div>
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
+    <div id="view-leadscada" class="view"><div class="tb" id="lc"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
     <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
     <div id="view-anprod" class="view"><div class="tb" id="ap"></div></div>
@@ -4003,6 +4005,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'especialista') renderEspecialista();
     if(v === 'caixalucro') renderCaixaLucro();
     if(v === 'rota') renderRota();
+    if(v === 'leadscada') renderLeadsCada();
     if(v === 'entregas') renderEntregas();
     if(v === 'anprod') renderAnaliseProdutos();
     if(v === 'plano27'){ const h = document.getElementById('p27'); if(h) fiPlanejamento(h); }
@@ -4079,11 +4082,11 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', leadscada:'admin,master,gerente,analista', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['leadscada', 'periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -4091,7 +4094,7 @@ const libSoVoce = k=> libAdmin() && LIB.pend.has(k);
 const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) + '/' + d.slice(5, 7) : 'sem data'; };
 const svC = k=> libSoVoce(k) ? ' so-voce' : '';
 const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
-const LIB_VIEW = { operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
+const LIB_VIEW = { leadscada:['leadscada'], operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
 const SO_ADMIN_VIEW = { caixalucro:1, especialista:1, entregas:1, anprod:1, plano27:1 };
 const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
 async function libCarrega(){
@@ -4137,7 +4140,7 @@ function menuLiberado(view, p){
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês']] },
   especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
-  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana']] },
+  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do Aulão']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
@@ -9449,6 +9452,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'leads-cada-2311', lib:'leadscada', dia:'2026-11-23', tela:'leadscada', titulo:'Leads quentes do Aulão CADA, por vendedor', txt:'Em Clientes › Leads: os contatos que passaram pelo estande no Aulão de Câmbio Automático, já distribuídos pela região de cada vendedor, com o que oferecer e a abertura pronta para o WhatsApp. Marque "Já falei" quando contatar. O botão "Um arquivo, uma aba por vendedor" baixa a lista de cada um.' },
   { id:'periodo-2311', lib:'periodo', dia:'2026-11-23', tela:'tabmedia', titulo:'Escolha as datas na Tab. média e no Prazo', txt:'Pedido do Luis: além de Mês atual, Mês passado e Últimos 90 dias, agora dá para escolher "Escolher datas…" e informar o dia inicial e o final. Vale para a Tab. média, o Prazo e o botão Exportar por cliente, que baixa exatamente o período escolhido. A comparação "Antes" usa o período anterior, com a mesma duração.' },
   { id:'pontos-2311', lib:'pontos', dia:'2026-11-16', tela:'resumo', titulo:'Pontuação por vendedor no ranking', txt:'Pedido do Luis: a pontuação de cada vendedor é o vendido no período vezes a tabela média, dividido pelo prazo médio. Vende mais, em tabela mais alta e com prazo menor: mais pontos. Em Vendas, o ranking ganhou as colunas Prazo médio e Pontos e a opção "Por pontuação". A conta vem explicada abaixo da tabela.' },
   { id:'ciclo-2311', lib:'ciclo', dia:'2026-11-16', tela:'resumo', titulo:'Ranking do ciclo de comissão (26 a 25)', txt:'Pedido do Financeiro e do Luis na reunião: o ranking dos vendedores agora conta do dia 26 do mês anterior ao dia 25, o mesmo período que fecha a comissão. Em Vendas, escolha "Ciclo 26 a 25" ou "Mês corrido". O botão de copiar o ranking para o grupo acompanha a escolha.' },
@@ -12992,6 +12996,115 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
   }
   document.addEventListener('submit', e=>{ if(e.target.id!=='pq-form') return; e.preventDefault(); const i = $('pq-in'); const v = i.value.trim(); if(!v){ PQ.abriuPor = $('pq-in'); const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); return; } if(PQ.ocupado){ showToast('Espere a resposta anterior terminar.'); return; } i.value = ''; perguntar(v); });
   document.addEventListener('click', e=>{ if(e.target.closest('#pq-mini')){ PQ.abriuPor = $('pq-mini'); const p = painel(); p.hidden = false; desenhar(); setTimeout(()=>{ const i2 = $('pq-in2'); if(i2) i2.focus(); }, 50); } });
+})();
+</script>
+
+<script>
+// "Leads do Aulão CADA" (22/11/2026, pedido do Luiz): os contatos do estande no Aulão de Câmbio Automático, distribuídos pela região de cada vendedor,
+// com o que oferecer e a abertura pronta para o WhatsApp. Quem gerencia vê todos; quem tem seller vê os seus (o banco filtra).
+(function(){
+  const esc = s=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const LC = { rows:[], vend:[], f:{ v:'', uf:'', st:'abertos', q:'' } };
+  const pode = ()=> ['admin', 'master', 'gerente'].includes(perfilEfetivo());
+  const nomeV = n=> nomeBonito(n || '');
+  const oferta = o=> ((String(o || '').match(/Oferecer esta semana: ([^\n]*)/) || [])[1] || '').replace(/\.$/, '');
+  const abertura = o=> (String(o || '').match(/Abertura sugerida \(WhatsApp\): "(.*)"/) || [])[1] || '';
+  const tel = t=>{ const d = String(t || '').replace(/\D/g, ''); return d.length === 10 || d.length === 11 ? '55' + d : d; };
+  const waLink = r=>{ const t = tel(r.telefone); return t ? 'https://wa.me/' + t + '?text=' + encodeURIComponent(abertura(r.observacoes)) : ''; };
+  const tem = (r, t)=> (r.tags || []).includes(t);
+  const TIPO = { oficina:'Oficina', revenda:'Revenda / autopeças', industria:'Indústria', distribuidor:'Distribuidor', frotista:'Frota', agro:'Agro', autocenter:'Auto center', outro:'Outro' };
+  const vendDe = r=> r.proximo_responsavel ? nomeV(r.proximo_responsavel) : 'Sem vendedor na região';
+  const COLS = 'id,nome,contato_nome,telefone,email,cidade,uf,tipo,seller_id,tags,proxima_data,proximo_responsavel,observacoes,created_at';
+
+  async function carrega(){
+    const { data, error } = await sb.from('crm_pessoas').select(COLS).contains('tags', ['Lead quente']).limit(2000);
+    if(error) throw error; LC.rows = data || [];
+    try{ const sv = await sb.from('sellers').select('id,name').eq('archived', false).order('name'); LC.vend = (sv.data || []).map(x=> ({ id:x.id, nome:nomeV(x.name) })); }catch(_){ LC.vend = []; }
+    if(!LC.vend.length){ const m = new Map(); LC.rows.forEach(r=>{ if(r.seller_id && r.proximo_responsavel) m.set(r.seller_id, nomeV(r.proximo_responsavel)); }); LC.vend = [...m].map(([id, nome])=> ({ id, nome })); }
+  }
+  function filtra(){
+    const f = LC.f, q = f.q.trim().toLowerCase();
+    return LC.rows.filter(r=>{
+      if(f.st === 'abertos' && tem(r, 'Contatado')) return false; if(f.st === 'feitos' && !tem(r, 'Contatado')) return false;
+      if(f.v === '__sem' ? r.seller_id : f.v && String(r.seller_id) !== f.v) return false;
+      if(f.uf && r.uf !== f.uf) return false;
+      if(q && !((r.nome || '') + ' ' + (r.contato_nome || '') + ' ' + (r.cidade || '')).toLowerCase().includes(q)) return false;
+      return true; })
+      .sort((a, b)=> (tem(a, 'Contatado') - tem(b, 'Contatado')) || String(a.proxima_data || '').localeCompare(String(b.proxima_data || '')) || vendDe(a).localeCompare(vendDe(b)) || (a.nome || '').localeCompare(b.nome || ''));
+  }
+  function desenha(host){
+    const all = LC.rows, tot = all.length, sem = all.filter(r=> !r.seller_id).length, feitos = all.filter(r=> tem(r, 'Contatado')).length;
+    const vs = [...new Map(all.filter(r=> r.seller_id).map(r=> [String(r.seller_id), vendDe(r)])).entries()].sort((a, b)=> a[1].localeCompare(b[1]));
+    const ufs = [...new Set(all.map(r=> r.uf).filter(Boolean))].sort(), L = filtra();
+    const optV = ['<option value="">Todos os vendedores</option>'].concat(sem ? ['<option value="__sem"' + (LC.f.v === '__sem' ? ' selected' : '') + '>Sem vendedor na região (' + sem + ')</option>'] : [])
+      .concat(vs.map(([id, n])=> `<option value="${esc(id)}" ${LC.f.v === id ? 'selected' : ''}>${esc(n)} (${all.filter(r=> String(r.seller_id) === id).length})</option>`)).join('');
+    const sel = r=> !pode() ? esc(vendDe(r)) : `<select class="ca-inp lc-v" data-id="${esc(r.id)}" style="width:auto;max-width:190px"><option value="">Sem vendedor</option>${LC.vend.map(v=> `<option value="${esc(v.id)}" ${String(r.seller_id) === String(v.id) ? 'selected' : ''}>${esc(v.nome)}</option>`).join('')}</select>`;
+    host.innerHTML = `
+      <div class="tb-kpis">
+        <div class="tb-kpi"><small>Leads do Aulão CADA</small><b>${tot}</b><span>contatos do estande, todos com aceite de contato</span></div>
+        <div class="tb-kpi"><small>Com vendedor da região</small><b>${tot - sem}</b><span>distribuídos pela carteira de cada vendedor</span></div>
+        <div class="tb-kpi ${sem ? 'alerta' : ''}"><small>Sem vendedor na região</small><b>${sem}</b><span>${sem ? (pode() ? 'escolha quem atende na coluna Vendedor' : 'o gerente define quem atende') : 'todos têm vendedor'}</span></div>
+        <div class="tb-kpi"><small>Já contatados</small><b>${feitos}</b><span>de ${tot}; marque "Já falei" ao falar com o contato</span></div>
+      </div>
+      <div class="tb-bar">
+        <select id="lc-v">${optV}</select>
+        <select id="lc-uf"><option value="">Todos os estados</option>${ufs.map(u=> `<option ${LC.f.uf === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}</select>
+        <select id="lc-st"><option value="abertos" ${LC.f.st === 'abertos' ? 'selected' : ''}>A contatar</option><option value="feitos" ${LC.f.st === 'feitos' ? 'selected' : ''}>Já contatados</option><option value="todos" ${LC.f.st === 'todos' ? 'selected' : ''}>Todos</option></select>
+        <input id="lc-q" type="search" placeholder="Buscar empresa, contato ou cidade" value="${esc(LC.f.q)}">
+        <span class="tb-esp"></span>
+        <button class="om-cancel" id="lc-pacote" title="Baixa um arquivo só, com uma aba para cada vendedor e os leads dele, com o WhatsApp e a abertura pronta">Um arquivo, uma aba por vendedor</button>
+      </div>
+      <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>Empresa</th><th>Contato</th><th>Cidade</th><th>Tipo</th><th>Vendedor</th><th>O que oferecer</th><th>Falar em</th><th></th></tr></thead><tbody>
+      ${L.map(r=> { const w = waLink(r), ok = tem(r, 'Contatado'); return `<tr style="${ok ? 'opacity:.55' : ''}">
+        <td class="prod"><b>${esc(r.nome)}</b></td><td>${esc(r.contato_nome || '')}</td><td>${esc(r.cidade || '')}${r.uf ? '/' + esc(r.uf) : ''}</td><td>${esc(TIPO[r.tipo] || r.tipo || '')}</td>
+        <td>${sel(r)}</td><td style="white-space:normal;min-width:260px;max-width:420px">${esc(oferta(r.observacoes))}</td><td>${esc(fmtDate(r.proxima_data))}</td>
+        <td style="white-space:nowrap">${w ? `<a class="om-cancel lc-wa" data-id="${esc(r.id)}" href="${esc(w)}" target="_blank" rel="noopener">WhatsApp</a>` : ''} <button class="om-cancel lc-ok" data-id="${esc(r.id)}">${ok ? 'Desfazer' : 'Já falei'}</button></td></tr>`; }).join('') || '<tr><td colspan="8" class="vazio">Nenhum lead nesta seleção.</td></tr>'}
+      </tbody></table></div>
+      <div class="tb-rodape">${L.length} de ${tot} leads. A abertura do WhatsApp já vai escrita, mas quem envia é você: nada é mandado sozinho. Os dados vieram do cadastro do estande, com aceite de contato.</div>`;
+    const ref = ()=> desenha(host);
+    host.querySelector('#lc-v').addEventListener('change', e=>{ LC.f.v = e.target.value; ref(); });
+    host.querySelector('#lc-uf').addEventListener('change', e=>{ LC.f.uf = e.target.value; ref(); });
+    host.querySelector('#lc-st').addEventListener('change', e=>{ LC.f.st = e.target.value; ref(); });
+    host.querySelector('#lc-q').addEventListener('input', e=>{ LC.f.q = e.target.value; clearTimeout(LC.t); LC.t = setTimeout(()=>{ ref(); const i = host.querySelector('#lc-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 250); });
+    host.querySelectorAll('.lc-wa').forEach(a=> a.addEventListener('click', ()=> uso('clique', 'leads: whatsapp')));
+    host.querySelectorAll('.lc-ok').forEach(b=> b.addEventListener('click', async ()=>{
+      const r = LC.rows.find(x=> x.id === b.dataset.id); if(!r) return; b.disabled = true;
+      const novas = tem(r, 'Contatado') ? r.tags.filter(t=> t !== 'Contatado') : (r.tags || []).concat(['Contatado']);
+      const { error } = await sb.from('crm_pessoas').update({ tags:novas }).eq('id', r.id);
+      if(error){ showToast('Não consegui salvar: ' + (error.message || 'tente de novo')); b.disabled = false; return; }
+      r.tags = novas; uso('clique', 'leads: ja falei'); ref(); }));
+    host.querySelectorAll('.lc-v').forEach(sl=> sl.addEventListener('change', async ()=>{
+      const r = LC.rows.find(x=> x.id === sl.dataset.id); if(!r) return; const v = LC.vend.find(x=> String(x.id) === sl.value);
+      const upd = { seller_id: v ? v.id : null, proximo_responsavel: v ? v.nome : null, tags:(r.tags || []).filter(t=> t !== 'Sem vendedor na região').concat(v ? [] : ['Sem vendedor na região']) };
+      const { error } = await sb.from('crm_pessoas').update(upd).eq('id', r.id);
+      if(error){ showToast('Não consegui trocar o vendedor: ' + (error.message || 'tente de novo')); ref(); return; }
+      Object.assign(r, upd); uso('clique', 'leads: trocou vendedor'); showToast(v ? 'Lead passado para ' + v.nome + '.' : 'Lead sem vendedor.'); ref(); }));
+    host.querySelector('#lc-pacote').addEventListener('click', async ev=>{
+      const b = ev.currentTarget, grupos = new Map(); all.forEach(r=>{ const k = vendDe(r); if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(r); });
+      if(!grupos.size){ showToast('Nenhum lead para baixar.'); return; } b.disabled = true;
+      try{ await docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }catch(e){ showToast('Não consegui carregar o gerador de planilhas. Tente de novo.'); b.disabled = false; return; }
+      try{
+        const wb = XLSX.utils.book_new(), usados = new Set(['resumo']);
+        const nomeAba = v=>{ let t = String(v).replace(/[\\/?*\[\]:]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 28) || 'Sem vendedor', k = t, i = 2; while(usados.has(k.toLowerCase())) k = t.slice(0, 26) + ' ' + i++; usados.add(k.toLowerCase()); return k; };
+        const ordem = [...grupos.entries()].sort((a, c)=> c[1].length - a[1].length), abas = ordem.map(([v])=> nomeAba(v));
+        const res = [['Vendedor', 'Leads', 'Já contatados', 'Aba']].concat(ordem.map(([v, rs], i)=> [v, rs.length, rs.filter(r=> tem(r, 'Contatado')).length, abas[i]]));
+        const wsR = XLSX.utils.aoa_to_sheet(res); wsR['!cols'] = [{ wch:30 }, { wch:10 }, { wch:16 }, { wch:30 }]; XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
+        ordem.forEach(([v, rs], i)=>{
+          const cab = ['Empresa', 'Contato', 'WhatsApp', 'Link do WhatsApp', 'E-mail', 'Cidade', 'UF', 'Tipo', 'O que oferecer', 'Abertura sugerida', 'Falar em', 'Já contatado'];
+          const linhas = rs.slice().sort((a, c)=> String(a.proxima_data || '').localeCompare(String(c.proxima_data || '')) || (a.cidade || '').localeCompare(c.cidade || ''))
+            .map(r=> [r.nome || '', r.contato_nome || '', r.telefone || '', waLink(r), r.email || '', r.cidade || '', r.uf || '', TIPO[r.tipo] || r.tipo || '', oferta(r.observacoes), abertura(r.observacoes), fmtDate(r.proxima_data), tem(r, 'Contatado') ? 'sim' : '']);
+          const ws = XLSX.utils.aoa_to_sheet([cab].concat(linhas)); ws['!cols'] = [{ wch:34 }, { wch:22 }, { wch:15 }, { wch:30 }, { wch:28 }, { wch:20 }, { wch:5 }, { wch:18 }, { wch:60 }, { wch:70 }, { wch:11 }, { wch:12 }];
+          XLSX.utils.book_append_sheet(wb, ws, abas[i]); });
+        XLSX.writeFile(wb, 'leads-aulao-cada-por-vendedor-' + new Date().toISOString().slice(0, 10) + '.xlsx'); uso('clique', 'leads: pacote por vendedor');
+      }catch(e){ showToast('Não consegui gerar a planilha.'); }
+      b.disabled = false; });
+  }
+  window.renderLeadsCada = async function(){
+    const host = document.getElementById('lc'); if(!host) return;
+    host.innerHTML = '<div class="tb-rodape">Carregando os leads do Aulão…</div>';
+    try{ await carrega(); }catch(e){ host.innerHTML = '<div class="tb-aviso">Não consegui carregar os leads: ' + esc(e && e.message || 'tente de novo') + '</div>'; return; }
+    desenha(host);
+  };
 })();
 </script>
 </body>
