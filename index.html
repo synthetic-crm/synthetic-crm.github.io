@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261122-095041">
+<meta name="crm-versao" content="20261122-101823">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -520,7 +520,7 @@
     <button class="nav-grp" data-grp="vendedores" title="Vendedores: tabela média, prazo e comissão de cada um"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Vendedores</span></button>
     <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
-    <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="leadscada" data-grupo="clientes" title="Leads quentes do Aulão de Câmbio Automático: quem atender esta semana, o que oferecer e a abertura pronta para o WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg><span>Leads</span></button>
+    <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="leadscada" data-grupo="clientes" title="Leads quentes do evento CADA: quem atender esta semana, o que oferecer e a abertura pronta para o WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg><span>Leads</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada segunda)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
@@ -4140,7 +4140,7 @@ function menuLiberado(view, p){
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês']] },
   especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
-  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do Aulão']] },
+  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
@@ -9452,7 +9452,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
-  { id:'leads-cada-2311', lib:'leadscada', dia:'2026-11-23', tela:'leadscada', titulo:'Leads quentes do Aulão CADA, por vendedor', txt:'Em Clientes › Leads: os contatos que passaram pelo estande no Aulão de Câmbio Automático, já distribuídos pela região de cada vendedor, com o que oferecer e a abertura pronta para o WhatsApp. Marque "Já falei" quando contatar. O botão "Um arquivo, uma aba por vendedor" baixa a lista de cada um.' },
+  { id:'leads-cada-2311', lib:'leadscada', dia:'2026-11-23', tela:'leadscada', titulo:'Leads quentes do evento CADA, por vendedor', txt:'Em Clientes › Leads: os contatos que passaram pelo estande no evento CADA (Câmbio Automático das Américas), já distribuídos pela região de cada vendedor, com o que oferecer e a abertura pronta para o WhatsApp. Marque "Já falei" quando contatar. O botão "Um arquivo, uma aba por vendedor" baixa a lista de cada um.' },
   { id:'periodo-2311', lib:'periodo', dia:'2026-11-23', tela:'tabmedia', titulo:'Escolha as datas na Tab. média e no Prazo', txt:'Pedido do Luis: além de Mês atual, Mês passado e Últimos 90 dias, agora dá para escolher "Escolher datas…" e informar o dia inicial e o final. Vale para a Tab. média, o Prazo e o botão Exportar por cliente, que baixa exatamente o período escolhido. A comparação "Antes" usa o período anterior, com a mesma duração.' },
   { id:'pontos-2311', lib:'pontos', dia:'2026-11-16', tela:'resumo', titulo:'Pontuação por vendedor no ranking', txt:'Pedido do Luis: a pontuação de cada vendedor é o vendido no período vezes a tabela média, dividido pelo prazo médio. Vende mais, em tabela mais alta e com prazo menor: mais pontos. Em Vendas, o ranking ganhou as colunas Prazo médio e Pontos e a opção "Por pontuação". A conta vem explicada abaixo da tabela.' },
   { id:'ciclo-2311', lib:'ciclo', dia:'2026-11-16', tela:'resumo', titulo:'Ranking do ciclo de comissão (26 a 25)', txt:'Pedido do Financeiro e do Luis na reunião: o ranking dos vendedores agora conta do dia 26 do mês anterior ao dia 25, o mesmo período que fecha a comissão. Em Vendas, escolha "Ciclo 26 a 25" ou "Mês corrido". O botão de copiar o ranking para o grupo acompanha a escolha.' },
@@ -13000,7 +13000,7 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
 </script>
 
 <script>
-// "Leads do Aulão CADA" (22/11/2026, pedido do Luiz): os contatos do estande no Aulão de Câmbio Automático, distribuídos pela região de cada vendedor,
+// "Leads do evento CADA" (22/11/2026, pedido do Luiz): os contatos do estande no evento CADA (Câmbio Automático das Américas), distribuídos pela região de cada vendedor,
 // com o que oferecer e a abertura pronta para o WhatsApp. Quem gerencia vê todos; quem tem seller vê os seus (o banco filtra).
 (function(){
   const esc = s=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -13041,7 +13041,7 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
     const sel = r=> !pode() ? esc(vendDe(r)) : `<select class="ca-inp lc-v" data-id="${esc(r.id)}" style="width:auto;max-width:190px"><option value="">Sem vendedor</option>${LC.vend.map(v=> `<option value="${esc(v.id)}" ${String(r.seller_id) === String(v.id) ? 'selected' : ''}>${esc(v.nome)}</option>`).join('')}</select>`;
     host.innerHTML = `
       <div class="tb-kpis">
-        <div class="tb-kpi"><small>Leads do Aulão CADA</small><b>${tot}</b><span>contatos do estande, todos com aceite de contato</span></div>
+        <div class="tb-kpi"><small>Leads do evento CADA</small><b>${tot}</b><span>contatos do estande, todos com aceite de contato</span></div>
         <div class="tb-kpi"><small>Com vendedor da região</small><b>${tot - sem}</b><span>distribuídos pela carteira de cada vendedor</span></div>
         <div class="tb-kpi ${sem ? 'alerta' : ''}"><small>Sem vendedor na região</small><b>${sem}</b><span>${sem ? (pode() ? 'escolha quem atende na coluna Vendedor' : 'o gerente define quem atende') : 'todos têm vendedor'}</span></div>
         <div class="tb-kpi"><small>Já contatados</small><b>${feitos}</b><span>de ${tot}; marque "Já falei" ao falar com o contato</span></div>
@@ -13101,7 +13101,7 @@ header.pq-compacto .pq{ display:none !important; } header.pq-compacto .pq-mini:n
   }
   window.renderLeadsCada = async function(){
     const host = document.getElementById('lc'); if(!host) return;
-    host.innerHTML = '<div class="tb-rodape">Carregando os leads do Aulão…</div>';
+    host.innerHTML = '<div class="tb-rodape">Carregando os leads do evento…</div>';
     try{ await carrega(); }catch(e){ host.innerHTML = '<div class="tb-aviso">Não consegui carregar os leads: ' + esc(e && e.message || 'tente de novo') + '</div>'; return; }
     desenha(host);
   };
