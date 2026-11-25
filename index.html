@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261125-163126">
+<meta name="crm-versao" content="20261125-163438">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9101,7 +9101,7 @@ async function renderEquipe(){
   if(!ehGestao()){ host.innerHTML = '<div class="op-more">Esta área é só para gerente e master.</div>'; return; }
   host.innerHTML = '<div class="op-more">Carregando acessos…</div>';
   try{ await eqCarregar(); }catch(e){ host.innerHTML = `<div class="op-more">Não consegui carregar os acessos. ${escapeHtml(errAmigavel(e))}</div>`; return; }
-  const abas = [['usuarios','Usuários'],['convites','Convites'],['equipes','Equipes'],['tipos','Vendedores internos'],['log','Registro de segurança']];
+  const abas = [['usuarios','Usuários'],['convites','Convites'],['equipes','Gerências (equipes)'],['tipos','Vendedores internos'],['log','Registro de segurança']];
   host.innerHTML = `<div class="pg-head"><h2>Acessos</h2><span class="sub">Quem entra no CRM, com qual perfil e quais carteiras enxerga. As permissões são garantidas pelo banco de dados.</span></div>
     <div class="pn-bar"><div class="pn-tabs" role="tablist" aria-label="Acessos">${abas.map(([k, t])=>`<button type="button" role="tab" class="${EQ.aba===k?'on':''}" aria-selected="${EQ.aba===k}" data-eqaba="${k}">${t}</button>`).join('')}</div>
     <span style="flex:1"></span>${perfilEfetivo()==='admin' ? '<button type="button" class="om-save" id="eq-link">🔗 Link de acesso da equipe</button> ' : ''}<button type="button" class="om-cancel" id="eq-convidar">+ Convite individual</button></div>
@@ -9376,9 +9376,9 @@ function eqEquipes(corpo){
     const sup = EQ.usuarios.find(u=>u.email===e.supervisor_email);
     return `<div class="eq-card"><div><b>${escapeHtml(e.nome)}</b> ${e.ativa?'':'<span class="sy-st erro">inativa</span>'}
       <div class="eq-mini">Supervisor: ${escapeHtml(sup ? sup.nome : (e.supervisor_email || 'nenhum'))} · ${mem.length} vendedor(es): ${mem.map(m=>escapeHtml(nomeSeller(m.seller_id))).join(', ') || '—'}</div></div>
-      <button type="button" class="om-cancel" data-eqeq="${e.id}">Editar</button></div>`; }).join('') : '<div class="op-more">Nenhuma equipe ainda.</div>') +
-    `<button type="button" class="om-save" id="eq-nova-equipe" style="margin-top:12px">+ Nova equipe</button>
-     <p class="eq-nota">O supervisor enxerga os clientes, as vendas e as atividades dos vendedores da equipe dele. Cada vendedor fica em uma equipe só.${sups.length ? '' : ' Ainda não há usuário com perfil Supervisor: convide um ou mude o perfil de alguém em Usuários.'}</p>`;
+      <button type="button" class="om-cancel" data-eqeq="${e.id}">Editar</button></div>`; }).join('') : '<div class="op-more">Nenhuma gerência ainda.</div>') +
+    `<button type="button" class="om-save" id="eq-nova-equipe" style="margin-top:12px">+ Nova gerência</button>
+     <p class="eq-nota"><b>Mudou o gerente de alguém?</b> Abra a gerência de destino, em Editar, e marque os vendedores que passam para ela: eles saem da gerência antiga sozinhos. Para encerrar uma gerência, desmarque "Equipe ativa". Os rankings e filtros por gerência usam este cadastro. O supervisor enxerga os clientes, as vendas e as atividades dos vendedores da equipe dele. Cada vendedor fica em uma equipe só.${sups.length ? '' : ' Ainda não há usuário com perfil Supervisor: convide um ou mude o perfil de alguém em Usuários.'}</p>`;
   corpo.querySelector('#eq-nova-equipe').addEventListener('click', ()=>eqEditarEquipe(null));
   corpo.querySelectorAll('[data-eqeq]').forEach(b=>b.addEventListener('click', ()=>eqEditarEquipe(EQ.equipes.find(e=>e.id===b.dataset.eqeq))));
 }
@@ -10362,7 +10362,7 @@ async function renderTabMedia(){
     <div class="tb-bar">
       ${perSelect('tm-per', TM.per)}
       ${vtSelect('tm-tipo', TM.tipo)}
-      <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver a média por gerência.</span>' : ''}
+      <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre em Acessos › Gerências (equipes) para ver a média por gerência.</span>' : ''}
       ${libLivre('export-cliente') ? `<button class="om-cancel${svC('export-cliente')}" id="tm-exp"${svD('export-cliente')} title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>` : ''}
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Tabela média</th><th>contra a meta</th><th class="n" title="Tabela média no ${escapeHtml(aRot)} e a variação: verde = subiu (melhor), vermelho = caiu">Antes</th><th class="n">Com tabela</th><th class="n">Abaixo do limite</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
@@ -12234,7 +12234,7 @@ async function renderPrazo(){
     <div class="tb-bar">
       ${perSelect('pz-per', PZ.per)}
       ${vtSelect('pz-tipo', PZ.tipo)}
-      <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre as equipes em Acessos para ver o prazo por gerência.</span>' : ''}
+      <span class="tb-esp"></span>${ehGestao() && !varias ? '<span class="tb-rodape" style="margin:0">Gerências: cadastre em Acessos › Gerências (equipes) para ver o prazo por gerência.</span>' : ''}
       ${libLivre('export-cliente') ? `<button class="om-cancel${svC('export-cliente')}" id="pz-exp"${svD('export-cliente')} title="Tabela média e prazo médio de cada vendedor em cada cliente, no período escolhido">Exportar por cliente</button>` : ''}
     </div>
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Prazo médio</th><th>contra a meta</th><th class="n" title="Prazo médio no ${escapeHtml(aRot)} e a variação: verde = caiu (melhor), vermelho = subiu">Antes</th><th class="n">Com prazo conhecido</th><th class="n">Acima de ${PZ.META} dias</th><th class="n">Notas com prazo</th></tr></thead>
