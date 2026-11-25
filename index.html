@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261122-101823">
+<meta name="crm-versao" content="20261125-163126">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4086,7 +4086,7 @@ const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['leadscada', 'periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['periodo-junto', 'leadscada','periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -9452,6 +9452,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'periodo-junto-3011', lib:'periodo-junto', dia:'2026-11-30', tela:'tabmedia', titulo:'Tabela média e Prazo médio no mesmo período', txt:'Ao trocar o período em Vendedores › Tabela média, o Prazo médio abre no mesmo período (e o contrário), para comparar os dois sem ajustar duas vezes.' },
   { id:'leads-cada-2311', lib:'leadscada', dia:'2026-11-23', tela:'leadscada', titulo:'Leads quentes do evento CADA, por vendedor', txt:'Em Clientes › Leads: os contatos que passaram pelo estande no evento CADA (Câmbio Automático das Américas), já distribuídos pela região de cada vendedor, com o que oferecer e a abertura pronta para o WhatsApp. Marque "Já falei" quando contatar. O botão "Um arquivo, uma aba por vendedor" baixa a lista de cada um.' },
   { id:'periodo-2311', lib:'periodo', dia:'2026-11-23', tela:'tabmedia', titulo:'Escolha as datas na Tab. média e no Prazo', txt:'Pedido do Luis: além de Mês atual, Mês passado e Últimos 90 dias, agora dá para escolher "Escolher datas…" e informar o dia inicial e o final. Vale para a Tab. média, o Prazo e o botão Exportar por cliente, que baixa exatamente o período escolhido. A comparação "Antes" usa o período anterior, com a mesma duração.' },
   { id:'pontos-2311', lib:'pontos', dia:'2026-11-16', tela:'resumo', titulo:'Pontuação por vendedor no ranking', txt:'Pedido do Luis: a pontuação de cada vendedor é o vendido no período vezes a tabela média, dividido pelo prazo médio. Vende mais, em tabela mais alta e com prazo menor: mais pontos. Em Vendas, o ranking ganhou as colunas Prazo médio e Pontos e a opção "Por pontuação". A conta vem explicada abaixo da tabela.' },
@@ -10367,7 +10368,7 @@ async function renderTabMedia(){
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Tabela média</th><th>contra a meta</th><th class="n" title="Tabela média no ${escapeHtml(aRot)} e a variação: verde = subiu (melhor), vermelho = caiu">Antes</th><th class="n">Com tabela</th><th class="n">Abaixo do limite</th><th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="9" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os produtos, os clientes e as vendas abaixo do limite que explicam a tabela média dele. Tabela média = em que tabela o preço foi vendido, pesando pelo valor: Tabela 2 = 2; entre a 2 e a 3, fração; Tabela 1 com 7% de desconto = 0,93. "Com tabela" = parte das vendas de produtos que têm tabela; o resto não entra na média.</div>`;
-  host.querySelector('#tm-per').addEventListener('change', e=>{ TM.per = e.target.value; renderTabMedia(); });
+  host.querySelector('#tm-per').addEventListener('change', e=>{ TM.per = e.target.value; if(libLivre('periodo-junto')){ PZ.per = TM.per; PZ.junto = true; } renderTabMedia(); });
   perLivreLiga(host, 'tm-per', renderTabMedia);
   host.querySelector('#tm-tipo')?.addEventListener('change', e=>{ TM.tipo = e.target.value; renderTabMedia(); });
   host.querySelector('#tm-exp')?.addEventListener('click', e=> vtExporta(ini, fim, TM.tipo, e.target));
@@ -12189,6 +12190,8 @@ async function renderRota(){
 const PZ = { per:'90', META:60, tipo:'' };
 async function renderPrazo(){
   const host = document.getElementById('pz'); if(!host) return;
+  // 25/11/2026 (pelo uso real: quem compara tabela média e prazo ia e voltava): na 1ª abertura o prazo entra no mesmo período da tabela média
+  if(libLivre('periodo-junto') && !PZ.junto){ PZ.per = TM.per; PZ.junto = true; }
   const [ini, fim, rot] = tmPeriodo(PZ.per), [aIni, aFim, aRot] = tmAnterior(PZ.per);
   host.innerHTML = '<div class="tb-rodape">Calculando o prazo médio…</div>';
   const [{ data, error }, ant] = await Promise.all([sb.rpc('crm_prazo_medio', { p_ini:ini, p_fim:fim }), sb.rpc('crm_prazo_medio', { p_ini:aIni, p_fim:aFim }), vtCarrega()]);
@@ -12237,7 +12240,7 @@ async function renderPrazo(){
     <div class="tb-wrap"><table class="tb-tab"><thead><tr><th>${varias ? 'Gerência / vendedor' : 'Vendedor'}</th><th class="n">Vendido</th><th class="n">Prazo médio</th><th>contra a meta</th><th class="n" title="Prazo médio no ${escapeHtml(aRot)} e a variação: verde = caiu (melhor), vermelho = subiu">Antes</th><th class="n">Com prazo conhecido</th><th class="n">Acima de ${PZ.META} dias</th><th class="n">Notas com prazo</th></tr></thead>
     <tbody>${L.length ? [...grupos.entries()].map(([g, rs])=> (varias ? linha(agrega(g, rs), true) : '') + rs.map(r=> linha(r)).join('')).join('') : '<tr><td colspan="8" class="vazio">Nenhuma venda no período.</td></tr>'}</tbody></table></div>
     <div class="tb-rodape">"Antes" = ${escapeHtml(aRot)}. Clique num vendedor para ver os pedidos com prazo acima de ${PZ.META} dias. Prazo de uma venda = dias entre a emissão da nota e o vencimento de cada parcela, pesando pelo valor. Os boletos vêm das empresas que faturam (AMG, Asia, Blendbase, Canada e Korea), ligados ao pedido da Synthetic pelo cliente, pelo valor e pela data; a leitura é atualizada a cada 2 horas. Vendedor com cobertura baixa (em cinza) tem prazo pouco representativo.</div>`;
-  host.querySelector('#pz-per').addEventListener('change', e=>{ PZ.per = e.target.value; renderPrazo(); });
+  host.querySelector('#pz-per').addEventListener('change', e=>{ PZ.per = e.target.value; if(libLivre('periodo-junto')){ TM.per = PZ.per; PZ.junto = true; } renderPrazo(); });
   perLivreLiga(host, 'pz-per', renderPrazo);
   host.querySelector('#pz-tipo')?.addEventListener('change', e=>{ PZ.tipo = e.target.value; renderPrazo(); });
   host.querySelector('#pz-exp')?.addEventListener('click', e=> vtExporta(ini, fim, PZ.tipo, e.target));
