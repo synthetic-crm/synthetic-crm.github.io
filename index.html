@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-104827">
+<meta name="crm-versao" content="20261126-104949">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4205,6 +4205,11 @@ function aplicarPerfil(){
   if(eqb && !eqb.hidden){ if(!ac){ ac = document.createElement('button'); ac.id = 'hdr-acessos'; ac.type = 'button'; ac.className = 'om-cancel'; ac.textContent = '🔒 Acessos'; ac.title = 'Usuários, convites, equipes e vendedores internos';
       const bk = document.getElementById('btn-backup'); (bk ? bk.parentNode : document.querySelector('header .who')).insertBefore(ac, bk || null); ac.addEventListener('click', ()=> eqb.click()); } ac.hidden = false; }
   else if(ac) ac.hidden = true;
+  // atalho no topo para o app do vendedor (Administrador): abre a tela com o link, o QR code e as visitas do dia
+  let ap = document.getElementById('hdr-app'); const apb = document.querySelector('#rail .nav-btn[data-view="appvendedor"]');
+  if(p === 'admin' && apb && !apb.hidden){ if(!ap){ ap = document.createElement('button'); ap.id = 'hdr-app'; ap.type = 'button'; ap.className = 'om-cancel'; ap.textContent = '📱 App do vendedor'; ap.title = 'Link e QR code do app para o celular, e as visitas do dia';
+      const ac2 = document.getElementById('hdr-acessos'), bk2 = document.getElementById('btn-backup'), ref = ac2 || bk2; (ref ? ref.parentNode : document.querySelector('header .who')).insertBefore(ap, ref || null); ap.addEventListener('click', ()=> apb.click()); } ap.hidden = false; }
+  else if(ap) ap.hidden = true;
   comissoesLiberadas();
   const bk = document.getElementById('btn-backup'); if(bk) bk.hidden = p !== 'admin';
   // Administrador vendo como outro perfil: mantém um atalho para voltar
