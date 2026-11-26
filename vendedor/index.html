@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-093239">
+<meta name="app-versao" content="20261126-093800">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -29,12 +29,13 @@
   .topo h1{ font-size:1.15rem; flex:1; min-width:0; }
   .topo small{ display:block; font-weight:400; opacity:.85; font-size:.8rem; margin-top:2px; }
   .topo button{ background:rgba(255,255,255,.16); border:0; color:#fff; border-radius:10px; min-height:44px; min-width:44px; padding:0 12px; font-weight:600; }
-  .corpo{ padding:14px 16px 90px; max-width:720px; margin:0 auto; }
+  .corpo{ padding:14px 16px 110px; }
+  @media (min-width:900px){ #h-lista{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 12px; } }
   .card{ background:var(--card); border-radius:16px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:12px; }
   .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:56px; padding:12px 18px; border:0; border-radius:14px; background:var(--green); color:var(--ink);
         font-weight:800; font-size:1.1rem; box-shadow:0 4px 0 var(--green-deep); text-decoration:none; }
   .btn:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--green-deep); }
-  .btn[disabled]{ opacity:.5; box-shadow:none; }
+  .btn[disabled]{ background:#c9d3d9; color:#3d4d58; box-shadow:none; }
   .btn.azul{ background:var(--brand); color:#fff; box-shadow:0 4px 0 var(--brand-deep); }
   .btn.claro{ background:#fff; color:var(--brand); border:2px solid var(--brand); box-shadow:none; }
   .btn.mini{ min-height:44px; font-size:1rem; padding:8px 14px; box-shadow:none; }
@@ -46,16 +47,19 @@
   .erro{ background:#fdecea; color:#8a1f14; border-radius:12px; padding:12px 14px; margin:12px 0; font-weight:600; display:none; }
   .erro.on{ display:block; }
   .aviso{ background:#fff4dc; color:#6b4300; border-radius:12px; padding:12px 14px; margin:12px 0; }
-  .muted{ color:var(--muted); font-size:.92rem; }
-  .chip{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:700; background:#e8eef2; color:var(--brand); }
+  .muted{ color:#3d4d58; font-size:1rem; }
+  .chip{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:.9rem; font-weight:700; background:#dbe8ef; color:#003a52; }
   .chip.lead{ background:#e3f6c8; color:var(--green-deep); } .chip.ok{ background:#dff3d8; color:var(--ok); } .chip.em{ background:#fff0cf; color:var(--amber); } .chip.nao{ background:#f1e1df; color:var(--red); }
   .vis{ display:block; width:100%; text-align:left; border:0; background:var(--card); border-radius:16px; padding:14px 16px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
-  .vis b{ font-size:1.05rem; } .vis .sub{ color:var(--muted); font-size:.9rem; margin-top:3px; }
-  .vis.feita{ opacity:.6; }
+  .vis b{ font-size:1.05rem; } .vis .sub{ color:#3d4d58; font-size:1rem; margin-top:3px; }
+  .vis.feita{ background:#e9eef1; box-shadow:none; border-left:6px solid #9fb3bf; }
   .prog{ height:8px; background:#dfe7ec; border-radius:6px; overflow:hidden; margin:8px 0 14px; } .prog i{ display:block; height:100%; background:var(--green); }
   .opts{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
-  .opt{ border:2px solid var(--line); background:#fff; border-radius:12px; min-height:48px; padding:8px 14px; font-weight:600; }
-  .opt.on{ border-color:var(--brand); background:#e4f0f6; color:var(--brand); }
+  .opt{ border:2px solid #b7c4cc; background:#fff; border-radius:12px; min-height:56px; padding:8px 16px; font-weight:700; font-size:1.05rem; }
+  .opts.col{ flex-direction:column; } .opts.col .opt{ width:100%; min-height:64px; text-align:left; }
+  .dica{ color:#3d4d58; font-size:.95rem; margin:6px 0 0; text-align:center; }
+  details.obs{ margin:14px 0 4px; } details.obs summary{ min-height:48px; display:flex; align-items:center; font-weight:700; color:var(--brand); cursor:pointer; }
+  .opt.on{ border-color:var(--brand); background:var(--brand); color:#fff; }
   .foto{ width:100%; border-radius:12px; margin-top:10px; display:block; max-height:260px; object-fit:cover; }
   #faixa-versao{ display:none; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:20; background:var(--brand); color:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 6px 20px rgba(0,0,0,.3); }
   #faixa-versao.on{ display:flex; gap:10px; align-items:center; } #faixa-versao span{ flex:1; font-size:.95rem; } #faixa-versao button{ background:var(--green); border:0; border-radius:10px; min-height:44px; padding:0 14px; font-weight:800; }
@@ -99,14 +103,16 @@
 <section class="tela" id="t-aceite"><header class="topo"><h1>Antes de começar</h1></header><div class="corpo">
   <div class="card">
     <h2 style="font-size:1.2rem;margin-bottom:8px">O que este app registra</h2>
+    <p style="margin:0 0 6px">O Synthetic Comercial mostra a sua rota do dia e registra as suas visitas de trabalho. A responsável pelos dados é a <b>Synthetic Lubrificantes</b>.</p>
     <ul class="ac">
       <li><b>Sua localização só no check-in e no check-out</b> de cada visita. O app não acompanha você o tempo todo.</li>
-      <li><b>A foto da fachada</b> do cliente, tirada no check-in.</li>
-      <li><b>O que você escrever</b> sobre a visita e como ela foi.</li>
+      <li><b>A foto da fachada</b> do cliente, tirada no check-in. Não fotografe pessoas.</li>
+      <li><b>O que você escrever</b> sobre a visita e como ela foi. Não escreva dado pessoal do cliente que não seja necessário.</li>
     </ul>
-    <p><b>Quem vê:</b> você, a gerência e a diretoria da Synthetic.</p>
-    <p><b>Para quê:</b> acompanhar as visitas, montar rotas melhores e ajudar você a vender mais.</p>
-    <p class="muted">Dúvidas sobre os seus dados: fale com a gerência.</p>
+    <p><b>Para quê:</b> acompanhar e registrar as visitas de trabalho, organizar rotas melhores e apoiar a gestão comercial. Esses registros também servem para a empresa acompanhar o seu trabalho externo.</p>
+    <p><b>Quem vê:</b> você, a sua gerência e supervisão, a diretoria, o analista comercial e o administrador do sistema.</p>
+    <p><b>Por quanto tempo:</b> as informações ficam guardadas por tempo limitado, definido pela empresa e informado a você.</p>
+    <p><b>Seus direitos:</b> você pode pedir à gerência para saber quais dados seus estão registrados, corrigir ou tirar dúvidas.</p>
     <label class="chk"><input type="checkbox" id="a-ok"> <span>Li e estou ciente do que é registrado.</span></label>
     <div class="erro" id="a-erro"></div>
     <button class="btn" id="a-btn" disabled>Começar</button>
@@ -115,7 +121,7 @@
 
 <!-- rota de hoje -->
 <section class="tela" id="t-hoje">
-  <header class="topo"><div style="flex:1;min-width:0"><h1 id="h-titulo">Rota de hoje</h1><small id="h-sub"></small></div><button id="h-atualiza" aria-label="Atualizar a lista">↻</button><button id="h-sair" aria-label="Sair">Sair</button></header>
+  <header class="topo"><div style="flex:1;min-width:0"><h1 id="h-titulo">Rota de hoje</h1><small id="h-sub"></small></div><button id="h-atualiza">Atualizar</button></header>
   <div class="corpo">
     <div id="h-gestao"></div>
     <div id="h-prog"></div>
@@ -123,6 +129,7 @@
     <div class="erro" id="h-erro"></div>
     <div id="h-lista"></div>
     <p class="muted" id="h-ios" style="display:none">No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
+    <button class="btn claro mini" id="h-sair" style="margin-top:24px">Sair do app</button>
   </div>
 </section>
 
@@ -135,13 +142,14 @@
 <div id="faixa-versao"><span>Saiu uma versão nova do app.</span><button id="faixa-ok">Atualizar</button></div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/supabase.js"></script>
 <script>
 "use strict";
 const SUPABASE_URL = "https://kszwycktftzpmxzpyvdt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_vI74WHyJWs2hm-4wlRfVhw__FKP8Vl2";   // chave pública por desenho: o banco protege tudo com login, RLS e funções
+if (!window.supabase) { document.body.innerHTML = '<div style="padding:40px 20px;text-align:center;font-family:system-ui"><h2>Sem internet</h2><p>Abra o app de novo quando tiver sinal.</p><button onclick="location.reload()" style="min-height:52px;padding:0 24px;font-size:1.1rem">Tentar de novo</button></div>'; throw new Error("sem supabase"); }
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);   // mesma sessão do CRM (mesmo endereço)
-const VERSAO_ACEITE = "1";
+const VERSAO_ACEITE = "2";
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const S = { eu:null, rota:[], pos:null, perto:false, sel:null, seller:null, sellers:[] };
@@ -175,8 +183,11 @@ $("s-ok").addEventListener("click", async () => {
   if (error) { mostraErro("s-erro", amigavel(error)); return; }
   boot();
 });
-async function sair(){ try { await sb.auth.signOut({ scope:"local" }); } catch (e) {} location.reload(); }
-$("h-sair").addEventListener("click", sair);
+async function sair(){
+  try { Object.keys(localStorage).filter(k => k.indexOf("obs:") === 0).forEach(k => localStorage.removeItem(k)); } catch (e) {}   // não deixa observação guardada no aparelho
+  try { await sb.auth.signOut({ scope:"local" }); } catch (e) {} location.reload();
+}
+$("h-sair").addEventListener("click", () => { if (confirm("Sair do app? Você precisará entrar de novo com e-mail e senha.")) sair(); });
 
 async function boot(){
   let user = null;
@@ -207,7 +218,7 @@ async function abreHoje(){
   // gestão sem carteira própria: escolhe o vendedor para ver como ele vê (teste e acompanhamento)
   if (S.eu.gestao && !S.eu.seller_id) {
     if (!S.sellers.length) { const { data } = await sb.from("sellers").select("id,name").order("name"); S.sellers = data || []; }
-    $("h-gestao").innerHTML = `<div class="aviso">Você é da gestão e não tem carteira. Escolha um vendedor para ver a rota dele (as visitas que você iniciar valem como teste).<select id="h-sel" style="margin-top:8px"><option value="">— escolha —</option>${S.sellers.map(s => `<option value="${s.id}" ${S.seller == s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></div>`;
+    $("h-gestao").innerHTML = `<div class="aviso">Você é da gestão e não tem carteira. Escolha um vendedor para ver a rota dele, só para acompanhar (quem registra a visita é o próprio vendedor).<select id="h-sel" style="margin-top:8px"><option value="">— escolha —</option>${S.sellers.map(s => `<option value="${s.id}" ${S.seller == s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></div>`;
     $("h-sel").addEventListener("change", e => { S.seller = e.target.value ? Number(e.target.value) : null; carregaRota(); });
     if (!S.seller) { $("h-lista").innerHTML = ""; $("h-prog").innerHTML = ""; return; }
   } else $("h-gestao").innerHTML = "";
@@ -215,7 +226,7 @@ async function abreHoje(){
 }
 async function carregaRota(){
   mostraErro("h-erro", ""); $("h-lista").innerHTML = '<p class="muted">Carregando a rota…</p>';
-  const { data, error } = await sb.rpc("app_rota_dia", { p_seller:S.seller, p_dia:new Date().toLocaleDateString("sv-SE") });
+  const { data, error } = await sb.rpc("app_rota_dia", { p_seller:S.seller });
   if (error) { $("h-lista").innerHTML = ""; mostraErro("h-erro", amigavel(error)); return; }
   S.rota = data || []; desenhaLista();
 }
@@ -227,10 +238,11 @@ function desenhaLista(){
   L.sort((a, b) => peso(a) - peso(b) || (S.perto && S.pos ? (a.lat == null) - (b.lat == null) || (a.lat != null ? distKm(S.pos, a) - distKm(S.pos, b) : 0) : 0) || a.ordem - b.ordem);
   $("h-lista").innerHTML = L.map(v => {
     const [cl, tx] = ST[v.status] || ["", v.status], dist = S.perto && S.pos && v.lat != null ? ` · ${distKm(S.pos, v).toFixed(1).replace(".", ",")} km` : "";
-    const pq = v.origem === "lead" ? '<span class="chip lead">Lead do evento</span>' : v.dias_sem_comprar != null ? `<span class="chip">Parado há ${v.dias_sem_comprar} dias</span>` : "";
+    const velha = v.dia && v.dia < new Date().toLocaleDateString("sv-SE") ? `<span class="chip em">Em aberto desde ${esc(v.dia.slice(8, 10) + "/" + v.dia.slice(5, 7))}</span> ` : "";
+    const pq = velha + (v.origem === "lead" ? '<span class="chip lead">Lead do evento</span>' : v.dias_sem_comprar != null ? `<span class="chip">Parado há ${v.dias_sem_comprar} dias</span>` : "");
     return `<button class="vis ${peso(v) === 2 ? "feita" : ""}" data-v="${esc(v.visita_id)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(v.nome)}</b><span class="chip ${cl}">${tx}</span></div>
       <div class="sub">${esc([v.endereco, v.cidade].filter(Boolean).join(" · ") || "Sem endereço")}${dist}</div><div style="margin-top:6px">${pq}</div></button>`; }).join("")
-    || '<div class="card">Nenhuma visita sugerida para hoje: sem leads novos nem clientes parados na sua carteira. Fale com a gerência.</div>';
+    || '<div class="card"><b>Nenhuma visita sugerida para hoje.</b><p class="muted">A rota é montada quando você abre o app de manhã, com os leads novos e os clientes parados da sua carteira. Se acabou de receber leads, toque em Atualizar.</p><button class="btn azul mini" onclick="carregaRota()">Atualizar</button></div>';
   $("h-lista").querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => abreVisita(b.dataset.v)));
 }
 $("h-atualiza").addEventListener("click", carregaRota);
@@ -266,7 +278,7 @@ const tel = t => String(t || "").replace(/\D/g, "");
 function abreVisita(id){ S.sel = S.rota.find(v => v.visita_id === id); if (!S.sel) return; tela("t-visita"); pintaVisita(); }
 $("v-volta").addEventListener("click", () => { tela("t-hoje"); desenhaLista(); });
 function pintaVisita(){
-  const v = S.sel, c = $("v-corpo"); $("v-titulo").textContent = v.nome; $("v-sub").textContent = [v.cidade, v.uf].filter(Boolean).join(" · ");
+  const v = S.sel, c = $("v-corpo"), soVer = !!(S.seller && S.seller !== S.eu.seller_id); $("v-titulo").textContent = v.nome; $("v-sub").textContent = [v.cidade, v.uf].filter(Boolean).join(" · ");
   const wa = tel(v.telefone), end = [v.endereco, v.cidade, v.uf].filter(Boolean).join(", ");
   const waze = v.lat != null ? `https://waze.com/ul?ll=${v.lat},${v.lon}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(end || v.nome)}&navigate=yes`;
   const dados = `<div class="card"><div class="dado"><span>Contato</span><span>${esc(v.contato || "—")}</span></div>
@@ -275,18 +287,19 @@ function pintaVisita(){
     <div class="linha" style="margin-top:10px">${wa ? `<a class="btn claro mini" href="tel:${wa}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${wa.length <= 11 ? "55" + wa : wa}">WhatsApp</a>` : ""}</div></div>`;
   const oferta = v.oferta ? `<div class="card"><b>O que falar</b><p style="white-space:pre-wrap;margin:6px 0 0">${esc(v.oferta)}</p></div>` : "";
   let acao = "";
-  if (v.status === "planejada") acao = `<a class="btn azul" target="_blank" rel="noopener" href="${esc(waze)}" style="margin-bottom:14px">🧭 Abrir no Waze</a>
+  if (soVer) acao = `<div class="aviso">Você está só acompanhando. Quem faz o check-in e o check-out é o vendedor.</div>`;
+  else if (v.status === "planejada") acao = `<a class="btn azul" target="_blank" rel="noopener" href="${esc(waze)}" style="margin-bottom:14px">🧭 Abrir no Waze</a>
     <div class="card"><h2 style="font-size:1.1rem">Chegou? Faça o check-in</h2>
       <p class="muted" style="margin:6px 0 0">O app pega a sua localização agora e a foto da fachada.</p>
       <input type="file" id="f-foto" accept="image/*" capture="environment" hidden>
       <button class="btn claro" id="f-btn" style="margin-top:10px">📷 Tirar foto da fachada</button><img id="f-prev" class="foto" alt="" hidden>
-      <p style="margin:10px 0 0"><a href="#" id="f-sem">Não consegui tirar a foto</a></p><div id="f-motivos" hidden><div class="opts" id="f-mot"></div></div>
-      <div class="erro" id="c-erro"></div><div style="height:12px"></div><button class="btn" id="c-ok" disabled>Fazer check-in</button></div>
+      <button class="btn claro mini" id="f-sem" style="margin-top:10px">Sem foto</button><div id="f-motivos" hidden><p class="muted" style="margin:10px 0 0">Por que não deu?</p><div class="opts" id="f-mot"></div></div>
+      <div class="erro" id="c-erro"></div><div style="height:12px"></div><button class="btn" id="c-ok" disabled>Fazer check-in</button><p class="dica" id="c-dica">Tire a foto (ou toque em Sem foto) para liberar.</p></div>
       <button class="btn claro mini" id="nv-btn">Não consegui visitar</button><div id="nv-box" hidden class="card" style="margin-top:12px"><b>Por quê?</b><div class="opts" id="nv-mot"></div><div class="erro" id="nv-erro"></div></div>`;
   else if (v.status === "em_visita") acao = `<div class="aviso"><b>Em visita desde ${esc(hora(v.checkin_em))}</b></div>
-    <div class="card"><h2 style="font-size:1.1rem">Como foi?</h2><div class="opts" id="r-res">${RES.map(([k, t]) => `<button class="opt" data-r="${k}">${t}</button>`).join("")}</div>
-      <label for="r-obs">O que aconteceu (opcional)</label><textarea id="r-obs" maxlength="2000" placeholder="Com quem falou, o que ele usa, o que combinou…"></textarea>
-      <div class="erro" id="o-erro"></div><div style="height:12px"></div><button class="btn" id="o-ok" disabled>Fazer check-out</button></div>`;
+    <div class="card"><h2 style="font-size:1.1rem">Como foi?</h2><div class="opts col" id="r-res">${RES.map(([k, t]) => `<button class="opt" data-r="${k}">${t}</button>`).join("")}</div>
+      <details class="obs"><summary>Anotar o que aconteceu (opcional)</summary><textarea id="r-obs" maxlength="2000" placeholder="Com quem falou, o que ele usa, o que combinou…"></textarea></details>
+      <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi para liberar.</p></div>`;
   else acao = `<div class="card"><span class="chip ${ST[v.status][0]}">${ST[v.status][1]}</span>${v.checkin_em ? `<p>Check-in às ${esc(hora(v.checkin_em))}${v.checkout_em ? `, check-out às ${esc(hora(v.checkout_em))}` : ""}.</p>` : ""}
     ${v.resultado ? `<p><b>${esc((RES.find(r => r[0] === v.resultado) || [0, v.resultado])[1])}</b></p>` : ""}${v.observacao ? `<p style="white-space:pre-wrap">${esc(v.observacao)}</p>` : ""}</div>`;
   c.innerHTML = acao + dados + oferta;
@@ -294,14 +307,14 @@ function pintaVisita(){
 }
 function ligaCheckin(){
   const v = S.sel; let foto = null, semFoto = null;
-  const pronto = () => { $("c-ok").disabled = !(foto || semFoto); };
+  const pronto = () => { $("c-ok").disabled = !(foto || semFoto); $("c-dica").hidden = !!(foto || semFoto); };
   $("f-btn").addEventListener("click", () => $("f-foto").click());
   $("f-foto").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return; mostraErro("c-erro", "");
     try { foto = await reduzFoto(f); const p = $("f-prev"); p.src = URL.createObjectURL(foto); p.hidden = false; semFoto = null; $("f-motivos").hidden = true; pronto(); }
     catch (er) { mostraErro("c-erro", er.message); }
   });
-  $("f-sem").addEventListener("click", ev => { ev.preventDefault(); $("f-motivos").hidden = false; });
+  $("f-sem").addEventListener("click", () => { $("f-motivos").hidden = false; });
   $("f-mot").innerHTML = ["Câmera não funciona", "Cliente não deixou", "Local fechado"].map(t => `<button class="opt" data-m="${esc(t)}">${t}</button>`).join("");
   $("f-mot").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => { semFoto = b.dataset.m; foto = null; $("f-prev").hidden = true;
     $("f-mot").querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === b)); pronto(); }));
@@ -317,25 +330,29 @@ function ligaCheckin(){
       if (error) throw error;
       Object.assign(v, { status:"em_visita", checkin_em:new Date().toISOString() });
       toast(p.prec > 150 ? "Check-in feito (localização aproximada, ±" + Math.round(p.prec) + " m)." : "Check-in feito."); pintaVisita();
-    } catch (e) { mostraErro("c-erro", amigavel(e)); b.disabled = false; b.textContent = "Fazer check-in"; }
+    } catch (e) {
+      if (/já foi iniciada/.test(String(e.message))) { toast("Este check-in já estava registrado."); tela("t-hoje"); carregaRota(); return; }   // a resposta se perdeu na rede, mas gravou
+      mostraErro("c-erro", amigavel(e)); b.disabled = false; b.textContent = "Fazer check-in"; }
   });
   $("nv-btn").addEventListener("click", () => { $("nv-box").hidden = false; });
   $("nv-mot").innerHTML = MOT.map(t => `<button class="opt" data-m="${esc(t)}">${t}</button>`).join("");
   $("nv-mot").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", async () => {
+    if (!confirm("Marcar como não visitada (" + b.dataset.m + ")? Não dá para desfazer.")) return;
+    $("nv-mot").querySelectorAll("button").forEach(x => { x.disabled = true; });
     const { error } = await sb.rpc("app_nao_visitada", { p_visita:v.visita_id, p_motivo:b.dataset.m });
-    if (error) { mostraErro("nv-erro", amigavel(error)); return; }
+    if (error) { $("nv-mot").querySelectorAll("button").forEach(x => { x.disabled = false; }); if (/já foi iniciada/.test(error.message)) { toast("Esta visita já estava registrada."); tela("t-hoje"); carregaRota(); return; } mostraErro("nv-erro", amigavel(error)); return; }
     v.status = "nao_visitada"; toast("Anotado."); tela("t-hoje"); desenhaLista(); }));
 }
 function ligaCheckout(){
   const v = S.sel, chave = "obs:" + v.visita_id; let res = null;
-  try { $("r-obs").value = localStorage.getItem(chave) || ""; } catch (e) {}
+  try { const g = localStorage.getItem(chave) || ""; $("r-obs").value = g; if (g) $("r-obs").parentElement.open = true; } catch (e) {}
   $("r-obs").addEventListener("input", e => { try { localStorage.setItem(chave, e.target.value); } catch (er) {} });
-  $("r-res").querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { res = b.dataset.r; $("r-res").querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === b)); $("o-ok").disabled = false; }));
+  $("r-res").querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { res = b.dataset.r; $("r-res").querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === b)); $("o-ok").disabled = false; $("o-dica").hidden = true; }));
   $("o-ok").addEventListener("click", async () => {
     const b = $("o-ok"); b.disabled = true; mostraErro("o-erro", ""); b.textContent = "Registrando…";
     let p = null; try { p = await posicao(); } catch (e) {}   // se não der a localização no check-out, o check-out vale mesmo assim
     const { error } = await sb.rpc("app_checkout", { p_visita:v.visita_id, p_lat:p ? p.lat : null, p_lon:p ? p.lon : null, p_precisao:p ? p.prec : null, p_resultado:res, p_obs:$("r-obs").value });
-    if (error) { mostraErro("o-erro", amigavel(error)); b.disabled = false; b.textContent = "Fazer check-out"; return; }
+    if (error) { if (/Faça o check-in antes/.test(error.message)) { toast("Esta visita já estava encerrada."); tela("t-hoje"); carregaRota(); return; } mostraErro("o-erro", amigavel(error)); b.disabled = false; b.textContent = "Fazer check-out"; return; }
     try { localStorage.removeItem(chave); } catch (e) {}
     Object.assign(v, { status:"concluida", checkout_em:new Date().toISOString(), resultado:res, observacao:$("r-obs").value });
     toast("Visita encerrada. Boa!"); tela("t-hoje"); desenhaLista();
