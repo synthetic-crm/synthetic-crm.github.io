@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-122627">
+<meta name="app-versao" content="20261126-140459">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -13,168 +13,254 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Synthetic Comercial">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Roboto+Condensed:wght@600;700;800&display=swap">
 <style>
-  :root{ --brand:#005071; --brand-deep:#003a52; --green:#87dc18; --green-deep:#3f7a00; --ink:#10202b; --muted:#5b6b76; --line:#dbe3e8; --bg:#f2f5f7; --card:#fff;
-         --red:#c0392b; --amber:#b86e00; --ok:#2f7d1f; }
+  :root{ --brand:#005071; --brand2:#0a6a93; --brand-deep:#003a52; --accent:#87dc18; --accent-deep:#3f7a00;
+         --ink:#0f1f2a; --muted:#64748b; --line:#e6ebf1; --bg:#f3f6f9; --card:#fff;
+         --ok:#2f9e44; --warn:#e67700; --bad:#d63b3b; --r:20px; --sh:0 1px 2px rgba(15,31,42,.06), 0 6px 18px rgba(15,31,42,.06); }
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; min-height:100%; }
-  body{ font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-size:17px; line-height:1.35; color:var(--ink); background:var(--bg);
-        padding-bottom:env(safe-area-inset-bottom); overscroll-behavior-y:contain; }
+  body{ font-family:Barlow,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-size:16px; line-height:1.4; color:var(--ink); background:var(--bg); overscroll-behavior-y:contain; }
+  h1,h2,h3,.num{ font-family:"Roboto Condensed",Barlow,system-ui,sans-serif; margin:0; line-height:1.1; letter-spacing:-.005em; }
   button,input,select,textarea{ font:inherit; color:inherit; }
   button{ cursor:pointer; }
-  h1,h2,h3{ margin:0; line-height:1.15; }
+  a{ color:inherit; }
   [hidden]{ display:none !important; }
-  .tela{ display:none; min-height:100dvh; }
-  .tela.on{ display:block; }
-  .topo{ position:sticky; top:0; z-index:5; background:var(--brand); color:#fff; padding:calc(10px + env(safe-area-inset-top)) 16px 12px; display:flex; align-items:center; gap:10px; }
-  .topo h1{ font-size:1.15rem; flex:1; min-width:0; }
-  .topo small{ display:block; font-weight:400; opacity:.85; font-size:.8rem; margin-top:2px; }
-  .topo button{ background:rgba(255,255,255,.16); border:0; color:#fff; border-radius:10px; min-height:44px; min-width:44px; padding:0 12px; font-weight:600; }
-  .corpo{ padding:14px 16px 110px; }
-  @media (min-width:900px){ #h-lista{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 12px; } }
-  .card{ background:var(--card); border-radius:16px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:12px; }
-  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:56px; padding:12px 18px; border:0; border-radius:14px; background:var(--green); color:var(--ink);
-        font-weight:800; font-size:1.1rem; box-shadow:0 4px 0 var(--green-deep); text-decoration:none; }
-  .btn:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--green-deep); }
-  .btn[disabled]{ background:#c9d3d9; color:#3d4d58; box-shadow:none; }
-  .btn.azul{ background:var(--brand); color:#fff; box-shadow:0 4px 0 var(--brand-deep); }
-  .btn.claro{ background:#fff; color:var(--brand); border:2px solid var(--brand); box-shadow:none; }
-  .btn.mini{ min-height:44px; font-size:1rem; padding:8px 14px; box-shadow:none; }
+  .ic{ flex:none; display:block; }
+  #shell{ max-width:480px; margin:0 auto; min-height:100dvh; position:relative; background:var(--bg); }
+  @media (min-width:600px){ body{ background:#e4eaf0; } #shell{ box-shadow:0 0 48px rgba(15,31,42,.14); } }
+  .tela{ display:none; min-height:100dvh; } .tela.on{ display:block; }
+  .corpo{ padding:0 16px 120px; }
+
+  /* topo com degradê */
+  .hero{ background:linear-gradient(160deg,var(--brand) 0%,var(--brand2) 100%); color:#fff; padding:calc(14px + env(safe-area-inset-top)) 18px 46px; border-radius:0 0 28px 28px; position:relative; }
+  .hero.curto{ padding-bottom:30px; }
+  .hero-top{ display:flex; align-items:center; gap:12px; }
+  .hello{ margin:0; opacity:.85; font-size:.95rem; } .hero h1{ font-size:1.9rem; font-weight:800; }
+  .hero-sub{ margin:4px 0 0; opacity:.85; font-size:.95rem; }
+  .grow{ flex:1; min-width:0; }
+  .ib{ width:44px; height:44px; border-radius:14px; border:0; background:rgba(255,255,255,.16); color:#fff; display:grid; place-items:center; }
+  .ib:active{ background:rgba(255,255,255,.28); }
+  .vercomo{ margin-top:12px; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.14); border-radius:14px; padding:6px 10px; font-size:.9rem; }
+  .vercomo select{ flex:1; background:transparent; border:0; color:#fff; font-weight:700; font-size:1rem; min-height:36px; } .vercomo option{ color:#111; }
+  .sobe{ margin-top:-30px; position:relative; z-index:2; }
+
+  /* cartões */
+  .card{ background:var(--card); border-radius:var(--r); padding:16px; box-shadow:var(--sh); margin-bottom:14px; }
+  .sec-row{ display:flex; align-items:center; justify-content:space-between; margin:22px 2px 10px; }
+  .sec-row h2{ font-size:1.2rem; font-weight:700; }
+  .lk{ border:0; background:none; color:var(--brand2); font-weight:700; font-size:.95rem; padding:8px 4px; min-height:40px; }
+  .muted{ color:var(--muted); }
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .stat{ background:#fff; border-radius:18px; padding:14px 12px; box-shadow:var(--sh); text-align:center; }
+  .stat b{ display:block; font-family:"Roboto Condensed",sans-serif; font-size:1.55rem; font-weight:800; color:var(--brand); line-height:1.05; } .stat span{ font-size:.8rem; color:var(--muted); font-weight:500; }
+  .stat.g b{ font-size:1.25rem; }
+
+  /* próxima visita */
+  .prox{ background:#fff; border-radius:24px; box-shadow:0 10px 30px rgba(0,80,113,.14); padding:18px; border:1px solid #d7e6ee; }
+  .prox .tag{ font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--brand2); display:flex; align-items:center; gap:6px; }
+  .prox h2{ font-size:1.55rem; font-weight:800; margin:8px 0 4px; } .prox .sub{ color:var(--muted); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .prox .acoes{ display:grid; grid-template-columns:1fr 1.2fr; gap:10px; margin-top:16px; }
+
+  /* botões */
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:54px; padding:12px 18px; border:0; border-radius:16px; font-weight:700; font-size:1.02rem; text-decoration:none;
+        background:linear-gradient(160deg,var(--brand) 0%,var(--brand2) 100%); color:#fff; box-shadow:0 6px 16px rgba(0,80,113,.28); }
+  .btn:active{ transform:scale(.985); }
+  .btn.suave{ background:#e8f2f7; color:var(--brand); box-shadow:none; }
+  .btn.ok{ background:linear-gradient(160deg,#9be82e 0%,var(--accent) 100%); color:#10260a; box-shadow:0 6px 16px rgba(110,190,20,.35); }
+  .btn.fino{ background:#fff; color:var(--brand); border:1.5px solid #cfdde6; box-shadow:none; }
+  .btn.mini{ min-height:44px; font-size:.95rem; padding:8px 14px; }
+  .btn[disabled]{ background:#dbe3ea; color:#7b8a97; box-shadow:none; }
+  .ra{ display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; border:0; background:none; font-weight:600; font-size:.82rem; color:var(--brand); }
+  .ra i{ width:54px; height:54px; border-radius:50%; background:#e8f2f7; display:grid; place-items:center; color:var(--brand); } .ra:active i{ background:#d4e7f0; }
+  .ra.wa i{ background:#dcf7e3; color:#1a8f3c; } .ra.nv i{ background:var(--brand); color:#fff; }
+  .acoes-r{ display:flex; justify-content:space-around; padding:6px 4px 2px; }
   .linha{ display:flex; gap:10px; } .linha > *{ flex:1; }
-  label{ display:block; font-weight:700; margin:12px 0 6px; }
-  input[type=email],input[type=password],input[type=text],textarea,select{ width:100%; min-height:52px; padding:10px 14px; border:2px solid var(--line); border-radius:12px; background:#fff; font-size:max(16px,1rem); }
-  textarea{ min-height:120px; resize:vertical; }
-  :focus-visible{ outline:3px solid var(--brand); outline-offset:2px; }
-  .erro{ background:#fdecea; color:#8a1f14; border-radius:12px; padding:12px 14px; margin:12px 0; font-weight:600; display:none; }
-  .erro.on{ display:block; }
-  .aviso{ background:#fff4dc; color:#6b4300; border-radius:12px; padding:12px 14px; margin:12px 0; }
-  .muted{ color:#3d4d58; font-size:1rem; }
-  .chip{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:.9rem; font-weight:700; background:#dbe8ef; color:#003a52; }
-  .chip.lead{ background:#e3f6c8; color:var(--green-deep); } .chip.ok{ background:#dff3d8; color:var(--ok); } .chip.em{ background:#fff0cf; color:var(--amber); } .chip.nao{ background:#f1e1df; color:var(--red); }
-  .vis{ display:block; width:100%; text-align:left; border:0; background:var(--card); border-radius:16px; padding:14px 16px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
-  .vis b{ font-size:1.05rem; } .vis .sub{ color:#3d4d58; font-size:1rem; margin-top:3px; }
-  .vis.feita{ background:#e9eef1; box-shadow:none; border-left:6px solid #9fb3bf; }
-  .prog{ height:8px; background:#dfe7ec; border-radius:6px; overflow:hidden; margin:8px 0 14px; } .prog i{ display:block; height:100%; background:var(--green); }
-  .opts{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
-  .opt{ border:2px solid #b7c4cc; background:#fff; border-radius:12px; min-height:56px; padding:8px 16px; font-weight:700; font-size:1.05rem; }
-  .opts.col{ flex-direction:column; } .opts.col .opt{ width:100%; min-height:64px; text-align:left; }
-  .dica{ color:#3d4d58; font-size:.95rem; margin:6px 0 0; text-align:center; }
-  details.obs{ margin:14px 0 4px; } details.obs summary{ min-height:48px; display:flex; align-items:center; font-weight:700; color:var(--brand); cursor:pointer; }
+
+  /* etiquetas */
+  .pill{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:700; background:#e7eef3; color:var(--brand-deep); white-space:nowrap; }
+  .pill.lead{ background:#e5f6cf; color:var(--accent-deep); } .pill.ok{ background:#dcf3e1; color:#1f7a37; } .pill.em{ background:#fff0d6; color:#a55b00; } .pill.nao{ background:#fde4e4; color:#b32f2f; } .pill.rox{ background:#ece6f8; color:#5a3d9a; }
+
+  /* linha do tempo da rota */
+  .tl{ position:relative; }
+  .tli{ display:flex; gap:12px; position:relative; padding-bottom:12px; }
+  .tli:not(:last-child)::before{ content:""; position:absolute; left:17px; top:38px; bottom:-2px; width:2px; background:#dbe4ec; }
+  .tm{ width:36px; height:36px; border-radius:50%; background:#fff; border:2px solid #c9d7e1; display:grid; place-items:center; font-weight:800; color:var(--muted); font-family:"Roboto Condensed",sans-serif; flex:none; z-index:1; }
+  .tli.atual .tm{ background:var(--brand); border-color:var(--brand); color:#fff; box-shadow:0 0 0 5px rgba(0,80,113,.14); }
+  .tli.feita .tm{ background:var(--ok); border-color:var(--ok); color:#fff; } .tli.nao .tm{ background:#f3d5d5; border-color:#e7b3b3; color:#b32f2f; }
+  .item{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; text-align:left; width:100%; border:0; background:var(--card); border-radius:18px; padding:13px 14px; box-shadow:var(--sh); }
+  .item b{ font-size:1.02rem; font-weight:700; display:block; } .item .s{ color:var(--muted); font-size:.88rem; margin-top:2px; } .item .t{ margin-top:6px; display:flex; gap:6px; flex-wrap:wrap; }
+  .tli.feita .item, .tli.nao .item{ background:#f6f8fa; box-shadow:none; } .tli.feita .item b{ color:#5b6b78; }
+  .chev{ color:#b3c0cb; }
+
+  /* avatar */
+  .av{ width:46px; height:46px; border-radius:50%; color:#fff; display:grid; place-items:center; font-family:"Roboto Condensed",sans-serif; font-weight:800; font-size:1.05rem; flex:none; }
+  .av.g{ width:56px; height:56px; font-size:1.3rem; }
+
+  /* abas de baixo */
+  #tabbar{ display:none; position:fixed; left:50%; transform:translateX(-50%); width:min(100%,480px); bottom:0; z-index:15; background:rgba(255,255,255,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); padding:6px 6px calc(6px + env(safe-area-inset-bottom)); }
+  #tabbar button{ flex:1; border:0; background:none; min-height:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:#7c8b99; font-size:.74rem; font-weight:700; border-radius:14px; }
+  #tabbar button.on{ color:var(--brand); } #tabbar button.on .pl{ background:#dcecf4; } .pl{ width:52px; height:30px; border-radius:15px; display:grid; place-items:center; transition:background .15s; }
+  body.com-abas #faixa-versao{ bottom:calc(86px + env(safe-area-inset-bottom)); } body.com-abas .toast{ bottom:calc(96px + env(safe-area-inset-bottom)); }
+
+  /* campos */
+  label{ display:block; font-weight:600; margin:14px 0 6px; font-size:.92rem; color:#35485a; }
+  input[type=email],input[type=password],input[type=text],textarea,select.ca{ width:100%; min-height:52px; padding:10px 14px; border:1.5px solid #d6e0e8; border-radius:14px; background:#fff; font-size:max(16px,1rem); }
+  textarea{ min-height:110px; resize:vertical; } :focus-visible{ outline:3px solid rgba(10,106,147,.45); outline-offset:2px; }
+  .busca{ position:relative; } .busca .ic{ position:absolute; left:14px; top:15px; color:#8a9aa8; } .busca input{ padding-left:44px; border-radius:16px; box-shadow:var(--sh); border:0; }
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; scrollbar-width:none; } .chips::-webkit-scrollbar{ display:none; }
+  .chp{ flex:none; border:1.5px solid #d6e0e8; background:#fff; border-radius:999px; min-height:42px; padding:6px 16px; font-weight:700; font-size:.92rem; color:#35485a; white-space:nowrap; }
+  .chp.on{ background:var(--brand); border-color:var(--brand); color:#fff; } .chp small{ opacity:.7; font-weight:600; }
+  .erro{ background:#fdecec; color:#8f2a2a; border-radius:14px; padding:12px 14px; margin:12px 0; font-weight:600; display:none; } .erro.on{ display:block; }
+  .aviso{ background:#fff4de; color:#6b4300; border-radius:14px; padding:12px 14px; margin:12px 0; }
+  .dica{ color:var(--muted); font-size:.88rem; margin:8px 0 0; text-align:center; }
+  .foto{ width:100%; border-radius:16px; margin-top:10px; display:block; max-height:240px; object-fit:cover; }
+  .opts{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 4px; }
+  .opt{ border:1.5px solid #d6e0e8; background:#fff; border-radius:16px; min-height:52px; padding:8px 16px; font-weight:700; font-size:1rem; }
   .opt.on{ border-color:var(--brand); background:var(--brand); color:#fff; }
-  .foto{ width:100%; border-radius:12px; margin-top:10px; display:block; max-height:260px; object-fit:cover; }
-  #tabbar{ display:none; position:fixed; left:0; right:0; bottom:0; z-index:15; background:#fff; border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
-  #tabbar button{ flex:1; border:0; background:none; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:1.3rem; color:#3d4d58; }
-  #tabbar button span{ font-size:.85rem; font-weight:700; } #tabbar button.on{ color:var(--brand); box-shadow:inset 0 3px 0 var(--brand); }
-  body.com-abas #faixa-versao{ bottom:calc(76px + env(safe-area-inset-bottom)); } body.com-abas .toast{ bottom:calc(88px + env(safe-area-inset-bottom)); }
-  .of-op{ border-left:4px solid var(--brand); padding:4px 0 4px 10px; margin:10px 0; } .of-op .muted{ margin-top:2px; }
-  .of-sub{ font-size:1rem; font-weight:800; margin:16px 0 4px; color:var(--brand); }
-  .ped{ width:100%; border-collapse:collapse; font-size:.98rem; } .ped td{ padding:7px 0; border-bottom:1px solid var(--line); vertical-align:top; } .ped td:last-child{ text-align:right; white-space:nowrap; padding-left:8px; }
-  details.of summary{ min-height:44px; display:flex; align-items:center; font-weight:700; color:var(--brand); cursor:pointer; }
-  #faixa-versao{ display:none; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:20; background:var(--brand); color:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 6px 20px rgba(0,0,0,.3); }
-  #faixa-versao.on{ display:flex; gap:10px; align-items:center; } #faixa-versao span{ flex:1; font-size:.95rem; } #faixa-versao button{ background:var(--green); border:0; border-radius:10px; min-height:44px; padding:0 14px; font-weight:800; }
-  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(24px + env(safe-area-inset-bottom)); background:#10202b; color:#fff; border-radius:12px; padding:12px 18px; z-index:30; display:none; max-width:90vw; }
+  .opts.col{ flex-direction:column; } .opts.col .opt{ width:100%; min-height:60px; text-align:left; display:flex; align-items:center; gap:10px; }
+  details.obs summary, details.of summary{ min-height:46px; display:flex; align-items:center; font-weight:700; color:var(--brand2); cursor:pointer; }
+
+  /* visita e cliente */
+  .passos{ display:flex; align-items:center; gap:6px; margin:4px 0 14px; } .passo{ flex:1; text-align:center; font-size:.76rem; font-weight:700; color:#9aa8b5; }
+  .passo i{ display:block; width:26px; height:26px; margin:0 auto 4px; border-radius:50%; background:#e1e8ee; color:#fff; display:grid; place-items:center; font-style:normal; font-size:.8rem; }
+  .passo.on{ color:var(--brand); } .passo.on i{ background:var(--brand); } .passo.feito{ color:var(--ok); } .passo.feito i{ background:var(--ok); }
+  .tiles{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tile{ background:#f3f7fa; border-radius:16px; padding:12px 14px; } .tile small{ color:var(--muted); font-weight:600; display:block; font-size:.78rem; } .tile b{ font-family:"Roboto Condensed",sans-serif; font-size:1.25rem; font-weight:800; color:var(--ink); }
+  .dado{ display:flex; gap:10px; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:.95rem; } .dado:last-child{ border:0; } .dado span:first-child{ color:var(--muted); flex:none; } .dado span:last-child{ text-align:right; font-weight:600; }
+  .ia{ border-radius:22px; padding:2px; background:linear-gradient(135deg,#0a6a93,#87dc18); box-shadow:var(--sh); margin-bottom:14px; } .ia > div{ background:#fff; border-radius:20px; padding:16px; }
+  .ia h3{ font-size:1.1rem; display:flex; align-items:center; gap:8px; color:var(--brand); } .ia p.dica{ text-align:left; margin:4px 0 12px; }
+  .of-sub{ font-size:.78rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin:18px 0 6px; color:var(--brand2); }
+  .of-op{ border-left:4px solid var(--brand2); padding:2px 0 2px 12px; margin:10px 0; } .of-op b{ display:block; } .of-op .muted{ font-size:.9rem; }
+  .ped{ width:100%; border-collapse:collapse; font-size:.95rem; } .ped td{ padding:9px 0; border-bottom:1px solid var(--line); vertical-align:top; } .ped td:last-child{ text-align:right; white-space:nowrap; padding-left:10px; }
+  blockquote{ margin:0; padding:2px 0 2px 14px; border-left:4px solid var(--accent); white-space:pre-wrap; }
+
+  /* semana */
+  .dias{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 10px; scrollbar-width:none; } .dias::-webkit-scrollbar{ display:none; }
+  .dia{ flex:none; width:62px; border:0; border-radius:18px; background:#fff; padding:10px 4px; box-shadow:var(--sh); text-align:center; color:#35485a; }
+  .dia small{ display:block; font-weight:700; font-size:.72rem; text-transform:uppercase; color:var(--muted); } .dia b{ display:block; font-family:"Roboto Condensed",sans-serif; font-size:1.4rem; font-weight:800; } .dia span{ font-size:.72rem; color:var(--muted); font-weight:600; }
+  .dia.on{ background:var(--brand); } .dia.on small,.dia.on span{ color:#cfe4ee; } .dia.on b{ color:#fff; } .dia.hoje b{ color:var(--brand2); } .dia.on.hoje b{ color:#fff; }
+  .estr{ background:linear-gradient(160deg,#fff 0%,#f1f8e8 100%); border-left:5px solid var(--accent); }
+  .estr h3{ font-size:1.05rem; margin-bottom:6px; display:flex; gap:8px; align-items:center; color:var(--accent-deep); }
+
+  /* vendas */
+  .grande{ font-family:"Roboto Condensed",sans-serif; font-size:2.7rem; font-weight:800; line-height:1; letter-spacing:-.01em; }
+  .barra{ height:10px; background:#e3eaf0; border-radius:6px; overflow:hidden; margin-top:10px; } .barra i{ display:block; height:100%; background:linear-gradient(90deg,var(--brand2),var(--accent)); border-radius:6px; }
+  .ped-l{ display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); } .ped-l:last-child{ border:0; } .ped-l .valor{ font-family:"Roboto Condensed",sans-serif; font-weight:800; font-size:1.1rem; margin-left:auto; }
+
+  /* estados vazios e carregando */
+  .vazio{ text-align:center; padding:26px 16px; } .vazio svg{ margin:0 auto 10px; } .vazio h3{ font-size:1.25rem; margin-bottom:6px; } .vazio p{ color:var(--muted); margin:0 0 14px; }
+  .sk{ background:linear-gradient(90deg,#e8eef3 25%,#f3f7fa 37%,#e8eef3 63%); background-size:400% 100%; animation:sk 1.2s ease infinite; border-radius:18px; height:78px; margin-bottom:12px; } @keyframes sk{ 0%{ background-position:100% 50% } 100%{ background-position:0 50% } }
+
+  /* login e aviso */
+  .entra{ min-height:100dvh; background:linear-gradient(165deg,var(--brand-deep) 0%,var(--brand2) 100%); padding:calc(46px + env(safe-area-inset-top)) 22px 40px; color:#fff; display:flex; flex-direction:column; }
+  .entra .logo{ width:72px; height:72px; border-radius:22px; margin:0 auto 18px; box-shadow:0 10px 30px rgba(0,0,0,.3); }
+  .entra h1{ text-align:center; font-size:2rem; font-weight:800; } .entra .sub{ text-align:center; opacity:.85; margin:6px 0 26px; }
+  .entra .card{ color:var(--ink); } .entra label{ margin-top:4px; }
+  ul.ac{ padding-left:0; list-style:none; margin:10px 0; } ul.ac li{ display:flex; gap:12px; margin:12px 0; align-items:flex-start; } ul.ac li i{ width:36px; height:36px; border-radius:12px; background:#e8f2f7; color:var(--brand); display:grid; place-items:center; flex:none; }
+  .chk{ display:flex; gap:12px; align-items:flex-start; margin:16px 0; font-weight:600; } .chk input{ width:28px; height:28px; flex:none; accent-color:var(--brand); margin:0; }
+
+  #faixa-versao{ display:none; position:fixed; left:50%; transform:translateX(-50%); width:min(calc(100% - 24px),456px); bottom:calc(12px + env(safe-area-inset-bottom)); z-index:20; background:var(--brand-deep); color:#fff; border-radius:16px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.3); }
+  #faixa-versao.on{ display:flex; gap:10px; align-items:center; } #faixa-versao span{ flex:1; font-size:.92rem; } #faixa-versao button{ background:var(--accent); color:#10260a; border:0; border-radius:12px; min-height:42px; padding:0 14px; font-weight:800; }
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(24px + env(safe-area-inset-bottom)); background:#0f1f2a; color:#fff; border-radius:14px; padding:12px 18px; z-index:30; display:none; max-width:min(90vw,440px); box-shadow:0 8px 24px rgba(0,0,0,.3); }
   .toast.on{ display:block; }
-  .login{ max-width:420px; margin:0 auto; padding:calc(40px + env(safe-area-inset-top)) 20px 40px; }
-  .login img{ height:56px; display:block; margin:0 auto 18px; }
-  .login h1{ text-align:center; font-size:1.5rem; color:var(--brand); margin-bottom:6px; }
-  .login p.sub{ text-align:center; color:var(--muted); margin:0 0 14px; }
-  ul.ac{ padding-left:20px; margin:8px 0; } ul.ac li{ margin:6px 0; }
-  .chk{ display:flex; gap:12px; align-items:flex-start; margin:16px 0; font-weight:600; } .chk input{ width:30px; height:30px; flex:none; accent-color:var(--brand); margin:0; }
-  .dado{ display:flex; gap:10px; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); } .dado:last-child{ border:0; } .dado span:first-child{ color:var(--muted); flex:none; } .dado span:last-child{ text-align:right; }
 </style>
 </head>
 <body>
+<div id="shell">
 
 <!-- entrar -->
-<section class="tela" id="t-login"><div class="login">
-  <img src="assets/icone-192.png" alt="" style="border-radius:14px;width:64px;height:64px">
-  <h1>Synthetic Comercial</h1><p class="sub">App do vendedor</p>
+<section class="tela" id="t-login"><div class="entra">
+  <img class="logo" src="assets/icone-192.png" alt="">
+  <h1>Synthetic Comercial</h1><p class="sub">Sua rota, seus clientes e suas vendas na palma da mão</p>
   <div class="card">
-    <label for="l-email">E-mail</label><input id="l-email" type="email" autocomplete="username" inputmode="email">
+    <label for="l-email">E-mail</label><input id="l-email" type="email" autocomplete="username" inputmode="email" placeholder="voce@empresa.com.br">
     <label for="l-senha">Senha</label><input id="l-senha" type="password" autocomplete="current-password">
     <div class="erro" id="l-erro"></div>
-    <div style="height:14px"></div><button class="btn azul" id="l-ok">Entrar</button>
-    <p class="muted" style="margin:12px 0 0">Primeiro acesso ou esqueceu a senha? Peça ao administrador do sistema.</p>
+    <div style="height:16px"></div><button class="btn" id="l-ok">Entrar</button>
+    <p class="dica">Primeiro acesso ou esqueceu a senha? Peça ao administrador.</p>
   </div>
 </div></section>
 
 <!-- criar a senha pessoal (quando entrou com a provisória) -->
-<section class="tela" id="t-senha"><div class="login">
+<section class="tela" id="t-senha"><div class="entra">
   <h1>Crie a sua senha</h1><p class="sub">Você entrou com uma senha provisória.</p>
   <div class="card">
     <label for="s-nova">Nova senha (10 ou mais caracteres, com letras e números)</label><input id="s-nova" type="password" autocomplete="new-password">
     <div class="erro" id="s-erro"></div>
-    <div style="height:14px"></div><button class="btn azul" id="s-ok">Salvar e entrar</button>
+    <div style="height:16px"></div><button class="btn" id="s-ok">Salvar e entrar</button>
   </div>
 </div></section>
 
 <!-- aviso do que o app registra -->
-<section class="tela" id="t-aceite"><header class="topo"><h1>Antes de começar</h1></header><div class="corpo">
+<section class="tela" id="t-aceite"><div class="entra" style="padding-bottom:30px">
+  <h1 style="text-align:left">Antes de começar</h1><p class="sub" style="text-align:left">Veja o que o app registra do seu trabalho.</p>
   <div class="card">
-    <h2 style="font-size:1.2rem;margin-bottom:8px">O que este app registra</h2>
-    <p style="margin:0 0 6px">O Synthetic Comercial mostra a sua rota do dia e registra as suas visitas de trabalho. A responsável pelos dados é a <b>Synthetic Lubrificantes</b>.</p>
-    <ul class="ac">
-      <li><b>Sua localização só no check-in e no check-out</b> de cada visita. O app não acompanha você o tempo todo.</li>
-      <li><b>A foto da fachada</b> do cliente, tirada no check-in. Não fotografe pessoas.</li>
-      <li><b>O que você escrever</b> sobre a visita e como ela foi. Não escreva dado pessoal do cliente que não seja necessário.</li>
-    </ul>
-    <p><b>Para quê:</b> acompanhar e registrar as visitas de trabalho, organizar rotas melhores e apoiar a gestão comercial. Esses registros também servem para a empresa acompanhar o seu trabalho externo.</p>
-    <p><b>Quem vê:</b> você, a sua gerência e supervisão, a diretoria, o analista comercial e o administrador do sistema.</p>
-    <p><b>Por quanto tempo:</b> as informações ficam guardadas por tempo limitado, definido pela empresa e informado a você.</p>
-    <p><b>Seus direitos:</b> você pode pedir à gerência para saber quais dados seus estão registrados, corrigir ou tirar dúvidas.</p>
+    <p style="margin:0 0 4px">O Synthetic Comercial mostra a sua rota e registra as suas visitas de trabalho. A responsável pelos dados é a <b>Synthetic Lubrificantes</b>.</p>
+    <ul class="ac" id="a-lista"></ul>
+    <p style="margin:6px 0"><b>Para quê:</b> acompanhar e registrar as visitas de trabalho, organizar rotas melhores e apoiar a gestão comercial. Esses registros também servem para a empresa acompanhar o seu trabalho externo.</p>
+    <p style="margin:6px 0"><b>Quem vê:</b> você, a sua gerência e supervisão, a diretoria, o analista comercial e o administrador do sistema.</p>
+    <p style="margin:6px 0"><b>Por quanto tempo:</b> as informações ficam guardadas por tempo limitado, definido pela empresa e informado a você.</p>
+    <p style="margin:6px 0"><b>Seus direitos:</b> você pode pedir à gerência para saber quais dados seus estão registrados, corrigir ou tirar dúvidas.</p>
     <label class="chk"><input type="checkbox" id="a-ok"> <span>Li e estou ciente do que é registrado.</span></label>
     <div class="erro" id="a-erro"></div>
-    <button class="btn" id="a-btn" disabled>Começar</button>
+    <button class="btn ok" id="a-btn" disabled>Começar</button>
   </div>
 </div></section>
 
-<!-- rota de hoje -->
+<!-- HOJE: a rota do dia -->
 <section class="tela" id="t-hoje">
-  <header class="topo"><div style="flex:1;min-width:0"><h1 id="h-titulo">Rota de hoje</h1><small id="h-sub"></small></div><button id="h-atualiza">Atualizar</button></header>
-  <div class="corpo">
+  <header class="hero">
+    <div class="hero-top"><div class="grow"><p class="hello" id="h-hello">Bom dia</p><h1 id="h-titulo">Rota de hoje</h1></div><button class="ib" id="h-atualiza" aria-label="Atualizar"></button></div>
+    <p class="hero-sub" id="h-sub"></p>
     <div id="h-gestao"></div>
-    <div id="h-prog"></div>
-    <div class="linha" style="margin-bottom:12px"><button class="btn claro mini" id="h-perto">📍 Mais perto primeiro</button><button class="btn claro mini" id="h-instala" style="display:none">⬇ Instalar</button></div>
+  </header>
+  <div class="corpo">
+    <div class="sobe" id="h-prog"></div>
     <div class="erro" id="h-erro"></div>
-    <div id="h-lista"></div>
-    <p class="muted" id="h-ios" style="display:none">No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
-    <button class="btn claro mini" id="h-sair" style="margin-top:24px">Sair do app</button>
+    <div id="h-prox" style="margin-top:14px"></div>
+    <div class="sec-row"><h2>Rota de hoje</h2><button class="lk" id="h-perto">Mais perto primeiro</button></div>
+    <div id="h-lista" class="tl"></div>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="lk" id="h-instala" style="display:none">Instalar o app</button><button class="lk" id="h-sair">Sair do app</button></div>
+    <p class="dica" id="h-ios" style="display:none">No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
   </div>
 </section>
 
-<!-- visita -->
+<!-- visita e cliente -->
 <section class="tela" id="t-visita">
-  <header class="topo"><button id="v-volta" aria-label="Voltar">←</button><div style="flex:1;min-width:0"><h1 id="v-titulo"></h1><small id="v-sub"></small></div></header>
-  <div class="corpo" id="v-corpo"></div>
+  <header class="hero curto"><div class="hero-top"><button class="ib" id="v-volta" aria-label="Voltar"></button><div class="grow"><h1 id="v-titulo" style="font-size:1.45rem"></h1><p class="hero-sub" id="v-sub" style="text-transform:none"></p></div></div></header>
+  <div class="corpo" id="v-corpo" style="padding-top:16px"></div>
 </section>
 
-<!-- a semana do vendedor: o plano que a gestão publicou -->
+<!-- SEMANA -->
 <section class="tela" id="t-semana">
-  <header class="topo"><div style="flex:1;min-width:0"><h1>Minha semana</h1><small id="sm-sub"></small></div><button id="sm-atualiza">Atualizar</button></header>
+  <header class="hero"><div class="hero-top"><div class="grow"><p class="hello">Plano da gestão</p><h1>Minha semana</h1></div><button class="ib" id="sm-atualiza" aria-label="Atualizar"></button></div><p class="hero-sub" id="sm-sub"></p></header>
   <div class="corpo"><div class="erro" id="sm-erro"></div><div id="sm-corpo"></div></div>
 </section>
 
-<!-- as vendas do vendedor -->
+<!-- VENDAS -->
 <section class="tela" id="t-vendas">
-  <header class="topo"><div style="flex:1;min-width:0"><h1>Minhas vendas</h1><small id="vd-sub"></small></div><button id="vd-atualiza">Atualizar</button></header>
+  <header class="hero"><div class="hero-top"><div class="grow"><p class="hello" id="vd-sub">Ciclo de comissão</p><h1>Minhas vendas</h1></div><button class="ib" id="vd-atualiza" aria-label="Atualizar"></button></div></header>
   <div class="corpo"><div class="erro" id="vd-erro"></div><div id="vd-corpo"></div></div>
 </section>
 
-<!-- carteira de clientes do vendedor -->
+<!-- CLIENTES -->
 <section class="tela" id="t-carteira">
-  <header class="topo"><div style="flex:1;min-width:0"><h1>Carteira</h1><small id="c-sub"></small></div><button id="c-atualiza">Atualizar</button></header>
+  <header class="hero curto"><div class="hero-top"><div class="grow"><p class="hello" id="c-sub">Sua carteira</p><h1>Clientes</h1></div><button class="ib" id="c-atualiza" aria-label="Atualizar"></button></div></header>
   <div class="corpo">
-    <input type="text" id="c-busca" placeholder="Buscar cliente, cidade ou telefone" autocomplete="off" style="margin-bottom:10px">
-    <div class="opts" id="c-chips" style="margin:0 0 12px"></div>
+    <div class="busca sobe"><span id="c-lupa"></span><input type="text" id="c-busca" placeholder="Buscar cliente, cidade ou telefone" autocomplete="off"></div>
+    <div class="chips" id="c-chips" style="margin-top:14px"></div>
     <div class="erro" id="c-erro"></div>
     <div id="c-lista"></div>
   </div>
 </section>
 
-<nav id="tabbar" aria-label="Abas do app"><button data-tab="t-semana"><b>📅</b><span>Semana</span></button><button data-tab="t-hoje" class="on"><b>🗺️</b><span>Hoje</span></button><button data-tab="t-carteira"><b>👥</b><span>Clientes</span></button><button data-tab="t-vendas"><b>📈</b><span>Vendas</span></button></nav>
-
+<nav id="tabbar" aria-label="Abas do app"></nav>
 <div id="faixa-versao"><span>Saiu uma versão nova do app.</span><button id="faixa-ok">Atualizar</button></div>
 <div class="toast" id="toast"></div>
+</div>
 
 <script src="assets/supabase.js"></script>
 <script>
@@ -186,7 +272,33 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);   // mesma 
 const VERSAO_ACEITE = "2";
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-const S = { eu:null, rota:[], pos:null, perto:false, sel:null, seller:null, sellers:[] };
+const S = { eu:null, rota:[], pos:null, perto:false, sel:null, seller:null, sellers:[], semDia:null };
+
+/* ---------- ícones (traço) ---------- */
+const P = {
+  pin:'<path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2.2.7 3.5 2.5 3.5 5.2"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  chat:'<path d="M21 12a9 9 0 0 1-13.3 7.9L3 21l1.2-4.5A9 9 0 1 1 21 12z"/>',
+  nav:'<path d="M3 11l18-8-8 18-2-8z"/>',
+  cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 3v4M17 5h4"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  chev:'<path d="M9 6l6 6-6 6"/>', back:'<path d="M15 6l-6 6 6 6"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  shield:'<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  tel:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'
+};
+const ic = (n, s = 22, w = 1.9) => `<svg class="ic" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || ""}</svg>`;
+const CORES = ["#005071", "#0a6a93", "#3f7a00", "#a55b00", "#5a3d9a", "#a63d57", "#2a7f84"];
+const ini = n => { const p = String(n || "?").trim().split(/\s+/).filter(Boolean); return ((p[0] || "?")[0] + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase(); };
+const av = (n, g) => { let h = 0; String(n || "").split("").forEach(c => { h = (h * 31 + c.charCodeAt(0)) >>> 0; }); return `<span class="av${g ? " g" : ""}" style="background:${CORES[h % CORES.length]}">${esc(ini(n))}</span>`; };
+const pill = (t, c) => `<span class="pill ${c || ""}">${esc(t)}</span>`;
 
 function tela(id){
   document.querySelectorAll(".tela").forEach(t => t.classList.toggle("on", t.id === id)); window.scrollTo(0, 0);
@@ -201,9 +313,20 @@ function amigavel(e){
   if (/Invalid login/i.test(m)) return "E-mail ou senha incorretos.";
   return m || "Não deu certo. Tente de novo.";
 }
-const dia = () => new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"2-digit" });
+const dia = () => { const t = new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"long" }); return t.charAt(0).toUpperCase() + t.slice(1); };
 const hora = d => new Date(d).toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
 const reais = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { style:"currency", currency:"BRL", maximumFractionDigits:0 });
+const saudacao = () => { const h = new Date().getHours(); return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite"; };
+const skel = n => Array.from({ length:n }, () => '<div class="sk"></div>').join("");
+const vazio = (titulo, texto, botoes) => `<div class="card vazio"><svg width="86" height="86" viewBox="0 0 86 86" fill="none"><circle cx="43" cy="43" r="40" fill="#e8f2f7"/><path d="M43 66s17-12.5 17-27a17 17 0 1 0-34 0c0 14.5 17 27 17 27z" fill="#fff" stroke="#0a6a93" stroke-width="3"/><circle cx="43" cy="39" r="6" fill="#87dc18"/></svg><h3>${titulo}</h3><p>${texto}</p>${botoes || ""}</div>`;
+
+/* ---------- montagem das peças fixas ---------- */
+$("tabbar").innerHTML = [["t-semana", "cal", "Semana"], ["t-hoje", "pin", "Hoje"], ["t-carteira", "users", "Clientes"], ["t-vendas", "chart", "Vendas"]]
+  .map(([id, i, t]) => `<button data-tab="${id}"><span class="pl">${ic(i, 24)}</span>${t}</button>`).join("");
+["h-atualiza", "sm-atualiza", "vd-atualiza", "c-atualiza"].forEach(i => { $(i).innerHTML = ic("refresh", 22); });
+$("v-volta").innerHTML = ic("back", 24, 2.2); $("c-lupa").innerHTML = ic("search", 20);
+$("a-lista").innerHTML = [["pin", "Sua localização só no check-in e no check-out", "O app não acompanha você o tempo todo."], ["cam", "A foto da fachada do cliente", "Tirada no check-in. Não fotografe pessoas."], ["list", "O que você escrever sobre a visita", "E como ela foi. Não escreva dado pessoal do cliente que não seja necessário."]]
+  .map(([i, t, d]) => `<li><i>${ic(i, 20)}</i><span><b>${t}</b><br><span class="muted">${d}</span></span></li>`).join("");
 
 /* ---------- entrar ---------- */
 $("l-ok").addEventListener("click", async () => {
@@ -247,41 +370,69 @@ $("a-btn").addEventListener("click", async () => {
   if (error) { mostraErro("a-erro", amigavel(error)); return; }
   S.eu.aceite = true; abreHoje();
 });
+const soVer = () => !!(S.seller && S.seller !== S.eu.seller_id);
 
-/* ---------- rota de hoje ---------- */
+/* ---------- HOJE ---------- */
 function distKm(a, b){ const R = 6371, r = x => x * Math.PI / 180, dl = r(b.lat - a.lat), dn = r(b.lon - a.lon);
   const h = Math.sin(dl / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
 async function abreHoje(){
-  tela("t-hoje"); $("h-titulo").textContent = (S.eu.nome || "Rota de hoje").split(" ")[0] + ", sua rota"; $("h-sub").textContent = dia();
-  // gestão sem carteira própria: escolhe o vendedor para ver como ele vê (teste e acompanhamento)
+  tela("t-hoje"); $("h-hello").textContent = saudacao() + ","; $("h-titulo").textContent = (S.eu.nome || "vendedor").split(" ")[0]; $("h-sub").textContent = dia();
+  // gestão sem carteira própria: escolhe o vendedor para ver como ele vê (acompanhamento)
   if (S.eu.gestao && !S.eu.seller_id) {
     if (!S.sellers.length) { const { data } = await sb.from("sellers").select("id,name").order("name"); S.sellers = data || []; }
-    $("h-gestao").innerHTML = `<div class="aviso">Você é da gestão e não tem carteira. Escolha um vendedor para ver a rota dele, só para acompanhar (quem registra a visita é o próprio vendedor).<select id="h-sel" style="margin-top:8px"><option value="">— escolha —</option>${S.sellers.map(s => `<option value="${s.id}" ${S.seller == s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></div>`;
-    $("h-sel").addEventListener("change", e => { S.seller = e.target.value ? Number(e.target.value) : null; carregaRota(); });
-    if (!S.seller) { $("h-lista").innerHTML = ""; $("h-prog").innerHTML = ""; return; }
+    $("h-gestao").innerHTML = `<div class="vercomo">${ic("users", 18)}<span>Vendo como</span><select id="h-sel"><option value="">escolha o vendedor</option>${S.sellers.map(s => `<option value="${s.id}" ${S.seller == s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></div>`;
+    $("h-sel").addEventListener("change", e => { S.seller = e.target.value ? Number(e.target.value) : null; S.cart = null; S.sem = null; carregaRota(); });
+    if (!S.seller) { $("h-lista").innerHTML = ""; $("h-prog").innerHTML = ""; $("h-prox").innerHTML = vazio("Escolha um vendedor", "Selecione quem você quer acompanhar na lista acima. Você vê a rota, a semana, os clientes e as vendas dele, só para olhar."); return; }
   } else $("h-gestao").innerHTML = "";
   carregaRota();
 }
 async function carregaRota(){
-  mostraErro("h-erro", ""); $("h-lista").innerHTML = '<p class="muted">Carregando a rota…</p>';
+  mostraErro("h-erro", ""); $("h-prog").innerHTML = ""; $("h-prox").innerHTML = ""; $("h-lista").innerHTML = skel(3);
   const { data, error } = await sb.rpc("app_rota_dia", { p_seller:S.seller });
   if (error) { $("h-lista").innerHTML = ""; mostraErro("h-erro", amigavel(error)); return; }
   S.rota = data || []; desenhaLista();
 }
-const ST = { planejada:["", "a visitar"], em_visita:["em", "em visita"], concluida:["ok", "feita"], nao_visitada:["nao", "não visitada"] };
-function desenhaLista(){
-  const L = S.rota.slice(), feitas = L.filter(v => v.status === "concluida" || v.status === "nao_visitada").length;
-  $("h-prog").innerHTML = L.length ? `<div><b>${feitas} de ${L.length}</b> visitas encerradas</div><div class="prog"><i style="width:${Math.round(feitas / L.length * 100)}%"></i></div>` : "";
+const ST = { planejada:["a visitar", ""], em_visita:["em visita", "em"], concluida:["feita", "ok"], nao_visitada:["não visitada", "nao"] };
+function ordemRota(L){
   const peso = v => v.status === "em_visita" ? 0 : v.status === "planejada" ? 1 : 2;
-  L.sort((a, b) => peso(a) - peso(b) || (S.perto && S.pos ? (a.lat == null) - (b.lat == null) || (a.lat != null ? distKm(S.pos, a) - distKm(S.pos, b) : 0) : 0) || a.ordem - b.ordem);
-  $("h-lista").innerHTML = L.map(v => {
-    const [cl, tx] = ST[v.status] || ["", v.status], dist = S.perto && S.pos && v.lat != null ? ` · ${distKm(S.pos, v).toFixed(1).replace(".", ",")} km` : "";
-    const velha = v.dia && v.dia < new Date().toLocaleDateString("sv-SE") ? `<span class="chip em">Em aberto desde ${esc(v.dia.slice(8, 10) + "/" + v.dia.slice(5, 7))}</span> ` : "";
-    const dem = v.demandada ? '<span class="chip lead">Demandada pela gestão</span> ' : "";
-    const pq = dem + velha + (v.origem === "lead" ? '<span class="chip lead">Lead do evento</span>' : v.dias_sem_comprar != null ? `<span class="chip">Parado há ${v.dias_sem_comprar} dias</span>` : "");
-    return `<button class="vis ${peso(v) === 2 ? "feita" : ""}" data-v="${esc(v.visita_id)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(v.nome)}</b><span class="chip ${cl}">${tx}</span></div>
-      <div class="sub">${esc([v.endereco, v.cidade].filter(Boolean).join(" · ") || "Sem endereço")}${dist}</div><div style="margin-top:6px">${pq}</div></button>`; }).join("")
-    || '<div class="card"><b>Nenhuma visita sugerida para hoje.</b><p class="muted">A rota é montada quando você abre o app de manhã, com os leads novos e os clientes parados da sua carteira. Se acabou de receber leads, toque em Atualizar.</p><button class="btn azul mini" onclick="carregaRota()">Atualizar</button></div>';
+  return L.slice().sort((a, b) => peso(a) - peso(b) || (S.perto && S.pos ? (a.lat == null) - (b.lat == null) || (a.lat != null ? distKm(S.pos, a) - distKm(S.pos, b) : 0) : 0) || a.ordem - b.ordem);
+}
+const wazeDe = v => v.lat != null ? `https://waze.com/ul?ll=${v.lat},${v.lon}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent([v.endereco, v.cidade, v.uf].filter(Boolean).join(", ") || v.nome)}&navigate=yes`;
+function motivoTags(v){
+  const hoje = new Date().toLocaleDateString("sv-SE"), t = [];
+  if (v.demandada) t.push(pill("Da gestão", "rox"));
+  if (v.dia && v.dia < hoje) t.push(pill("Em aberto desde " + v.dia.slice(8, 10) + "/" + v.dia.slice(5, 7), "em"));
+  if (v.origem === "lead") t.push(pill("Lead", "lead")); else if (v.dias_sem_comprar != null) t.push(pill("Parado há " + v.dias_sem_comprar + " dias"));
+  return t.join("");
+}
+function desenhaLista(){
+  const L = ordemRota(S.rota), total = L.length, feitas = L.filter(v => v.status === "concluida" || v.status === "nao_visitada").length, falta = total - feitas;
+  if (!total) {
+    $("h-prog").innerHTML = ""; $("h-prox").innerHTML = "";
+    $("h-lista").innerHTML = vazio("Sem visitas por enquanto", "A rota do dia é montada com os seus leads novos e os clientes parados. Veja quem está na hora de comprar na sua carteira.",
+      `<div class="linha"><button class="btn" onclick="abreCarteira()">${ic("users", 20)} Ver clientes</button><button class="btn suave" onclick="carregaRota()">Atualizar</button></div>`);
+    $("h-perto").hidden = true; return;
+  }
+  $("h-perto").hidden = false;
+  const pct = Math.round(feitas / total * 100), circ = 2 * Math.PI * 34;
+  $("h-prog").innerHTML = `<div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:0">
+    <svg width="84" height="84" viewBox="0 0 84 84" style="flex:none"><circle cx="42" cy="42" r="34" fill="none" stroke="#e3eaf0" stroke-width="9"/><circle cx="42" cy="42" r="34" fill="none" stroke="url(#gr)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(circ * pct / 100).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 42 42)"/>
+      <defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a6a93"/><stop offset="1" stop-color="#87dc18"/></linearGradient></defs><text x="42" y="48" text-anchor="middle" font-family="Roboto Condensed" font-weight="800" font-size="20" fill="#0f1f2a">${feitas}/${total}</text></svg>
+    <div><b class="num" style="font-size:1.3rem">${falta ? falta + (falta === 1 ? " visita falta" : " visitas faltam") : "Rota concluída"}</b><div class="muted">${falta ? "Bora! A próxima está logo abaixo." : "Bom trabalho hoje."}</div></div></div>`;
+  const prox = L.find(v => v.status === "em_visita") || L.find(v => v.status === "planejada");
+  if (prox) {
+    const dist = S.perto && S.pos && prox.lat != null ? ` · ${distKm(S.pos, prox).toFixed(1).replace(".", ",")} km` : "";
+    $("h-prox").innerHTML = `<div class="prox"><div class="tag">${ic("clock", 15)} ${prox.status === "em_visita" ? "Em visita agora" : "Próxima visita"}</div>
+      <h2>${esc(prox.nome)}</h2><div class="sub">${ic("pin", 16)} ${esc([prox.endereco, prox.cidade].filter(Boolean).join(" · ") || "Sem endereço")}${dist}</div>
+      <div class="t" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${motivoTags(prox)}</div>
+      <div class="acoes"><a class="btn suave" target="_blank" rel="noopener" href="${esc(wazeDe(prox))}">${ic("nav", 20)} Navegar</a><button class="btn" data-v="${esc(prox.visita_id)}">${prox.status === "em_visita" ? "Encerrar visita" : "Abrir visita"} ${ic("chev", 20)}</button></div></div>`;
+    $("h-prox").querySelector("[data-v]").addEventListener("click", e => abreVisita(e.currentTarget.dataset.v));
+  } else $("h-prox").innerHTML = "";
+  $("h-lista").innerHTML = L.map((v, i) => {
+    const feita = v.status === "concluida", nao = v.status === "nao_visitada", atual = prox && prox.visita_id === v.visita_id, [tx, cl] = ST[v.status] || ["", ""];
+    const dist = S.perto && S.pos && v.lat != null ? ` · ${distKm(S.pos, v).toFixed(1).replace(".", ",")} km` : "";
+    return `<div class="tli ${feita ? "feita" : nao ? "nao" : atual ? "atual" : ""}"><div class="tm">${feita ? ic("check", 18, 2.6) : i + 1}</div>
+      <button class="item" data-v="${esc(v.visita_id)}"><div class="grow"><b>${esc(v.nome)}</b><div class="s">${esc([v.cidade, v.uf].filter(Boolean).join(" · ") || "Sem cidade")}${dist}</div><div class="t">${v.status !== "planejada" ? pill(tx, cl) : ""}${motivoTags(v)}</div></div><span class="chev">${ic("chev", 20)}</span></button></div>`; }).join("");
   $("h-lista").querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => abreVisita(b.dataset.v)));
 }
 $("h-atualiza").addEventListener("click", carregaRota);
@@ -310,40 +461,44 @@ function reduzFoto(file){   // JPEG de até 1280 px: foto leve para subir no 4G
   });
 }
 
-/* ---------- visita ---------- */
-const RES = [["pedido", "Fez pedido"], ["cotacao", "Pediu cotação"], ["retorno", "Voltar depois"], ["sem_interesse", "Sem interesse"], ["nao_atendeu", "Não atendeu"]];
+/* ---------- VISITA ---------- */
+const RES = [["pedido", "Fez pedido", "🛒"], ["cotacao", "Pediu cotação", "📝"], ["retorno", "Voltar depois", "🔁"], ["sem_interesse", "Sem interesse", "🚫"], ["nao_atendeu", "Não atendeu", "📵"]];
 const MOT = ["Fechado", "Cliente ausente", "Fora do caminho", "Sem tempo hoje", "Outro motivo"];
 const tel = t => String(t || "").replace(/\D/g, "");
+const waLink = (w, txt) => `https://wa.me/${w.length <= 11 ? "55" + w : w}${txt ? "?text=" + encodeURIComponent(txt) : ""}`;
+function acoesRapidas(wa, waze){
+  return `<div class="card"><div class="acoes-r">${wa ? `<a class="ra" href="tel:${wa}"><i>${ic("phone", 24)}</i>Ligar</a><a class="ra wa" target="_blank" rel="noopener" href="${esc(waLink(wa))}"><i>${ic("chat", 24)}</i>WhatsApp</a>` : ""}<a class="ra nv" target="_blank" rel="noopener" href="${esc(waze)}"><i>${ic("nav", 24)}</i>Navegar</a></div></div>`;
+}
 function abreVisita(id){ S.sel = S.rota.find(v => v.visita_id === id); if (!S.sel) return; S.voltaPara = "t-hoje"; tela("t-visita"); pintaVisita(); }
 $("v-volta").addEventListener("click", () => { if (S.voltaPara === "t-carteira") { tela("t-carteira"); desenhaCarteira(); } else { tela("t-hoje"); desenhaLista(); } });
+function passos(st){
+  const feito = st === "concluida" || st === "nao_visitada", visita = st === "em_visita" || feito;
+  return `<div class="passos"><div class="passo ${visita ? "feito" : "on"}"><i>${visita ? ic("check", 14, 3) : "1"}</i>Check-in</div><div class="passo ${st === "em_visita" ? "on" : feito ? "feito" : ""}"><i>${feito ? ic("check", 14, 3) : "2"}</i>Visita</div><div class="passo ${feito ? "feito" : ""}"><i>${feito ? ic("check", 14, 3) : "3"}</i>Check-out</div></div>`;
+}
 function pintaVisita(){
-  const v = S.sel, c = $("v-corpo"), soVer = !!(S.seller && S.seller !== S.eu.seller_id); $("v-titulo").textContent = v.nome; $("v-sub").textContent = [v.cidade, v.uf].filter(Boolean).join(" · ");
-  const wa = tel(v.telefone), end = [v.endereco, v.cidade, v.uf].filter(Boolean).join(", ");
-  const waze = v.lat != null ? `https://waze.com/ul?ll=${v.lat},${v.lon}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(end || v.nome)}&navigate=yes`;
-  const dados = `<div class="card"><div class="dado"><span>Contato</span><span>${esc(v.contato || "—")}</span></div>
-    <div class="dado"><span>Endereço</span><span>${esc(end || "Sem endereço no cadastro")}</span></div>
-    ${v.dias_sem_comprar != null ? `<div class="dado"><span>Última compra</span><span>${esc(v.ultima_compra ? new Date(v.ultima_compra + "T12:00").toLocaleDateString("pt-BR") : "—")} · há ${v.dias_sem_comprar} dias</span></div><div class="dado"><span>Comprou em 12 meses</span><span>${reais(v.fat_12m)}</span></div>` : ""}
-    <div class="linha" style="margin-top:10px">${wa ? `<a class="btn claro mini" href="tel:${wa}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${wa.length <= 11 ? "55" + wa : wa}">WhatsApp</a>` : ""}</div></div>`;
-  const oferta = v.oferta ? `<div class="card"><b>O que falar</b><p style="white-space:pre-wrap;margin:6px 0 0">${esc(v.oferta)}</p></div>` : "";
+  const v = S.sel, c = $("v-corpo"), ver = soVer(); $("v-titulo").textContent = v.nome; $("v-sub").textContent = [v.cidade, v.uf].filter(Boolean).join(" · ");
+  const wa = tel(v.telefone), end = [v.endereco, v.cidade, v.uf].filter(Boolean).join(", "), waze = wazeDe(v);
+  const dados = `<div class="card"><div class="tiles">${v.dias_sem_comprar != null ? `<div class="tile"><small>Última compra</small><b>${v.ultima_compra ? new Date(v.ultima_compra + "T12:00").toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" }) : "—"}</b><small>há ${v.dias_sem_comprar} dias</small></div><div class="tile"><small>Comprou em 12 meses</small><b>${reais(v.fat_12m)}</b></div>` : ""}</div>
+    <div class="dado"><span>Contato</span><span>${esc(v.contato || "—")}</span></div><div class="dado"><span>Endereço</span><span>${esc(end || "Sem endereço no cadastro")}</span></div></div>`;
+  const oferta = v.oferta ? `<div class="card"><h3 style="font-size:1.05rem;margin-bottom:8px">O que falar</h3><blockquote>${esc(v.oferta)}</blockquote></div>` : "";
   let acao = "";
-  if (soVer) acao = `<div class="aviso">Você está só acompanhando. Quem faz o check-in e o check-out é o vendedor.</div>`;
-  else if (v.status === "planejada") acao = `<a class="btn azul" target="_blank" rel="noopener" href="${esc(waze)}" style="margin-bottom:14px">🧭 Abrir no Waze</a>
-    <div class="card"><h2 style="font-size:1.1rem">Chegou? Faça o check-in</h2>
-      <p class="muted" style="margin:6px 0 0">O app pega a sua localização agora e a foto da fachada.</p>
+  if (ver) acao = `<div class="aviso">Você está só acompanhando. Quem faz o check-in e o check-out é o vendedor.</div>`;
+  else if (v.status === "planejada") acao = passos(v.status) + `<div class="card"><h3 style="font-size:1.15rem">Chegou? Faça o check-in</h3>
+      <p class="muted" style="margin:6px 0 0">O app registra a sua localização e a foto da fachada.</p>
       <input type="file" id="f-foto" accept="image/*" capture="environment" hidden>
-      <button class="btn claro" id="f-btn" style="margin-top:10px">📷 Tirar foto da fachada</button><img id="f-prev" class="foto" alt="" hidden>
-      <button class="btn claro mini" id="f-sem" style="margin-top:10px">Sem foto</button><div id="f-motivos" hidden><p class="muted" style="margin:10px 0 0">Por que não deu?</p><div class="opts" id="f-mot"></div></div>
-      <div class="erro" id="c-erro"></div><div style="height:12px"></div><button class="btn" id="c-ok" disabled>Fazer check-in</button><p class="dica" id="c-dica">Tire a foto (ou toque em Sem foto) para liberar.</p></div>
-      <button class="btn claro mini" id="nv-btn">Não consegui visitar</button><div id="nv-box" hidden class="card" style="margin-top:12px"><b>Por quê?</b><div class="opts" id="nv-mot"></div><div class="erro" id="nv-erro"></div></div>`;
-  else if (v.status === "em_visita") acao = `<div class="aviso"><b>Em visita desde ${esc(hora(v.checkin_em))}</b></div>
-    <div class="card"><h2 style="font-size:1.1rem">Como foi?</h2><div class="opts col" id="r-res">${RES.map(([k, t]) => `<button class="opt" data-r="${k}">${t}</button>`).join("")}</div>
+      <button class="btn suave" id="f-btn" style="margin-top:12px">${ic("cam", 22)} Tirar foto da fachada</button><img id="f-prev" class="foto" alt="" hidden>
+      <button class="lk" id="f-sem" style="margin-top:4px">Não consegui tirar a foto</button><div id="f-motivos" hidden><div class="opts" id="f-mot"></div></div>
+      <div class="erro" id="c-erro"></div><div style="height:10px"></div><button class="btn ok" id="c-ok" disabled>Fazer check-in</button><p class="dica" id="c-dica">Tire a foto (ou escolha o motivo) para liberar.</p></div>
+      <div style="text-align:center"><button class="lk" id="nv-btn">Não consegui visitar</button></div><div id="nv-box" hidden class="card"><b>Por quê?</b><div class="opts" id="nv-mot"></div><div class="erro" id="nv-erro"></div></div>`;
+  else if (v.status === "em_visita") acao = passos(v.status) + `<div class="aviso" style="margin-top:0">${ic("clock", 16)} <b>Em visita desde ${esc(hora(v.checkin_em))}</b></div>
+    <div class="card"><h3 style="font-size:1.15rem;margin-bottom:6px">Como foi?</h3><div class="opts col" id="r-res">${RES.map(([k, t, e]) => `<button class="opt" data-r="${k}"><span>${e}</span>${t}</button>`).join("")}</div>
       <details class="obs"><summary>Anotar o que aconteceu (opcional)</summary><textarea id="r-obs" maxlength="2000" placeholder="Com quem falou, o que ele usa, o que combinou…"></textarea></details>
-      <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi para liberar.</p></div>`;
-  else acao = `<div class="card"><span class="chip ${ST[v.status][0]}">${ST[v.status][1]}</span>${v.checkin_em ? `<p>Check-in às ${esc(hora(v.checkin_em))}${v.checkout_em ? `, check-out às ${esc(hora(v.checkout_em))}` : ""}.</p>` : ""}
-    ${v.resultado ? `<p><b>${esc((RES.find(r => r[0] === v.resultado) || [0, v.resultado])[1])}</b></p>` : ""}${v.observacao ? `<p style="white-space:pre-wrap">${esc(v.observacao)}</p>` : ""}</div>`;
-  c.innerHTML = acao + ofertaHtml() + dados + oferta;
+      <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn ok" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi para liberar.</p></div>`;
+  else acao = passos(v.status) + `<div class="card">${pill(ST[v.status][0], ST[v.status][1])}${v.checkin_em ? `<p style="margin:10px 0 0">Check-in às ${esc(hora(v.checkin_em))}${v.checkout_em ? `, check-out às ${esc(hora(v.checkout_em))}` : ""}.</p>` : ""}
+    ${v.resultado ? `<p style="margin:8px 0 0"><b>${esc((RES.find(r => r[0] === v.resultado) || [0, v.resultado])[1])}</b></p>` : ""}${v.observacao ? `<p style="white-space:pre-wrap;margin:8px 0 0">${esc(v.observacao)}</p>` : ""}</div>`;
+  c.innerHTML = acoesRapidas(wa, waze) + acao + ofertaHtml() + dados + oferta;
   ligaOferta(v.pessoa_id, v.dias_sem_comprar != null || v.fat_12m != null ? "revisao" : "pesquisa", wa, v.nome);
-  if (v.status === "planejada") ligaCheckin(); if (v.status === "em_visita") ligaCheckout();
+  if (!ver && v.status === "planejada") ligaCheckin(); if (!ver && v.status === "em_visita") ligaCheckout();
 }
 function ligaCheckin(){
   const v = S.sel; let foto = null, semFoto = null;
@@ -399,17 +554,16 @@ function ligaCheckout(){
   });
 }
 
-
 /* ---------- O QUE OFERECER (botão inteligente): usa a análise do CRM (inteligencia-pessoa), na carteira do próprio vendedor ---------- */
-const TIPO_OP = { reativacao:"Reposição", "cross-sell":"Cross-sell", upsell:"Upsell" };
+const TIPO_OP = { reativacao:["Reposição", ""], "cross-sell":["Cross-sell", "lead"], upsell:["Upsell", "rox"] };
 const dh = d => { try { return new Date(d).toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }); } catch (e) { return ""; } };
 const real2 = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
 function copia(txt, ok) { (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast(ok), () => { prompt("Copie o texto:", txt); }); }
-function ofertaHtml(){ return `<div class="card" id="of-box"><button class="btn azul" id="of-btn">💡 O que oferecer</button><p class="dica">Produtos para repor, cross-sell e upsell, com o pedido sugerido.</p><div id="of-out"></div></div>`; }
+function ofertaHtml(){ return `<div class="ia" id="of-box"><div><h3>${ic("spark", 22)} O que oferecer</h3><p class="dica">Reposição, cross-sell e upsell, com o pedido sugerido pronto para copiar.</p><button class="btn" id="of-btn">${ic("spark", 20)} Ver sugestões</button><div id="of-out"></div></div></div>`; }
 function ligaOferta(pid, modo, tel, nome){
   const btn = $("of-btn"), out = $("of-out"); if (!btn) return;
   btn.addEventListener("click", async () => {
-    btn.disabled = true; out.innerHTML = '<p class="muted">Buscando as sugestões…</p>';
+    btn.disabled = true; out.innerHTML = '<p class="muted" style="margin-top:10px">Buscando as sugestões…</p>';
     let u = null;
     try { const { data, error } = await sb.rpc("app_inteligencia_ultima", { p_pessoa:pid }); if (error) throw error; u = data && data[0]; }
     catch (e) { out.innerHTML = `<div class="erro on">${esc(amigavel(e))}</div>`; btn.disabled = false; return; }
@@ -417,156 +571,145 @@ function ligaOferta(pid, modo, tel, nome){
   });
 }
 async function gerarOferta(out, pid, modo, tel, nome, btn){
-  out.innerHTML = '<div class="aviso">Montando as sugestões com o histórico do cliente. Leva cerca de 1 minuto; você pode continuar usando o app.</div>';
+  out.innerHTML = `<div class="aviso">${ic("clock", 16)} Montando as sugestões com o histórico do cliente. Leva cerca de 1 minuto; você pode continuar usando o app.</div>${skel(1)}`;
   try {
     const { data, error } = await sb.functions.invoke("inteligencia-pessoa", { body:modo === "revisao" ? { pessoa_id:pid, modo:"revisao" } : { pessoa_id:pid } });
     if (error) throw error;
     if (!data || data.error || !data.relatorio) throw new Error((data && data.error) || "Não consegui montar as sugestões agora.");
     if (btn) btn.hidden = true; mostraOferta(out, data.relatorio, data.gerado_em || new Date().toISOString(), pid, modo, tel, nome);
   } catch (e) {
-    out.innerHTML = `<div class="erro on">${esc(amigavel(e))}</div><button class="btn claro mini" id="of-tenta">Tentar de novo</button>`;
+    out.innerHTML = `<div class="erro on">${esc(amigavel(e))}</div><button class="btn fino mini" id="of-tenta">Tentar de novo</button>`;
     $("of-tenta").addEventListener("click", () => gerarOferta(out, pid, modo, tel, nome, btn)); if (btn) btn.disabled = false;
   }
 }
 function mostraOferta(out, rel, quando, pid, modo, tel, nome){
   const ped = rel.pedido_sugerido, ops = rel.oportunidades || [], resumo = rel.diagnostico || rel.perfil_profissional || "";
   const txtPedido = ped && ped.itens ? "Pedido sugerido" + (nome ? " para " + nome : "") + ":\n" + ped.itens.map(i => "- " + i.quantidade + " " + (i.unidade || "") + " " + i.produto + (i.preco_unitario != null ? " (" + real2(i.preco_unitario) + " a unidade)" : "")).join("\n") + (ped.total ? "\nTotal estimado: " + real2(ped.total) : "") : "";
-  const w = tel && ped && ped.mensagem_whatsapp ? `https://wa.me/${tel.length <= 11 ? "55" + tel : tel}?text=${encodeURIComponent(ped.mensagem_whatsapp)}` : "";
-  out.innerHTML = `<p class="muted" style="margin:10px 0 4px">Análise de ${esc(dh(quando))}</p>${resumo ? `<p style="margin:4px 0">${esc(resumo)}</p>` : ""}
-    ${ops.length ? `<div class="of-sub">Oportunidades</div>${ops.map(o => `<div class="of-op"><span class="chip ${o.tipo === "reativacao" ? "" : "lead"}">${esc(TIPO_OP[o.tipo] || o.tipo)}</span> <b>${esc(o.produto || o.codigo)}</b><div class="muted">${esc(o.motivo)}</div></div>`).join("")}` : ""}
-    ${ped && ped.itens && ped.itens.length ? `<div class="of-sub">Pedido sugerido</div><table class="ped">${ped.itens.map(i => `<tr><td><b>${esc(i.produto)}</b><div class="muted">${esc(i.motivo || "")}</div></td><td>${esc(i.quantidade)} ${esc(i.unidade || "")}<div class="muted">${i.total != null ? real2(i.total) : ""}</div></td></tr>`).join("")}</table>
-      ${ped.total ? `<p style="text-align:right;margin:6px 0"><b>Total estimado ${real2(ped.total)}</b></p>` : ""}
-      <p class="muted" style="margin:0">O pedido é lançado no Fácil123: copie e lance lá. Preço = último pago pelo cliente.</p>
-      <div class="linha" style="margin-top:10px"><button class="btn claro mini" id="of-cp">Copiar pedido</button>${w ? `<a class="btn mini" target="_blank" rel="noopener" href="${esc(w)}" id="of-wa">WhatsApp</a>` : ""}</div>` : ""}
-    ${rel.abertura_sugerida ? `<div class="of-sub">Como começar a conversa</div><p style="margin:4px 0;white-space:pre-wrap">${esc(rel.abertura_sugerida)}</p>` : ""}
-    ${(rel.perguntas || []).length ? `<details class="of"><summary>Perguntas para fazer (${rel.perguntas.length})</summary>${rel.perguntas.map(q => `<p style="margin:6px 0"><b>${esc(q.pergunta)}</b><br><span class="muted">${esc(q.por_que || "")}</span></p>`).join("")}</details>` : ""}
-    ${(rel.cuidados || []).length ? `<details class="of"><summary>Cuidados</summary><ul class="ac">${rel.cuidados.map(c => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}
-    <button class="btn claro mini" id="of-atual" style="margin-top:10px">Atualizar sugestões</button>`;
+  const w = tel && ped && ped.mensagem_whatsapp ? waLink(tel, ped.mensagem_whatsapp) : "";
+  out.innerHTML = `<p class="muted" style="margin:12px 0 4px;font-size:.85rem">Análise de ${esc(dh(quando))}</p>${resumo ? `<p style="margin:4px 0">${esc(resumo)}</p>` : ""}
+    ${ops.length ? `<div class="of-sub">Oportunidades</div>${ops.map(o => { const t = TIPO_OP[o.tipo] || [o.tipo, ""]; return `<div class="of-op">${pill(t[0], t[1])} <b>${esc(o.produto || o.codigo)}</b><div class="muted">${esc(o.motivo)}</div></div>`; }).join("")}` : ""}
+    ${ped && ped.itens && ped.itens.length ? `<div class="of-sub">Pedido sugerido</div><table class="ped">${ped.itens.map(i => `<tr><td><b>${esc(i.produto)}</b><div class="muted" style="font-size:.85rem">${esc(i.motivo || "")}</div></td><td>${esc(i.quantidade)} ${esc(i.unidade || "")}<div class="muted" style="font-size:.85rem">${i.total != null ? real2(i.total) : ""}</div></td></tr>`).join("")}</table>
+      ${ped.total ? `<p style="text-align:right;margin:8px 0"><b class="num" style="font-size:1.2rem">Total estimado ${real2(ped.total)}</b></p>` : ""}
+      <p class="dica" style="text-align:left">O pedido é lançado no Fácil123: copie e lance lá. Preço = último pago pelo cliente.</p>
+      <div class="linha" style="margin-top:10px"><button class="btn fino mini" id="of-cp">Copiar pedido</button>${w ? `<a class="btn ok mini" target="_blank" rel="noopener" href="${esc(w)}" id="of-wa">${ic("chat", 18)} WhatsApp</a>` : ""}</div>` : ""}
+    ${rel.abertura_sugerida ? `<div class="of-sub">Como começar a conversa</div><blockquote>${esc(rel.abertura_sugerida)}</blockquote>` : ""}
+    ${(rel.perguntas || []).length ? `<details class="of"><summary>Perguntas para fazer (${rel.perguntas.length})</summary>${rel.perguntas.map(q => `<p style="margin:8px 0"><b>${esc(q.pergunta)}</b><br><span class="muted" style="font-size:.9rem">${esc(q.por_que || "")}</span></p>`).join("")}</details>` : ""}
+    ${(rel.cuidados || []).length ? `<details class="of"><summary>Cuidados</summary><ul style="margin:6px 0;padding-left:20px">${rel.cuidados.map(c => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}
+    <button class="lk" id="of-atual" style="margin-top:8px">Atualizar sugestões</button>`;
   const cp = $("of-cp"); if (cp) cp.addEventListener("click", () => copia(txtPedido, "Pedido copiado."));
   $("of-atual").addEventListener("click", () => gerarOferta(out, pid, modo, tel, nome, null));
 }
 
-/* ---------- CARTEIRA ---------- */
+/* ---------- CLIENTES ---------- */
 const GRP = { agora:["Comprar agora", "lead"], encolhendo:["Encolhendo", "em"], parado:["Parado", "nao"], ativo:["Ativo", "ok"], inativo:["Inativo", ""] };
+function semGestao(corpoId, extra){ if (S.eu.gestao && !S.eu.seller_id && !S.seller) { $(corpoId).innerHTML = vazio("Escolha um vendedor", "Na aba Hoje, selecione quem você quer acompanhar para ver essa visão dele."); if (extra) $(extra).innerHTML = ""; return true; } return false; }
 function abreCarteira(){
   tela("t-carteira");
-  if (S.eu.gestao && !S.eu.seller_id && !S.seller) { $("c-lista").innerHTML = '<div class="aviso">Escolha um vendedor na aba Hoje para ver a carteira dele.</div>'; $("c-chips").innerHTML = ""; return; }
+  if (semGestao("c-lista", "c-chips")) return;
   if (!S.cart || S.cartDe !== (S.seller || "eu")) carregaCarteira(); else desenhaCarteira();
 }
 async function carregaCarteira(){
-  mostraErro("c-erro", ""); $("c-lista").innerHTML = '<p class="muted">Carregando a carteira…</p>';
+  mostraErro("c-erro", ""); $("c-lista").innerHTML = skel(4);
   const { data, error } = await sb.rpc("app_carteira", { p_seller:S.seller });
   if (error) { $("c-lista").innerHTML = ""; mostraErro("c-erro", amigavel(error)); return; }
   S.cart = data || []; S.cartDe = S.seller || "eu"; S.filtro = S.cart.some(c => c.grupo === "agora") ? "agora" : "todos"; desenhaCarteira();
 }
 function desenhaCarteira(){
   const L = S.cart || [], n = g => L.filter(c => c.grupo === g).length, q = $("c-busca").value.trim().toLowerCase();
-  $("c-sub").textContent = L.length + " clientes";
+  $("c-sub").textContent = L.length + " clientes na carteira";
   const chips = [["agora", "Comprar agora"], ["encolhendo", "Encolhendo"], ["parado", "Parados"], ["todos", "Todos"]];
-  $("c-chips").innerHTML = chips.map(([k, t]) => `<button class="opt ${S.filtro === k ? "on" : ""}" data-f="${k}" style="min-height:48px;padding:6px 14px">${t} (${k === "todos" ? L.length : n(k)})</button>`).join("");
+  $("c-chips").innerHTML = chips.map(([k, t]) => `<button class="chp ${S.filtro === k && !q ? "on" : ""}" data-f="${k}">${t} <small>${k === "todos" ? L.length : n(k)}</small></button>`).join("");
   $("c-chips").querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { S.filtro = b.dataset.f; $("c-busca").value = ""; desenhaCarteira(); }));
   const digitos = q.replace(/\D/g, "");
   const V = q ? L.filter(c => (c.nome || "").toLowerCase().includes(q) || (c.cidade || "").toLowerCase().includes(q) || (c.contato || "").toLowerCase().includes(q) || (digitos.length >= 3 && String(c.telefone || "").replace(/\D/g, "").includes(digitos)))
                 : S.filtro === "todos" ? L : L.filter(c => c.grupo === S.filtro);
   $("c-lista").innerHTML = V.map(c => {
     const g = GRP[c.grupo] || ["", ""];
-    return `<button class="vis" data-c="${esc(c.pessoa_id)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.nome)}</b><span class="chip ${g[1]}">${g[0]}</span></div>
-      <div class="sub">${esc([c.cidade, c.uf].filter(Boolean).join(" · ") || "Sem cidade")}</div>
-      <div class="sub">${c.dias_sem_comprar != null ? `Última compra há ${c.dias_sem_comprar} dias` : "Sem compra"}${c.valor_mensal ? ` · ${real2(c.valor_mensal)} por mês` : ""}${c.ciclo_medio_dias ? ` · compra a cada ${c.ciclo_medio_dias} dias` : ""}</div></button>`; }).join("")
-    || '<div class="card">Nenhum cliente nesta seleção.</div>';
+    return `<button class="item" data-c="${esc(c.pessoa_id)}" style="margin-bottom:10px">${av(c.nome)}<div class="grow"><b>${esc(c.nome)}</b><div class="s">${esc([c.cidade, c.uf].filter(Boolean).join(" · ") || "Sem cidade")}${c.dias_sem_comprar != null ? " · há " + c.dias_sem_comprar + " dias" : ""}</div><div class="t">${pill(g[0], g[1])}${c.ciclo_medio_dias ? pill("compra a cada " + c.ciclo_medio_dias + " dias") : ""}</div></div>
+      <div style="text-align:right"><b class="num" style="font-size:1.05rem">${c.valor_mensal ? real2(c.valor_mensal).replace(",00", "") : ""}</b><div class="s" style="font-size:.75rem">${c.valor_mensal ? "por mês" : ""}</div></div></button>`; }).join("")
+    || vazio("Nenhum cliente aqui", q ? "Nada encontrado para essa busca." : "Essa seleção está vazia.");
   $("c-lista").querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => abreCliente(b.dataset.c)));
 }
 $("c-busca").addEventListener("input", () => { clearTimeout(S.tb); S.tb = setTimeout(desenhaCarteira, 200); });
 $("c-atualiza").addEventListener("click", carregaCarteira);
 
-/* ---------- CLIENTE DA CARTEIRA (mesma tela de visita, sem check-in) ---------- */
+/* ---------- CLIENTE DA CARTEIRA ---------- */
 function abreCliente(id){ S.cl = (S.cart || []).find(c => c.pessoa_id === id); if (!S.cl) return; S.voltaPara = "t-carteira"; tela("t-visita"); pintaCliente(); }
 function pintaCliente(){
-  const c = S.cl, el = $("v-corpo"), soVer = !!(S.seller && S.seller !== S.eu.seller_id), wa = tel(c.telefone), g = GRP[c.grupo] || ["", ""];
+  const c = S.cl, el = $("v-corpo"), ver = soVer(), wa = tel(c.telefone), g = GRP[c.grupo] || ["", ""];
   $("v-titulo").textContent = c.nome; $("v-sub").textContent = [c.cidade, c.uf].filter(Boolean).join(" · ");
   const end = [c.endereco, c.cidade, c.uf].filter(Boolean).join(", "), waze = `https://waze.com/ul?q=${encodeURIComponent(end || c.nome)}&navigate=yes`;
-  el.innerHTML = `<div class="card"><span class="chip ${g[1]}">${g[0]}</span>
-      <div class="dado"><span>Contato</span><span>${esc(c.contato || "—")}</span></div>
-      <div class="dado"><span>Endereço</span><span>${esc(end || "Sem endereço no cadastro")}</span></div>
-      <div class="dado"><span>Última compra</span><span>${c.ultima_compra ? esc(new Date(c.ultima_compra + "T12:00").toLocaleDateString("pt-BR")) + " · há " + c.dias_sem_comprar + " dias" : "—"}</span></div>
-      <div class="dado"><span>Compra por mês</span><span>${real2(c.valor_mensal)}</span></div>
-      <div class="dado"><span>Comprou em 12 meses</span><span>${reais(c.fat_12m)}</span></div>
-      ${c.ciclo_medio_dias ? `<div class="dado"><span>Costuma comprar a cada</span><span>${c.ciclo_medio_dias} dias</span></div>` : ""}
-      ${c.valor_mix_perdido > 0 ? `<div class="dado"><span>Produtos que parou de levar</span><span>${reais(c.valor_mix_perdido)} em 12 meses</span></div>` : ""}
-      <div class="linha" style="margin-top:10px">${wa ? `<a class="btn claro mini" href="tel:${wa}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${wa.length <= 11 ? "55" + wa : wa}">WhatsApp</a>` : ""}</div></div>`;
-  el.insertAdjacentHTML("afterbegin", ofertaHtml());
-  el.insertAdjacentHTML("beforeend", `<a class="btn azul" target="_blank" rel="noopener" href="${esc(waze)}" style="margin-bottom:12px">🧭 Abrir no Waze</a>${soVer ? "" : '<button class="btn claro" id="cl-rota">➕ Adicionar à rota de hoje</button>'}`);
+  el.innerHTML = acoesRapidas(wa, waze) + ofertaHtml() + `<div class="card"><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">${av(c.nome, true)}<div>${pill(g[0], g[1])}<div class="muted" style="margin-top:4px">${esc(c.contato || "Sem contato cadastrado")}</div></div></div>
+      <div class="tiles"><div class="tile"><small>Última compra</small><b>${c.ultima_compra ? new Date(c.ultima_compra + "T12:00").toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" }) : "—"}</b><small>${c.dias_sem_comprar != null ? "há " + c.dias_sem_comprar + " dias" : ""}</small></div>
+        <div class="tile"><small>Compra por mês</small><b>${real2(c.valor_mensal).replace(",00", "")}</b></div>
+        <div class="tile"><small>12 meses</small><b>${reais(c.fat_12m)}</b></div>
+        <div class="tile"><small>Compra a cada</small><b>${c.ciclo_medio_dias ? c.ciclo_medio_dias + " dias" : "—"}</b></div></div>
+      ${c.valor_mix_perdido > 0 ? `<div class="aviso" style="margin-bottom:0">Parou de levar produtos que somavam <b>${reais(c.valor_mix_perdido)}</b> em 12 meses.</div>` : ""}
+      <div class="dado" style="margin-top:8px"><span>Endereço</span><span>${esc(end || "Sem endereço no cadastro")}</span></div></div>${ver ? "" : `<button class="btn suave" id="cl-rota">${ic("pin", 20)} Adicionar à rota de hoje</button>`}`;
   ligaOferta(c.pessoa_id, c.dias_sem_comprar != null ? "revisao" : "pesquisa", wa, c.nome);
   const add = $("cl-rota"); if (add) add.addEventListener("click", async () => {
     add.disabled = true; const { error } = await sb.rpc("app_adicionar_visita", { p_pessoa:c.pessoa_id });
-    if (error) { add.disabled = false; toast(amigavel(error)); return; } S.rota = []; toast("Cliente adicionado à rota de hoje."); add.textContent = "✔ Na rota de hoje"; });
+    if (error) { add.disabled = false; toast(amigavel(error)); return; } S.rota = []; toast("Cliente adicionado à rota de hoje."); add.innerHTML = ic("check", 20, 2.6) + " Na rota de hoje"; });
 }
 
-
-/* ---------- MINHA SEMANA: o plano que a gestão publicou (Especialista comercial) ---------- */
-const ESTR = { reativar:"Reativar", risco:"Em risco", orfao:"Sem vendedor", prospect:"Prospect" };
+/* ---------- SEMANA ---------- */
+const ESTR = { reativar:["Reativar", ""], risco:["Em risco", "em"], orfao:["Sem vendedor", "rox"], prospect:["Prospect", "lead"] };
 const dmx = iso => iso ? String(iso).slice(8, 10) + "/" + String(iso).slice(5, 7) : "";
-const diaNome = iso => new Date(iso + "T12:00:00").toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"2-digit" });
-function semGestao(erroId, corpoId){ if (S.eu.gestao && !S.eu.seller_id && !S.seller) { $(corpoId).innerHTML = '<div class="aviso">Escolha um vendedor na aba Hoje para ver a visão dele.</div>'; mostraErro(erroId, ""); return true; } return false; }
+const DSEM = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 async function abreSemana(){
-  tela("t-semana"); if (semGestao("sm-erro", "sm-corpo")) return;
-  mostraErro("sm-erro", ""); $("sm-corpo").innerHTML = '<p class="muted">Carregando a sua semana…</p>';
+  tela("t-semana"); if (semGestao("sm-corpo")) return;
+  mostraErro("sm-erro", ""); $("sm-corpo").innerHTML = '<div class="sobe">' + skel(2) + '</div>';
   const { data, error } = await sb.rpc("app_minha_semana", { p_seller:S.seller });
   if (error) { $("sm-corpo").innerHTML = ""; mostraErro("sm-erro", amigavel(error)); return; }
-  S.sem = data; desenhaSemana();
+  S.sem = data; S.semDia = null; desenhaSemana();
 }
 function desenhaSemana(){
   const d = S.sem; if (!d) return;
-  const ini = String(d.semana).slice(0, 10), fim = new Date(new Date(ini + "T12:00:00").getTime() + 6 * 864e5).toISOString().slice(0, 10);
+  const ini = String(d.semana).slice(0, 10), fim = new Date(new Date(ini + "T12:00:00").getTime() + 6 * 864e5).toISOString().slice(0, 10), hojeIso = new Date().toLocaleDateString("sv-SE");
   $("sm-sub").textContent = dmx(ini) + " a " + dmx(fim);
-  const pr = d.progresso || {}, itens = d.itens || [], vis = d.visitas || [], soVer = !!(S.seller && S.seller !== S.eu.seller_id);
-  const feitas = vis.filter(v => v.status === "concluida").length, plan = vis.length;
-  let h = `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Como está a semana</h2>
-    <div class="dado"><span>Vendido na semana</span><span><b>${reais(pr.vendido)}</b></span></div>
-    <div class="dado"><span>Pedidos · clientes</span><span>${pr.pedidos || 0} · ${pr.clientes || 0}</span></div>
-    <div class="dado"><span>Visitas feitas</span><span>${feitas} de ${plan}</span></div></div>`;
-  if (!d.publicado_em && !itens.length && !plan) h += '<div class="card"><b>A gestão ainda não publicou o plano desta semana.</b><p class="muted">Quando publicar, os clientes, a estratégia e as visitas aparecem aqui. Enquanto isso, veja a rota do dia em Hoje e os clientes em Clientes.</p></div>';
-  if (d.mensagem) h += `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:6px">Estratégia da semana</h2><p style="white-space:pre-wrap;margin:0">${esc(d.mensagem)}</p></div>`;
-  const grupos = new Map();
+  const pr = d.progresso || {}, itens = d.itens || [], vis = d.visitas || [], feitas = vis.filter(v => v.status === "concluida").length;
   const base = itens.length ? itens : vis.map(v => ({ pessoa_id:v.pessoa_id, nome:v.nome, cidade:v.cidade, estrategia:v.origem === "lead" ? "prospect" : "reativar", motivo:v.demandada ? "Visita demandada pela gestão" : "", dia:v.dia, ordem:v.ordem, visitado:v.status === "concluida", comprou:false }));
-  base.forEach(i => { const k = /^\d{4}-\d{2}-\d{2}$/.test(i.dia || "") ? i.dia : "telefone"; if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(i); });
-  const ordem = [...grupos.keys()].sort((a, b) => a === "telefone" ? 1 : b === "telefone" ? -1 : a.localeCompare(b));
-  ordem.forEach(k => {
-    const L = grupos.get(k);
-    h += `<h2 style="font-size:1.05rem;margin:18px 2px 8px;color:var(--brand)">${k === "telefone" ? "📞 Para ligar" : "🗓 " + esc(diaNome(k))} <span class="muted">(${L.length})</span></h2>`;
-    h += L.map(i => {
-      const w = tel(i.telefone), mapa = `https://waze.com/ul?q=${encodeURIComponent([i.cidade].filter(Boolean).join(", ") || i.nome)}&navigate=yes`;
-      return `<details class="vis" style="padding:12px 16px"><summary style="list-style:none;cursor:pointer;min-height:44px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(i.nome)}</b><span>${i.comprou ? '<span class="chip ok">comprou</span>' : i.visitado ? '<span class="chip ok">visitado</span>' : ""}</span></div>
-        <div class="sub">${i.estrategia ? `<span class="chip">${esc(ESTR[i.estrategia] || i.estrategia)}</span> ` : ""}${esc(i.cidade || "")}</div>${i.motivo ? `<div class="sub">${esc(i.motivo)}</div>` : ""}</summary>
-        ${i.oferta ? `<div class="of-sub">O que ele compra</div><p style="margin:2px 0;white-space:pre-wrap">${esc(i.oferta)}</p>` : ""}
-        ${i.sugestao ? `<div class="of-sub">O que oferecer</div><p style="margin:2px 0;white-space:pre-wrap">${esc(i.sugestao)}</p>` : ""}
-        <div class="linha" style="margin-top:10px">${w ? `<a class="btn claro mini" href="tel:${w}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${w.length <= 11 ? "55" + w : w}">WhatsApp</a>` : ""}<a class="btn claro mini" target="_blank" rel="noopener" href="${esc(mapa)}">🧭 Waze</a></div></details>`; }).join("");
-  });
+  const chave = i => /^\d{4}-\d{2}-\d{2}$/.test(i.dia || "") ? i.dia : "telefone";
+  const dias = Array.from({ length:7 }, (_, k) => new Date(new Date(ini + "T12:00:00").getTime() + k * 864e5).toISOString().slice(0, 10));
+  const cont = k => base.filter(i => chave(i) === k).length;
+  if (!S.semDia) S.semDia = dias.includes(hojeIso) && cont(hojeIso) ? hojeIso : (dias.find(k => cont(k)) || (cont("telefone") ? "telefone" : dias.includes(hojeIso) ? hojeIso : dias[0]));
+  let h = `<div class="stats sobe"><div class="stat g"><b>${reais(pr.vendido)}</b><span>vendido na semana</span></div><div class="stat"><b>${pr.pedidos || 0}</b><span>pedidos</span></div><div class="stat"><b>${feitas}/${vis.length}</b><span>visitas feitas</span></div></div>`;
+  if (!d.publicado_em && !itens.length && !vis.length) h += `<div style="margin-top:14px">${vazio("O plano ainda não saiu", "Quando a gestão publicar a estratégia da semana, os clientes, o que oferecer e as visitas aparecem aqui.", `<button class="btn" onclick="document.querySelector('[data-tab=t-hoje]').click()">${ic("pin", 20)} Ver a rota de hoje</button>`)}</div>`;
+  if (d.mensagem) h += `<div class="card estr" style="margin-top:14px"><h3>${ic("spark", 20)} Estratégia da semana</h3><div style="white-space:pre-wrap">${esc(d.mensagem)}</div></div>`;
+  if (base.length) {
+    h += `<div class="dias" style="margin-top:14px">${dias.map(k => { const dt = new Date(k + "T12:00:00"); return `<button class="dia ${k === S.semDia ? "on" : ""} ${k === hojeIso ? "hoje" : ""}" data-d="${k}"><small>${DSEM[dt.getDay()]}</small><b>${dt.getDate()}</b><span>${cont(k) ? cont(k) + (cont(k) === 1 ? " visita" : " visitas") : "—"}</span></button>`; }).join("")}${cont("telefone") ? `<button class="dia ${S.semDia === "telefone" ? "on" : ""}" data-d="telefone"><small>ligar</small><b>${ic("phone", 24)}</b><span>${cont("telefone")}</span></button>` : ""}</div>`;
+    const L = base.filter(i => chave(i) === S.semDia).sort((a, b) => (Number(a.ordem) || 99) - (Number(b.ordem) || 99));
+    h += L.length ? L.map(i => {
+      const w = tel(i.telefone), mapa = `https://waze.com/ul?q=${encodeURIComponent([i.cidade].filter(Boolean).join(", ") || i.nome)}&navigate=yes`, e = ESTR[i.estrategia];
+      return `<details class="card" style="padding:14px 16px"><summary style="list-style:none;cursor:pointer"><div style="display:flex;align-items:center;gap:12px">${av(i.nome)}<div class="grow"><b>${esc(i.nome)}</b><div class="muted" style="font-size:.88rem">${esc(i.cidade || "")}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${e ? pill(e[0], e[1]) : ""}${i.comprou ? pill("comprou", "ok") : i.visitado ? pill("visitado", "ok") : ""}</div></div><span class="chev">${ic("chev", 20)}</span></div>${i.motivo ? `<div class="muted" style="margin-top:8px;font-size:.92rem">${esc(i.motivo)}</div>` : ""}</summary>
+        ${i.oferta ? `<div class="of-sub">O que ele compra</div><p style="margin:2px 0;white-space:pre-wrap">${esc(i.oferta)}</p>` : ""}${i.sugestao ? `<div class="of-sub">O que oferecer</div><blockquote>${esc(i.sugestao)}</blockquote>` : ""}
+        <div class="acoes-r" style="margin-top:12px">${w ? `<a class="ra" href="tel:${w}"><i>${ic("phone", 22)}</i>Ligar</a><a class="ra wa" target="_blank" rel="noopener" href="${esc(waLink(w))}"><i>${ic("chat", 22)}</i>WhatsApp</a>` : ""}<a class="ra nv" target="_blank" rel="noopener" href="${esc(mapa)}"><i>${ic("nav", 22)}</i>Navegar</a></div></details>`; }).join("")
+      : `<div class="card vazio" style="padding:18px"><p style="margin:0">Nada planejado para este dia.</p></div>`;
+  }
   $("sm-corpo").innerHTML = h;
+  $("sm-corpo").querySelectorAll("[data-d]").forEach(b => b.addEventListener("click", () => { S.semDia = b.dataset.d; desenhaSemana(); }));
 }
 $("sm-atualiza").addEventListener("click", abreSemana);
 
-/* ---------- MINHAS VENDAS ---------- */
+/* ---------- VENDAS ---------- */
 async function abreVendas(){
-  tela("t-vendas"); if (semGestao("vd-erro", "vd-corpo")) return;
-  mostraErro("vd-erro", ""); $("vd-corpo").innerHTML = '<p class="muted">Carregando as suas vendas…</p>';
+  tela("t-vendas"); if (semGestao("vd-corpo")) return;
+  mostraErro("vd-erro", ""); $("vd-corpo").innerHTML = '<div class="sobe">' + skel(3) + '</div>';
   const { data, error } = await sb.rpc("app_minhas_vendas", { p_seller:S.seller });
   if (error) { $("vd-corpo").innerHTML = ""; mostraErro("vd-erro", amigavel(error)); return; }
   const c = data.ciclo || {}, m = data.mes || {}, pc = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { maximumFractionDigits:2 });
   $("vd-sub").textContent = "Ciclo de comissão " + dmx(c.ini) + " a " + dmx(c.fim);
-  const ant = Number(m.mes_passado_ate_hoje) || 0, vm = Number(m.vendido) || 0, dif = ant ? vm / ant - 1 : null;
-  $("vd-corpo").innerHTML = `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Ciclo de comissão (26 a 25)</h2>
-      <div style="font-size:2rem;font-weight:800;color:var(--brand)">${reais(c.vendido)}</div><div class="muted">vendido de ${dmx(c.ini)} até hoje</div>
-      <div class="dado" style="margin-top:8px"><span>Pedidos · clientes</span><span>${c.pedidos || 0} · ${c.clientes || 0}</span></div>
-      <div class="dado"><span>Tabela média</span><span>${pc(c.tabela_media)}</span></div>
-      <div class="dado"><span>Prazo médio</span><span>${c.prazo_medio != null ? Math.round(c.prazo_medio) + " dias" : "—"}</span></div>
-      <div class="dado"><span>Pontos</span><span><b>${c.pontos != null ? pc(c.pontos) : "—"}</b></span></div>
-      <p class="muted" style="margin:8px 0 0">Pontos = vendido (em R$ mil) × tabela média ÷ prazo médio (em dias).</p></div>
-    <div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Mês corrido</h2>
-      <div style="font-size:1.6rem;font-weight:800">${reais(vm)}</div>
-      <div class="muted">${dif == null ? "sem base no mês passado" : (dif >= 0 ? "+" : "") + Math.round(dif * 100) + "% contra o mesmo período do mês passado (" + reais(ant) + ")"}</div></div>
-    <h2 style="font-size:1.05rem;margin:18px 2px 8px;color:var(--brand)">Últimos pedidos</h2>
-    ${(data.ultimos_pedidos || []).map(p => `<div class="vis" style="padding:12px 16px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(p.cliente)}</b><b>${reais(p.total)}</b></div><div class="sub">${esc(dmx(p.data))} · pedido ${esc(p.numero)}</div></div>`).join("") || '<div class="card">Nenhum pedido ainda.</div>'}`;
+  const ant = Number(m.mes_passado_ate_hoje) || 0, vm = Number(m.vendido) || 0, dif = ant ? vm / ant - 1 : null, pb = ant ? Math.min(100, Math.round(vm / ant * 100)) : 0;
+  $("vd-corpo").innerHTML = `<div class="card sobe" style="background:linear-gradient(160deg,#fff 0%,#eef6fa 100%)"><div class="muted" style="font-weight:600">Vendido no ciclo</div><div class="grande" style="color:var(--brand);margin-top:6px">${reais(c.vendido)}</div>
+      <div class="muted" style="margin-top:6px">${c.pedidos || 0} pedidos · ${c.clientes || 0} clientes desde ${dmx(c.ini)}</div></div>
+    <div class="tiles" style="margin-bottom:14px"><div class="tile" style="background:#fff;box-shadow:var(--sh)"><small>Pontos</small><b style="color:var(--brand)">${c.pontos != null ? pc(c.pontos) : "—"}</b></div><div class="tile" style="background:#fff;box-shadow:var(--sh)"><small>Tabela média</small><b>${pc(c.tabela_media)}</b></div>
+      <div class="tile" style="background:#fff;box-shadow:var(--sh);grid-column:span 2"><small>Prazo médio de pagamento</small><b>${c.prazo_medio != null ? Math.round(c.prazo_medio) + " dias" : "—"}</b></div></div>
+    <p class="dica" style="text-align:left;margin:-4px 2px 14px">Pontos = vendido (em R$ mil) × tabela média ÷ prazo médio (em dias).</p>
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Mês corrido</b>${dif == null ? "" : pill((dif >= 0 ? "+" : "") + Math.round(dif * 100) + "%", dif >= 0 ? "ok" : "nao")}</div>
+      <div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(vm)}</div><div class="barra"><i style="width:${pb}%"></i></div>
+      <div class="muted" style="font-size:.88rem;margin-top:8px">${dif == null ? "Sem base no mês passado" : "Mês passado até esta data: " + reais(ant)}</div></div>
+    <div class="sec-row"><h2>Últimos pedidos</h2></div>
+    <div class="card" style="padding:4px 16px">${(data.ultimos_pedidos || []).map(p => `<div class="ped-l">${av(p.cliente)}<div class="grow"><b>${esc(p.cliente)}</b><div class="muted" style="font-size:.85rem">${esc(dmx(p.data))} · pedido ${esc(p.numero)}</div></div><span class="valor">${reais(p.total)}</span></div>`).join("") || '<p class="muted" style="padding:14px 0;margin:0">Nenhum pedido ainda.</p>'}</div>`;
 }
 $("vd-atualiza").addEventListener("click", abreVendas);
 
