@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-121552">
+<meta name="crm-versao" content="20261126-122617">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4149,7 +4149,7 @@ function menuLiberado(view, p){
 // o financeiro entra no Financeiro; o vendedor, na própria carteira. Telas irmãs viram abas de um botão só (as telas não mudam).
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês'], ['analitico', 'Analítico']] },
-  especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
+  especialista:{ t:'Especialista comercial', m:[['especialista', 'Central da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
   clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA'], ['appvendedor', 'App do vendedor'], ['planejarrotas', 'Planejar rotas']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
@@ -11334,7 +11334,7 @@ async function esVendedor(host){
   const P = ESP.plano, tem = !!P.id;
   const abas = { plano:'Segunda · estratégia da semana', revisao:'Quarta · revisão', fechamento:'Sexta · fechamento' };
   const topo = `<div class="tb-bar"><button class="cm-chip" id="es-volta">‹ Todos os vendedores</button><b style="margin:0 8px">${escapeHtml(nomeBonito(V.nome))} · semana de ${esDM(ESP.semana)} a ${esDM(esDia(ESP.semana, 4))}</b><span class="tb-esp"></span>
-      ${P.enviado_em ? '<span class="rt rt-A">plano enviado</span>' : ''}${P.revisao_em ? ' <span class="rt rt-A">revisado</span>' : ''}${P.fechamento_em ? ' <span class="rt rt-A">fechamento enviado</span>' : ''}</div>
+      ${P.publicado_app_em ? '<span class="rt rt-A">no app do vendedor</span> ' : ''}${P.enviado_em ? '<span class="rt rt-A">plano enviado</span>' : ''}${P.revisao_em ? ' <span class="rt rt-A">revisado</span>' : ''}${P.fechamento_em ? ' <span class="rt rt-A">fechamento enviado</span>' : ''}</div>
     <div class="cm-abas">${Object.entries(abas).map(([k, t])=> `<button class="cm-aba ${ESP.aba === k ? 'on' : ''}" data-esa="${k}" ${k !== 'plano' && !tem ? 'disabled title="Monte e salve o plano da segunda primeiro"' : ''}>${t}</button>`).join('')}</div><div id="es-in"></div>`;
   host.innerHTML = topo;
   host.querySelector('#es-volta').addEventListener('click', ()=>{ ESP.vend = null; renderEspecialista(); });
@@ -11442,7 +11442,7 @@ async function esPlano(box, host, nome){
     <div class="cm-resumo" style="margin:14px 0 4px">Mensagem para ${escapeHtml(nome)} (${escolhidos.length} clientes) <a href="#" id="es-regera" style="font-size:13px;margin-left:8px" title="Refaz a mensagem com os clientes marcados">refazer a mensagem</a></div>
     ${escolhidos.length > 12 ? `<div class="tb-aviso">São ${escolhidos.length} clientes: acima de 12 a mensagem fica longa para ler no celular. Desmarque os de menor valor em jogo.</div>` : ''}
     <textarea id="es-msg" rows="14" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--border);border-radius:8px">${escapeHtml(msg)}</textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center;margin-top:8px"><details class="tb-como" style="margin-right:auto"><summary>Mais opções</summary><span style="display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="om-cancel" id="es-rota" title="Salva e abre o roteiro da semana deste plano, por cidade e bairro">🗺 Ver o roteiro</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button></span></details><button class="om-save" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center;margin-top:8px"><details class="tb-como" style="margin-right:auto"><summary>Mais opções</summary><span style="display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="om-cancel" id="es-rota" title="Salva e abre o roteiro da semana deste plano, por cidade e bairro">🗺 Ver o roteiro</button><button class="om-cancel" id="es-salva">Salvar rascunho</button><button class="om-cancel" id="es-envia" title="Salva, copia a mensagem e marca que o plano foi enviado (para mandar por outro meio)">Copiar e marcar enviado</button></span></details><button class="om-save" id="es-app" title="Salva o plano, marca como enviado, cria as visitas dos dias e libera a semana no app do vendedor">📱 ${P.publicado_app_em ? 'Publicar de novo no app' : 'Publicar a semana no app do vendedor'}</button><button class="om-cancel" id="es-wa" title="Salva o plano, abre o WhatsApp do vendedor com a mensagem e marca como enviado">📲 ${P.enviado_em ? 'Mandar de novo no WhatsApp' : 'Enviar no WhatsApp do vendedor'}</button></div>
     <div class="tb-rodape">Em ordem de valor em jogo por mês. Quem está com boleto em atraso ou parece ser do mesmo dono de quem deve não entra; nota de pagamento abaixo de 4 não vem marcada (se marcar, a mensagem diz "só à vista"). Quem está em outro plano ou no controle de outro plano nos últimos 30 dias também não entra. "controle" = sorteado em trios entre os primeiros de cada estratégia, não vai para o vendedor e prova o resultado. Clique no nome para ver o detalhe do cliente.</div>`;
   const re = ()=> esPlano(box, host, nome);
   box.querySelectorAll('[data-esq]').forEach(i=> i.addEventListener('change', ()=>{ ESP.qtd[i.dataset.esq] = Math.max(0, Math.min(15, Number(i.value) || 0)); }));
@@ -11481,6 +11481,13 @@ async function esPlano(box, host, nome){
     const id = await salvar(); if(!id) return; await copia();
     const { error } = await sb.rpc('crm_esp_marcar', { p_id:id, p_etapa:'enviado' }); if(error){ showToast(errAmigavel(error)); return; }
     ESP.plano.enviado_em = new Date().toISOString(); uso('clique', 'especialista: plano enviado', { seller_id:ESP.vend.id, clientes:escolhidos.length }); esVendedor(host); });
+  box.querySelector('#es-app').addEventListener('click', async ()=>{
+    if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
+    if(!confirm(`Publicar a semana de ${nome} no app? Ele passa a ver os ${escolhidos.length} clientes, a mensagem e as visitas dos dias, e não consegue apagá-las.`)) return;
+    const id = await salvar(); if(!id) return;
+    const { data, error } = await sb.rpc('app_esp_publicar', { p_seller:ESP.vend.id, p_semana:ESP.semana }); if(error){ showToast(errAmigavel(error)); return; }
+    ESP.plano.enviado_em = ESP.plano.enviado_em || new Date().toISOString(); ESP.plano.publicado_app_em = new Date().toISOString();
+    showToast(`Semana publicada no app: ${data.clientes} clientes e ${data.visitas} visitas nos dias.`); uso('clique', 'especialista: publicar no app', { seller_id:ESP.vend.id, clientes:escolhidos.length }); esVendedor(host); });
   box.querySelector('#es-wa').addEventListener('click', async ()=>{
     if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
     const id = await salvar(); if(!id) return;
