@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-104949">
+<meta name="crm-versao" content="20261126-121552">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -524,6 +524,7 @@
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="leadscada" data-grupo="clientes" title="Leads quentes do evento CADA: quem atender esta semana, o que oferecer e a abertura pronta para o WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg><span>Leads</span></button>
     <button data-perfis="gerente,master,vendedor,supervisor" class="nav-btn nav-membro" data-view="appvendedor" data-grupo="clientes" title="App do vendedor para o celular: rota do dia, check-in e check-out com foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg><span>App do vendedor</span></button>
+    <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="planejarrotas" data-grupo="clientes" title="Planejar rotas: a gestão monta a rota semanal de cada vendedor e publica no app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"></path><path d="M9 3v15M15 6v15"></path></svg><span>Planejar rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada segunda)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
@@ -558,6 +559,7 @@
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-leadscada" class="view"><div class="tb" id="lc"></div></div>
     <div id="view-appvendedor" class="view"><div class="tb" id="av"></div></div>
+    <div id="view-planejarrotas" class="view"><div class="tb" id="plr"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
     <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
     <div id="view-anprod" class="view"><div class="tb" id="ap"></div></div>
@@ -4013,6 +4015,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'rota') renderRota();
     if(v === 'leadscada') renderLeadsCada();
     if(v === 'appvendedor') renderAppVendedor();
+    if(v === 'planejarrotas') renderPlanejar();
     if(v === 'entregas') renderEntregas();
     if(v === 'anprod') renderAnaliseProdutos();
     if(v === 'plano27'){ const h = document.getElementById('p27'); if(h) fiPlanejamento(h); }
@@ -4089,7 +4092,7 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', leadscada:'admin,master,gerente,analista', appvendedor:'*', analitico:'admin,master,gerente,analista', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', leadscada:'admin,master,gerente,analista', appvendedor:'*', planejarrotas:'admin,master,gerente,analista', analitico:'admin,master,gerente,analista', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
@@ -4101,7 +4104,7 @@ const libSoVoce = k=> libAdmin() && LIB.pend.has(k);
 const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) + '/' + d.slice(5, 7) : 'sem data'; };
 const svC = k=> libSoVoce(k) ? ' so-voce' : '';
 const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
-const LIB_VIEW = { analitico:['analitico'], appvendedor:['app-vendedor'], leadscada:['leadscada'], operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
+const LIB_VIEW = { planejarrotas:['app-vendedor'], analitico:['analitico'], appvendedor:['app-vendedor'], leadscada:['leadscada'], operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
 const SO_ADMIN_VIEW = { caixalucro:1, especialista:1, entregas:1, anprod:1, plano27:1 };
 const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
 async function libCarrega(){
@@ -4147,7 +4150,7 @@ function menuLiberado(view, p){
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês'], ['analitico', 'Analítico']] },
   especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
-  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA'], ['appvendedor', 'App do vendedor']] },
+  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA'], ['appvendedor', 'App do vendedor'], ['planejarrotas', 'Planejar rotas']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
@@ -9617,7 +9620,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState 
 // ---------- PEÇA 2 · REGISTRO DE USO (onde o usuário tem dúvida) ----------
 // Grava só: tela aberta, rótulo do que foi clicado, 1ª célula da linha clicada, filtro escolhido, mensagens do sistema e erros.
 // NUNCA o que é digitado nos campos. O app só insere em uso_eventos; ninguém lê pelo app.
-const TELAS_NOME = { analitico:'Analítico', appvendedor:'App do vendedor', entregas:'Entregas', anprod:'Análise de produtos', caixalucro:'Caixa e lucro', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
+const TELAS_NOME = { planejarrotas:'Planejar rotas', analitico:'Analítico', appvendedor:'App do vendedor', entregas:'Entregas', anprod:'Análise de produtos', caixalucro:'Caixa e lucro', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
   indicadores:'Painel', comercial:'Painel · metas', vendedores:'Painel · vendedores', regioes:'Painel · regiões', margens:'Painel · margens',
   concorrentes:'Painel · concorrentes', estoque:'Painel · estoque', mapa:'Estratégia', equipe:'Acessos', ajustes:'Ajustes',
   conhecimento:'Base de conhecimento', sugestoes:'Sugestões', parados:'Clientes parados', ata:'Ata do projeto', reunioes:'Conversas registradas' };
@@ -13021,6 +13024,135 @@ function anPinta(){
     ${baixo}
     ${sid ? lin(sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)), '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>') : ''}`;
   box.querySelectorAll('[data-anv]').forEach(b=> b.addEventListener('click', ()=>{ ANL.vis = b.dataset.anv; uso('clique', 'analítico: ' + ANL.vis); anPinta(); }));
+}
+
+// ---------- PLANEJAR ROTAS (26/11/2026, pedido do CEO): a gestão monta a rota da semana de cada vendedor e publica; o vendedor recebe no app ----------
+// Rascunho em app_plano; "Publicar" transforma em visitas demandadas do vendedor (app_plano_publicar). Visita já iniciada nunca é tocada.
+const PLR = { sid:'', vend:null, semana:'', cand:[], itens:[], fixas:[], rasc:false, publicado:false, addDia:'', filtro:'agora', q:'', carregando:false };
+const plSegunda = d=>{ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const plSemanaPadrao = ()=>{ const h = new Date(), seg = plSegunda(h); if(h.getDay() === 0 || h.getDay() >= 4) seg.setDate(seg.getDate() + 7); return diaLocal(seg); };   // de quinta em diante, a próxima semana
+const plDias = ()=>{ const [y, m, d] = PLR.semana.split('-').map(Number); return Array.from({ length:5 }, (_, i)=> diaLocal(new Date(y, m - 1, d + i))); };
+const plRot = iso=> new Date(iso + 'T12:00:00').toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }).replace('.', '');
+async function renderPlanejar(){
+  const host = document.getElementById('plr'); if(!host) return;
+  if(!ehGestao()){ host.innerHTML = '<div class="op-more">Esta tela é só para a gestão.</div>'; return; }
+  if(!PLR.semana) PLR.semana = plSemanaPadrao();
+  host.innerHTML = '<div class="tb-rodape">Carregando os vendedores…</div>';
+  if(!PLR.vend){
+    const h0 = new Date(), { data } = await sb.rpc('crm_tabela_media', { p_ini:diaLocal(new Date(h0.getFullYear(), h0.getMonth() - 6, 1)), p_fim:diaLocal(h0) });
+    PLR.vend = (data || []).filter(r=> Number(r.valor) > 0).map(r=> ({ id:r.seller_id, nome:nomeBonito(r.vendedor) })).sort((a, b)=> a.nome.localeCompare(b.nome, 'pt-BR'));
+  }
+  if(PLR.sid) await plCarrega(); else plDesenha();
+}
+async function plCarrega(){
+  PLR.carregando = true; plDesenha();
+  const sid = PLR.sid, sem = PLR.semana, hoje = diaLocal(new Date());
+  const [a, b] = await Promise.all([sb.rpc('app_plano_semana', { p_seller:Number(sid), p_semana:sem }), sb.rpc('app_candidatos', { p_seller:Number(sid) })]);
+  if(sid !== PLR.sid || sem !== PLR.semana) return;
+  PLR.carregando = false;
+  if(a.error || b.error){ document.getElementById('plr').innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(a.error || b.error))}</div>`; return; }
+  PLR.cand = b.data || []; PLR.rasc = !!(a.data && a.data.rascunho);
+  const todos = (a.data && a.data.itens) || [], dia = x=> String(x.dia).slice(0, 10);
+  const edita = x=> (x.estado === 'rascunho' || x.estado === 'planejada') && dia(x) >= hoje;
+  PLR.itens = todos.filter(edita).map(x=> ({ dia:dia(x), pessoa_id:x.pessoa_id, nome:x.nome, cidade:x.cidade, uf:x.uf, origem:x.origem }));
+  PLR.fixas = todos.filter(x=> !edita(x)).map(x=> ({ dia:dia(x), pessoa_id:x.pessoa_id, nome:x.nome, cidade:x.cidade, estado:x.estado }));
+  PLR.publicado = !PLR.rasc && todos.length > 0; PLR.addDia = plDias().find(d=> d >= hoje) || '';
+  plDesenha();
+}
+function plDesenha(){
+  const host = document.getElementById('plr'); if(!host) return;
+  const dias = plDias(), hoje = diaLocal(new Date()), V = PLR.vend || [], nomeV = (V.find(v=> String(v.id) === String(PLR.sid)) || {}).nome || '';
+  const noPlano = new Set(PLR.itens.map(i=> i.pessoa_id).concat(PLR.fixas.map(i=> i.pessoa_id)));
+  const semRot = `${plRot(dias[0])} a ${plRot(dias[4])}`;
+  const estado = !PLR.sid ? '' : PLR.rasc ? '<span class="chip-pl rasc">Rascunho, ainda não publicado</span>' : PLR.publicado ? '<span class="chip-pl pub">Publicado</span>' : '<span class="chip-pl">Sem plano</span>';
+  const GRPN = { agora:'Comprar agora', encolhendo:'Encolhendo', parado:'Parado', ativo:'Ativo', inativo:'Inativo', lead:'Lead' };
+  const filtros = [['agora', 'Comprar agora'], ['encolhendo', 'Encolhendo'], ['parado', 'Parados'], ['lead', 'Leads'], ['todos', 'Todos']];
+  const q = PLR.q.trim().toLowerCase(), cont = k=> k === 'todos' ? PLR.cand.length : PLR.cand.filter(c=> c.grupo === k).length;
+  const lista = PLR.cand.filter(c=> q ? ((c.nome || '').toLowerCase().includes(q) || (c.cidade || '').toLowerCase().includes(q)) : (PLR.filtro === 'todos' || c.grupo === PLR.filtro)).slice(0, 80);
+  const noDia = d=> PLR.itens.filter(i=> i.dia === d);
+  const colunas = dias.map(d=>{
+    const its = noDia(d), fx = PLR.fixas.filter(f=> f.dia === d), passado = d < hoje, n = its.length + fx.length;
+    return `<div class="pl-dia${passado ? ' passado' : ''}"><div class="pl-dh"><b>${escapeHtml(plRot(d))}</b><span class="${n > 10 ? 'pl-alerta' : ''}">${n} visita${n === 1 ? '' : 's'}</span></div>
+      ${fx.map(f=> `<div class="pl-it fixa"><b>${escapeHtml(f.nome)}</b><div class="pl-sub">${escapeHtml(f.cidade || '')} · ${f.estado === 'em_visita' ? 'em visita' : f.estado === 'concluida' ? 'feita' : f.estado === 'nao_visitada' ? 'não visitada' : escapeHtml(f.estado)}</div></div>`).join('')}
+      ${its.map((i, k)=> `<div class="pl-it"><b>${escapeHtml(i.nome)}</b>${i.origem === 'lead' ? ' <span class="chip-pl lead">lead</span>' : ''}<div class="pl-sub">${escapeHtml([i.cidade, i.uf].filter(Boolean).join(' · '))}</div>
+        <div class="pl-bt"><button data-pl="up" data-id="${escapeHtml(i.pessoa_id)}" data-d="${d}" title="Subir" ${k === 0 ? 'disabled' : ''}>↑</button><button data-pl="dn" data-id="${escapeHtml(i.pessoa_id)}" data-d="${d}" title="Descer" ${k === its.length - 1 ? 'disabled' : ''}>↓</button><button data-pl="ant" data-id="${escapeHtml(i.pessoa_id)}" data-d="${d}" title="Dia anterior" ${dias[0] === d || dias[dias.indexOf(d) - 1] < hoje ? 'disabled' : ''}>←</button><button data-pl="prox" data-id="${escapeHtml(i.pessoa_id)}" data-d="${d}" title="Próximo dia" ${dias[4] === d ? 'disabled' : ''}>→</button><button data-pl="del" data-id="${escapeHtml(i.pessoa_id)}" data-d="${d}" title="Tirar da rota">✕</button></div></div>`).join('')}
+      ${!n ? '<div class="pl-vazio">Nenhuma visita</div>' : ''}</div>`; }).join('');
+  host.innerHTML = `<style>
+      .chip-pl{ display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#e8eef2; } .chip-pl.rasc{ background:#fff0cf; color:#8a5a00; } .chip-pl.pub{ background:#dff3d8; color:#2f7d1f; } .chip-pl.lead{ background:#e3f6c8; color:#3f7a00; }
+      .pl-grade{ display:grid; grid-template-columns:minmax(290px, 360px) minmax(0, 1fr); gap:20px; align-items:start; } @media (max-width:1000px){ .pl-grade{ grid-template-columns:minmax(0, 1fr); } }
+      .pl-cand{ background:var(--surface, #fff); border:1px solid var(--line, #e1e6ea); border-radius:14px; padding:12px; } .pl-lista{ max-height:62vh; overflow:auto; margin-top:8px; }
+      .pl-c{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:8px 4px; border-bottom:1px solid var(--line, #e1e6ea); } .pl-c .pl-sub{ font-size:12px; color:var(--ink-faint, #6b7b84); }
+      .pl-dias{ display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:12px; align-items:start; }
+      .pl-dia{ background:var(--surface, #fff); border:1px solid var(--line, #e1e6ea); border-radius:14px; padding:10px; min-height:140px; } .pl-dia.passado{ opacity:.6; }
+      .pl-dh{ display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; } .pl-alerta{ color:#c0392b; font-weight:700; }
+      .pl-it{ background:#f4f7f9; border-radius:10px; padding:8px 10px; margin-bottom:8px; font-size:13px; } .pl-it.fixa{ background:#e9eef1; } .pl-sub{ font-size:12px; color:var(--ink-faint, #6b7b84); }
+      .pl-bt{ display:flex; gap:4px; margin-top:6px; } .pl-bt button{ border:1px solid var(--line, #d9dde3); background:#fff; border-radius:8px; min-width:30px; min-height:28px; cursor:pointer; } .pl-bt button[disabled]{ opacity:.35; cursor:default; }
+      .pl-vazio{ color:var(--ink-faint, #6b7b84); font-size:12px; text-align:center; padding:16px 0; }
+    </style>
+    <div class="cm-resumo">A gestão monta a rota da semana de cada vendedor e <b>publica</b>: o vendedor passa a ver essas visitas no app (marcadas como demandadas) e não consegue apagá-las, só informar que não visitou. Visita já iniciada nunca é alterada.</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0">
+      <select id="plr-v" class="ca-inp" style="width:auto;min-width:240px" aria-label="Vendedor"><option value="">Escolha o vendedor…</option>${V.map(v=> `<option value="${v.id}" ${String(v.id) === String(PLR.sid) ? 'selected' : ''}>${escapeHtml(v.nome)}</option>`).join('')}</select>
+      <span style="display:inline-flex;align-items:center;gap:6px"><button class="om-cancel" id="plr-ant" title="Semana anterior">‹</button><b>Semana de ${escapeHtml(semRot)}</b><button class="om-cancel" id="plr-prox" title="Próxima semana">›</button></span>
+      ${estado}<span class="tb-esp" style="flex:1"></span>
+      ${PLR.sid ? `<button class="om-cancel" id="plr-sug" title="Preenche os dias vazios com clientes e leads, agrupando por cidade">Sugerir pelo mapa</button><button class="om-cancel" id="plr-salva">Salvar rascunho</button><button class="om-save" id="plr-pub">Publicar a semana</button>` : ''}
+    </div>
+    ${!PLR.sid ? '<div class="tb-aviso">Escolha um vendedor para montar a rota da semana dele.</div>' : PLR.carregando ? '<div class="tb-rodape">Carregando o plano e os clientes de ' + escapeHtml(nomeV) + '…</div>' : `
+    <div class="pl-grade">
+      <div class="pl-cand"><b>Clientes e leads de ${escapeHtml(nomeV)}</b>
+        <div style="display:flex;align-items:center;gap:6px;margin:8px 0;flex-wrap:wrap"><label for="plr-dia" style="font-size:13px">Adicionar ao dia</label><select id="plr-dia" class="ca-inp" style="width:auto;padding:5px 8px;font-size:13px">${dias.map(d=> `<option value="${d}" ${d === PLR.addDia ? 'selected' : ''} ${d < hoje ? 'disabled' : ''}>${escapeHtml(plRot(d))}</option>`).join('')}</select></div>
+        <div class="cm-chips" style="margin:0 0 8px">${filtros.map(([k, t])=> `<button class="cm-chip nw ${PLR.filtro === k && !q ? 'on' : ''}" data-plf="${k}">${t} (${cont(k)})</button>`).join('')}</div>
+        <input id="plr-q" class="ca-inp" placeholder="Buscar nome ou cidade" value="${escapeHtml(PLR.q)}" style="width:100%;padding:6px 10px;font-size:13px">
+        <div class="pl-lista">${lista.map(c=> { const ja = noPlano.has(c.pessoa_id); return `<div class="pl-c"><div style="min-width:0"><b style="font-size:13px">${escapeHtml(c.nome)}</b><div class="pl-sub">${escapeHtml([c.cidade, c.uf].filter(Boolean).join(' · '))} · ${escapeHtml(GRPN[c.grupo] || c.grupo)}${c.dias_sem_comprar != null ? ` · há ${c.dias_sem_comprar} dias` : ''}${c.valor_mensal ? ` · ${fmtMoney(c.valor_mensal)}/mês` : ''}</div></div><button class="om-cancel" data-pladd="${escapeHtml(c.pessoa_id)}" ${ja ? 'disabled' : ''}>${ja ? '✔' : '+'}</button></div>`; }).join('') || '<div class="pl-vazio">Nenhum cliente nesta seleção.</div>'}</div></div>
+      <div class="pl-dias">${colunas}</div></div>`}`;
+  const h = host;
+  h.querySelector('#plr-v').addEventListener('change', e=>{ PLR.sid = e.target.value; PLR.itens = []; PLR.fixas = []; PLR.cand = []; if(PLR.sid) plCarrega(); else plDesenha(); });
+  h.querySelector('#plr-ant')?.addEventListener('click', ()=>{ plMudaSemana(-7); }); h.querySelector('#plr-prox')?.addEventListener('click', ()=>{ plMudaSemana(7); });
+  if(!PLR.sid || PLR.carregando) return;
+  h.querySelector('#plr-dia').addEventListener('change', e=>{ PLR.addDia = e.target.value; });
+  h.querySelectorAll('[data-plf]').forEach(b=> b.addEventListener('click', ()=>{ PLR.filtro = b.dataset.plf; PLR.q = ''; plDesenha(); }));
+  h.querySelector('#plr-q').addEventListener('input', e=>{ PLR.q = e.target.value; clearTimeout(PLR.tq); PLR.tq = setTimeout(()=>{ plDesenha(); const i = document.getElementById('plr-q'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 250); });
+  h.querySelectorAll('[data-pladd]').forEach(b=> b.addEventListener('click', ()=>{
+    const c = PLR.cand.find(x=> x.pessoa_id === b.dataset.pladd), d = h.querySelector('#plr-dia').value; if(!c || !d || d < hoje){ showToast('Escolha um dia a partir de hoje.'); return; }
+    if(PLR.itens.filter(i=> i.dia === d).length >= 15){ showToast('No máximo 15 visitas por dia.'); return; }
+    PLR.itens.push({ dia:d, pessoa_id:c.pessoa_id, nome:c.nome, cidade:c.cidade, uf:c.uf, origem:c.origem === 'lead' ? 'lead' : 'carteira' }); PLR.addDia = d; plDesenha(); }));
+  h.querySelectorAll('[data-pl]').forEach(b=> b.addEventListener('click', ()=> plAcao(b.dataset.pl, b.dataset.id, b.dataset.d)));
+  h.querySelector('#plr-sug').addEventListener('click', plSugerir);
+  h.querySelector('#plr-salva').addEventListener('click', ()=> plSalva(false));
+  h.querySelector('#plr-pub').addEventListener('click', ()=> plSalva(true));
+}
+function plMudaSemana(dias){ const [y, m, d] = PLR.semana.split('-').map(Number); PLR.semana = diaLocal(new Date(y, m - 1, d + dias)); PLR.itens = []; PLR.fixas = []; if(PLR.sid) plCarrega(); else plDesenha(); }
+function plAcao(acao, id, d){
+  const ds = plDias(), hoje = diaLocal(new Date()), i = PLR.itens.findIndex(x=> x.pessoa_id === id && x.dia === d); if(i < 0) return;
+  if(acao === 'del') PLR.itens.splice(i, 1);
+  else if(acao === 'up' || acao === 'dn'){ const mesmo = PLR.itens.map((x, k)=> x.dia === d ? k : -1).filter(k=> k >= 0), pos = mesmo.indexOf(i), alvo = mesmo[pos + (acao === 'up' ? -1 : 1)]; if(alvo == null) return; [PLR.itens[i], PLR.itens[alvo]] = [PLR.itens[alvo], PLR.itens[i]]; }
+  else { const nd = ds[ds.indexOf(d) + (acao === 'ant' ? -1 : 1)]; if(!nd || nd < hoje) return; if(PLR.itens.filter(x=> x.dia === nd).length >= 15){ showToast('No máximo 15 visitas por dia.'); return; } if(PLR.itens.some(x=> x.pessoa_id === id && x.dia === nd)){ showToast('Este cliente já está nesse dia.'); return; } PLR.itens[i].dia = nd; }
+  plDesenha();
+}
+// sugestão pelo mapa: completa os dias vazios (até 8 por dia) com clientes e leads de maior prioridade, uma cidade de cada vez
+function plSugerir(){
+  const dias = plDias(), hoje = diaLocal(new Date()), usados = new Set(PLR.itens.map(i=> i.pessoa_id).concat(PLR.fixas.map(i=> i.pessoa_id)));
+  const peso = c=> (c.origem === 'lead' ? 70 : c.grupo === 'agora' ? 100 : c.grupo === 'encolhendo' ? 80 : c.grupo === 'parado' ? 60 : 0) + Math.log10(Number(c.fat_12m || 0) + 1) * 5;
+  const base = PLR.cand.filter(c=> !usados.has(c.pessoa_id) && peso(c) >= 60).sort((a, b)=> peso(b) - peso(a)).slice(0, 60);
+  const porCidade = new Map(); base.forEach(c=>{ const k = (c.cidade || 'sem cidade').toLowerCase(); if(!porCidade.has(k)) porCidade.set(k, []); porCidade.get(k).push(c); });
+  const fila = [...porCidade.values()].sort((a, b)=> b.reduce((t, c)=> t + peso(c), 0) - a.reduce((t, c)=> t + peso(c), 0)).flat();
+  let n = 0;
+  dias.filter(d=> d >= hoje).forEach(d=>{
+    let cap = 8 - PLR.itens.filter(i=> i.dia === d).length - PLR.fixas.filter(f=> f.dia === d).length;
+    while(cap > 0 && fila.length){ const c = fila.shift(); PLR.itens.push({ dia:d, pessoa_id:c.pessoa_id, nome:c.nome, cidade:c.cidade, uf:c.uf, origem:c.origem === 'lead' ? 'lead' : 'carteira' }); cap--; n++; } });
+  showToast(n ? `${n} visitas sugeridas. Ajuste e publique.` : 'Não há mais clientes prioritários para sugerir.'); uso('clique', 'planejar rotas: sugerir'); plDesenha();
+}
+async function plSalva(publica){
+  const dias = plDias(), hoje = diaLocal(new Date()), sid = Number(PLR.sid), itens = [];
+  dias.forEach(d=> PLR.itens.filter(i=> i.dia === d && d >= hoje).forEach((i, k)=> itens.push({ dia:d, ordem:k + 1, pessoa_id:i.pessoa_id, origem:i.origem })));
+  if(publica){ if(!itens.length){ showToast('Monte a rota antes de publicar.'); return; }
+    const nome = ((PLR.vend || []).find(v=> String(v.id) === String(PLR.sid)) || {}).nome || 'o vendedor';
+    if(!confirm(`Publicar ${itens.length} visitas para ${nome}, semana de ${plRot(dias[0])} a ${plRot(dias[4])}? Ele passa a ver no app e não consegue apagá-las.`)) return; }
+  const btns = [...document.querySelectorAll('#plr-salva, #plr-pub')]; btns.forEach(b=> { b.disabled = true; });
+  const r = await sb.rpc('app_plano_salvar', { p_seller:sid, p_semana:PLR.semana, p_itens:itens });
+  if(r.error){ btns.forEach(b=> { b.disabled = false; }); showToast(errAmigavel(r.error)); return; }
+  if(publica){ const p = await sb.rpc('app_plano_publicar', { p_seller:sid, p_semana:PLR.semana }); if(p.error){ btns.forEach(b=> { b.disabled = false; }); showToast(errAmigavel(p.error)); return; } showToast(`Rota publicada: ${p.data} visitas no app do vendedor.`); uso('clique', 'planejar rotas: publicar', { visitas:p.data }); }
+  else { showToast('Rascunho salvo.'); uso('clique', 'planejar rotas: salvar'); }
+  plCarrega();
 }
 
 // ---------- APP DO VENDEDOR (26/11/2026, pedido do CEO): link, QR code e acompanhamento das visitas do dia ----------
