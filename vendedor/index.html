@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-121601">
+<meta name="app-versao" content="20261126-122627">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -148,6 +148,18 @@
   <div class="corpo" id="v-corpo"></div>
 </section>
 
+<!-- a semana do vendedor: o plano que a gestão publicou -->
+<section class="tela" id="t-semana">
+  <header class="topo"><div style="flex:1;min-width:0"><h1>Minha semana</h1><small id="sm-sub"></small></div><button id="sm-atualiza">Atualizar</button></header>
+  <div class="corpo"><div class="erro" id="sm-erro"></div><div id="sm-corpo"></div></div>
+</section>
+
+<!-- as vendas do vendedor -->
+<section class="tela" id="t-vendas">
+  <header class="topo"><div style="flex:1;min-width:0"><h1>Minhas vendas</h1><small id="vd-sub"></small></div><button id="vd-atualiza">Atualizar</button></header>
+  <div class="corpo"><div class="erro" id="vd-erro"></div><div id="vd-corpo"></div></div>
+</section>
+
 <!-- carteira de clientes do vendedor -->
 <section class="tela" id="t-carteira">
   <header class="topo"><div style="flex:1;min-width:0"><h1>Carteira</h1><small id="c-sub"></small></div><button id="c-atualiza">Atualizar</button></header>
@@ -159,7 +171,7 @@
   </div>
 </section>
 
-<nav id="tabbar" aria-label="Abas do app"><button data-tab="t-hoje" class="on"><b>🗺️</b><span>Hoje</span></button><button data-tab="t-carteira"><b>👥</b><span>Carteira</span></button></nav>
+<nav id="tabbar" aria-label="Abas do app"><button data-tab="t-semana"><b>📅</b><span>Semana</span></button><button data-tab="t-hoje" class="on"><b>🗺️</b><span>Hoje</span></button><button data-tab="t-carteira"><b>👥</b><span>Clientes</span></button><button data-tab="t-vendas"><b>📈</b><span>Vendas</span></button></nav>
 
 <div id="faixa-versao"><span>Saiu uma versão nova do app.</span><button id="faixa-ok">Atualizar</button></div>
 <div class="toast" id="toast"></div>
@@ -178,7 +190,7 @@ const S = { eu:null, rota:[], pos:null, perto:false, sel:null, seller:null, sell
 
 function tela(id){
   document.querySelectorAll(".tela").forEach(t => t.classList.toggle("on", t.id === id)); window.scrollTo(0, 0);
-  const abas = id === "t-hoje" || id === "t-carteira"; $("tabbar").style.display = abas ? "flex" : "none"; document.body.classList.toggle("com-abas", abas);
+  const abas = ["t-hoje", "t-carteira", "t-semana", "t-vendas"].includes(id); $("tabbar").style.display = abas ? "flex" : "none"; document.body.classList.toggle("com-abas", abas);
   document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === id));
 }
 function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 3200); }
@@ -490,9 +502,79 @@ function pintaCliente(){
     if (error) { add.disabled = false; toast(amigavel(error)); return; } S.rota = []; toast("Cliente adicionado à rota de hoje."); add.textContent = "✔ Na rota de hoje"; });
 }
 
+
+/* ---------- MINHA SEMANA: o plano que a gestão publicou (Especialista comercial) ---------- */
+const ESTR = { reativar:"Reativar", risco:"Em risco", orfao:"Sem vendedor", prospect:"Prospect" };
+const dmx = iso => iso ? String(iso).slice(8, 10) + "/" + String(iso).slice(5, 7) : "";
+const diaNome = iso => new Date(iso + "T12:00:00").toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"2-digit" });
+function semGestao(erroId, corpoId){ if (S.eu.gestao && !S.eu.seller_id && !S.seller) { $(corpoId).innerHTML = '<div class="aviso">Escolha um vendedor na aba Hoje para ver a visão dele.</div>'; mostraErro(erroId, ""); return true; } return false; }
+async function abreSemana(){
+  tela("t-semana"); if (semGestao("sm-erro", "sm-corpo")) return;
+  mostraErro("sm-erro", ""); $("sm-corpo").innerHTML = '<p class="muted">Carregando a sua semana…</p>';
+  const { data, error } = await sb.rpc("app_minha_semana", { p_seller:S.seller });
+  if (error) { $("sm-corpo").innerHTML = ""; mostraErro("sm-erro", amigavel(error)); return; }
+  S.sem = data; desenhaSemana();
+}
+function desenhaSemana(){
+  const d = S.sem; if (!d) return;
+  const ini = String(d.semana).slice(0, 10), fim = new Date(new Date(ini + "T12:00:00").getTime() + 6 * 864e5).toISOString().slice(0, 10);
+  $("sm-sub").textContent = dmx(ini) + " a " + dmx(fim);
+  const pr = d.progresso || {}, itens = d.itens || [], vis = d.visitas || [], soVer = !!(S.seller && S.seller !== S.eu.seller_id);
+  const feitas = vis.filter(v => v.status === "concluida").length, plan = vis.length;
+  let h = `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Como está a semana</h2>
+    <div class="dado"><span>Vendido na semana</span><span><b>${reais(pr.vendido)}</b></span></div>
+    <div class="dado"><span>Pedidos · clientes</span><span>${pr.pedidos || 0} · ${pr.clientes || 0}</span></div>
+    <div class="dado"><span>Visitas feitas</span><span>${feitas} de ${plan}</span></div></div>`;
+  if (!d.publicado_em && !itens.length && !plan) h += '<div class="card"><b>A gestão ainda não publicou o plano desta semana.</b><p class="muted">Quando publicar, os clientes, a estratégia e as visitas aparecem aqui. Enquanto isso, veja a rota do dia em Hoje e os clientes em Clientes.</p></div>';
+  if (d.mensagem) h += `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:6px">Estratégia da semana</h2><p style="white-space:pre-wrap;margin:0">${esc(d.mensagem)}</p></div>`;
+  const grupos = new Map();
+  const base = itens.length ? itens : vis.map(v => ({ pessoa_id:v.pessoa_id, nome:v.nome, cidade:v.cidade, estrategia:v.origem === "lead" ? "prospect" : "reativar", motivo:v.demandada ? "Visita demandada pela gestão" : "", dia:v.dia, ordem:v.ordem, visitado:v.status === "concluida", comprou:false }));
+  base.forEach(i => { const k = /^\d{4}-\d{2}-\d{2}$/.test(i.dia || "") ? i.dia : "telefone"; if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(i); });
+  const ordem = [...grupos.keys()].sort((a, b) => a === "telefone" ? 1 : b === "telefone" ? -1 : a.localeCompare(b));
+  ordem.forEach(k => {
+    const L = grupos.get(k);
+    h += `<h2 style="font-size:1.05rem;margin:18px 2px 8px;color:var(--brand)">${k === "telefone" ? "📞 Para ligar" : "🗓 " + esc(diaNome(k))} <span class="muted">(${L.length})</span></h2>`;
+    h += L.map(i => {
+      const w = tel(i.telefone), mapa = `https://waze.com/ul?q=${encodeURIComponent([i.cidade].filter(Boolean).join(", ") || i.nome)}&navigate=yes`;
+      return `<details class="vis" style="padding:12px 16px"><summary style="list-style:none;cursor:pointer;min-height:44px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(i.nome)}</b><span>${i.comprou ? '<span class="chip ok">comprou</span>' : i.visitado ? '<span class="chip ok">visitado</span>' : ""}</span></div>
+        <div class="sub">${i.estrategia ? `<span class="chip">${esc(ESTR[i.estrategia] || i.estrategia)}</span> ` : ""}${esc(i.cidade || "")}</div>${i.motivo ? `<div class="sub">${esc(i.motivo)}</div>` : ""}</summary>
+        ${i.oferta ? `<div class="of-sub">O que ele compra</div><p style="margin:2px 0;white-space:pre-wrap">${esc(i.oferta)}</p>` : ""}
+        ${i.sugestao ? `<div class="of-sub">O que oferecer</div><p style="margin:2px 0;white-space:pre-wrap">${esc(i.sugestao)}</p>` : ""}
+        <div class="linha" style="margin-top:10px">${w ? `<a class="btn claro mini" href="tel:${w}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${w.length <= 11 ? "55" + w : w}">WhatsApp</a>` : ""}<a class="btn claro mini" target="_blank" rel="noopener" href="${esc(mapa)}">🧭 Waze</a></div></details>`; }).join("");
+  });
+  $("sm-corpo").innerHTML = h;
+}
+$("sm-atualiza").addEventListener("click", abreSemana);
+
+/* ---------- MINHAS VENDAS ---------- */
+async function abreVendas(){
+  tela("t-vendas"); if (semGestao("vd-erro", "vd-corpo")) return;
+  mostraErro("vd-erro", ""); $("vd-corpo").innerHTML = '<p class="muted">Carregando as suas vendas…</p>';
+  const { data, error } = await sb.rpc("app_minhas_vendas", { p_seller:S.seller });
+  if (error) { $("vd-corpo").innerHTML = ""; mostraErro("vd-erro", amigavel(error)); return; }
+  const c = data.ciclo || {}, m = data.mes || {}, pc = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { maximumFractionDigits:2 });
+  $("vd-sub").textContent = "Ciclo de comissão " + dmx(c.ini) + " a " + dmx(c.fim);
+  const ant = Number(m.mes_passado_ate_hoje) || 0, vm = Number(m.vendido) || 0, dif = ant ? vm / ant - 1 : null;
+  $("vd-corpo").innerHTML = `<div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Ciclo de comissão (26 a 25)</h2>
+      <div style="font-size:2rem;font-weight:800;color:var(--brand)">${reais(c.vendido)}</div><div class="muted">vendido de ${dmx(c.ini)} até hoje</div>
+      <div class="dado" style="margin-top:8px"><span>Pedidos · clientes</span><span>${c.pedidos || 0} · ${c.clientes || 0}</span></div>
+      <div class="dado"><span>Tabela média</span><span>${pc(c.tabela_media)}</span></div>
+      <div class="dado"><span>Prazo médio</span><span>${c.prazo_medio != null ? Math.round(c.prazo_medio) + " dias" : "—"}</span></div>
+      <div class="dado"><span>Pontos</span><span><b>${c.pontos != null ? pc(c.pontos) : "—"}</b></span></div>
+      <p class="muted" style="margin:8px 0 0">Pontos = vendido (em R$ mil) × tabela média ÷ prazo médio (em dias).</p></div>
+    <div class="card"><h2 style="font-size:1.1rem;margin-bottom:8px">Mês corrido</h2>
+      <div style="font-size:1.6rem;font-weight:800">${reais(vm)}</div>
+      <div class="muted">${dif == null ? "sem base no mês passado" : (dif >= 0 ? "+" : "") + Math.round(dif * 100) + "% contra o mesmo período do mês passado (" + reais(ant) + ")"}</div></div>
+    <h2 style="font-size:1.05rem;margin:18px 2px 8px;color:var(--brand)">Últimos pedidos</h2>
+    ${(data.ultimos_pedidos || []).map(p => `<div class="vis" style="padding:12px 16px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(p.cliente)}</b><b>${reais(p.total)}</b></div><div class="sub">${esc(dmx(p.data))} · pedido ${esc(p.numero)}</div></div>`).join("") || '<div class="card">Nenhum pedido ainda.</div>'}`;
+}
+$("vd-atualiza").addEventListener("click", abreVendas);
+
 /* ---------- abas de baixo ---------- */
 document.querySelectorAll("#tabbar button").forEach(b => b.addEventListener("click", () => {
   if (b.dataset.tab === "t-carteira") abreCarteira();
+  else if (b.dataset.tab === "t-semana") abreSemana();
+  else if (b.dataset.tab === "t-vendas") abreVendas();
   else { tela("t-hoje"); if (S.rota && S.rota.length) desenhaLista(); else carregaRota(); }
 }));
 
