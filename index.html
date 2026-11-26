@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-084058">
+<meta name="crm-versao" content="20261126-084316">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12676,6 +12676,18 @@ function ctExportar(filtros){
 // ---- RESUMO DA DIRETORIA (29/10/2026): as 4 prioridades do CEO e as vendas do mês num relance + o que pede atenção ----
 // Nasceu do uso real: o CEO percorreu o menu em 3 minutos sem abrir nada; aqui a resposta vem pronta e cada item leva ao detalhe.
 const RSM = { modo:'ciclo', ord:'vendido', n:0, graf:'mes' };   // n = quantos períodos para trás (0 = o atual); só vale depois da liberação 'ranking-anterior'   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
+// IPCA acumulado em 12 meses (IBGE, série 13522 do Banco Central, API pública: não envia nenhum dado do cliente). Serve para mostrar se a empresa cresce acima da inflação.
+const IPCA = { dados:null, t:0 };
+async function ipcaCarrega(ano){
+  if(IPCA.dados && Date.now() - IPCA.t < 6 * 3600e3) return IPCA.dados;
+  try{
+    const ctl = new AbortController(), to = setTimeout(()=> ctl.abort(), 6000);
+    const r = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.13522/dados?formato=json&dataInicial=01/01/' + ano, { signal:ctl.signal }); clearTimeout(to);
+    if(!r.ok) throw new Error('ipca');
+    const j = await r.json(); if(!Array.isArray(j) || !j.length) throw new Error('ipca');
+    IPCA.dados = Object.fromEntries(j.map(x=> [x.data.slice(6, 10) + '-' + x.data.slice(3, 5), Number(x.valor)])); IPCA.t = Date.now(); return IPCA.dados;
+  }catch(_){ return IPCA.dados || null; }
+}
 async function renderResumo(){
   const host = document.getElementById('rs'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Montando o resumo…</div>';
@@ -12685,6 +12697,7 @@ async function renderResumo(){
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
   // período do ranking (26/11/2026, pedido do Luiz: ver ciclos e meses anteriores): o atual (n = 0) ou um dos 12 anteriores, no ciclo 26 a 25 ou no mês corrido
   const usaCiclo = libLivre('ciclo') && RSM.modo === 'ciclo', nRk = libLivre('ranking-anterior') ? RSM.n : 0, mesN = new Date(h.getFullYear(), h.getMonth() - nRk, 1), outro = usaCiclo || nRk > 0;
+  const ipcaP = ipcaCarrega(h.getFullYear());
   const [cIni, cFimBruto] = usaCiclo ? cmCiclo(nRk) : [d(mesN), d(new Date(mesN.getFullYear(), mesN.getMonth() + 1, 0))], cFim = cFimBruto > hoje ? hoje : cFimBruto;
   const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe, tmC, pzR] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
@@ -12745,6 +12758,7 @@ async function renderResumo(){
       <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span>valores em R$ (mi = milhões)</span></div>`; })();
   // ano contra ano e estimativa para fechar o ano (26/11/2026, pedido do Luiz): estimativa = vendido nos meses fechados + projeção do mês corrente + meses restantes
   // do ano passado no mesmo ritmo de crescimento dos meses fechados (é uma conta simples, não previsão: não conhece sazonalidade nova, promoção nem perda de cliente)
+  const ipca = await ipcaP;
   const grafAno = (()=>{
     const m = (a, n)=> Number((VM.find(x=> ym(x) === a + '-' + String(n).padStart(2, '0')) || {}).valor || 0), sm = (a, i, j)=> a.slice(i, j).reduce((t, v)=> t + v, 0);
     const mAt = h.getMonth() + 1, A1 = Array.from({ length:12 }, (_, i)=> m(ano - 1, i + 1)), A2 = Array.from({ length:12 }, (_, i)=> m(ano, i + 1));
@@ -12774,22 +12788,35 @@ async function renderResumo(){
         <div class="tb-kpi"><small>${ano} até hoje</small><b>${fmtMoney(ytd)}</b><span>${f25 ? `<span class="rs-var ${f26 >= f25 ? 'up' : 'down'}">${pct(f26 / f25 - 1)}</span> nos meses fechados contra ${ano - 1}` : 'desde janeiro'}</span></div>
         <div class="tb-kpi ${est >= tot1 ? 'rs-kpi-ok' : 'alerta'}"><small>${ano} estimado para fechar</small><b>${fmtMoney(est)}</b><span><span class="rs-var ${est >= tot1 ? 'up' : 'down'}">${pct(est / tot1 - 1)}</span> contra ${ano - 1} · o vendido, mais a projeção do mês, mais o resto do ano no ritmo dos meses fechados</span></div>
       </div>`;
-    // ---- gráfico 2: evolução acumulada no ano (uma linha por ano), para ver quando um ano passou o outro
-    const H2 = 200, c1 = [], c2 = []; let a1 = 0, a2 = 0;
+    // ---- gráfico 2: evolução acumulada no ano, em pilhas (pedido do Luiz, 26/11/2026): o que o ano passado já tinha + o que a inflação explica + o crescimento acima da inflação
+    const H2 = 260, c1 = [], c2 = []; let a1 = 0, a2 = 0;
     for(let i = 0; i < 12; i++){ a1 += A1[i]; c1.push(a1); a2 += i < mAt - 1 ? A2[i] : i === mAt - 1 ? estMes : rest[i]; c2.push(a2); }
-    const mx2 = Math.max(c1[11], c2[11], 1), px = i=> (i + .5) * lw, py = v=> H2 - b - (H2 - b - 26) * v / mx2;
-    const trilha = (arr, de, ate)=> arr.slice(de, ate + 1).map((v, k)=> (k ? 'L' : 'M') + px(de + k).toFixed(1) + ' ' + py(v).toFixed(1)).join(' ');
-    const ult = mAt - 2;   // último mês fechado de 2026: daí em diante a linha é estimada
-    const grade = [.25, .5, .75, 1].map(f=> `<line x1="0" x2="${W}" y1="${py(mx2 * f)}" y2="${py(mx2 * f)}" stroke="#dfe6ea" stroke-width="1" vector-effect="non-scaling-stroke"/><text x="2" y="${py(mx2 * f) - 3}" style="font-size:8px;fill:var(--ink-faint)">${ab(mx2 * f)}</text>`).join('');
-    const acum = `<svg class="rs-graf" viewBox="0 0 ${W} ${H2}" preserveAspectRatio="none" style="width:100%;height:${H2}px;display:block" role="img" aria-label="Vendas acumuladas no ano, ${ano} contra ${ano - 1}">${grade}
-      <path d="${trilha(c1, 0, 11)}" fill="none" stroke="#A9C7D2" stroke-width="3.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      ${ult >= 0 ? `<path d="${trilha(c2, 0, ult)}" fill="none" stroke="var(--brand)" stroke-width="3.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>` : ''}
-      <path d="${trilha(c2, Math.max(ult, 0), 11)}" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-dasharray="6 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      <text x="${px(11)}" y="${py(c2[11]) - 7}" text-anchor="end" style="font-size:10px;font-weight:700;fill:var(--brand)">${ano} estimado: ${ab(c2[11])} mi</text>
-      <text x="${px(11)}" y="${py(c1[11]) + 14}" text-anchor="end" style="font-size:10px;font-weight:700;fill:#6f98a8">${ano - 1}: ${ab(c1[11])} mi</text>
-      ${ult >= 0 ? `<text x="${px(ult)}" y="${py(c2[ult]) - 8}" text-anchor="middle" style="font-size:9px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(c2[ult])}</text><text x="${px(ult)}" y="${py(c1[ult]) + 14}" text-anchor="middle" style="font-size:9px;font-weight:600;fill:#6f98a8">${ab(c1[ult])}</text>` : ''}
-      ${M3.map((t, i)=> `<text x="${px(i)}" y="${H2 - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${t}</text>`).join('')}</svg>
-      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}, acumulado</span><span><i style="background:var(--brand)"></i>${ano}, acumulado até o último mês fechado</span><span><i style="border:1.5px dashed var(--brand);background:none"></i>${ano} estimado</span><span>valores em R$ milhões</span></div>`;
+    const ult = mAt - 2, p1 = v=> (v >= 0 ? '+' : '−') + Math.abs(v * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
+    const infl = i=>{ if(!ipca) return null; let v = null; for(let k = 0; k <= i; k++){ const x = ipca[ano + '-' + String(k + 1).padStart(2, '0')]; if(x != null) v = x; } return v == null ? null : v / 100; };   // IPCA 12 meses no mês (o último divulgado vale para os meses seguintes)
+    const topo2 = 44, mx2 = Math.max(1, ...c2, ...c1.map((v, i)=> v * (1 + (infl(i) || 0)))), alt2 = v=> (H2 - b - topo2) * v / mx2, y0 = H2 - b, bw = lw * .66, xb = i=> i * lw + (lw - bw) / 2;
+    const pilha = i=>{
+      const g = infl(i), C1 = c1[i], C2 = c2[i], estim = i > ult, meta = C1 * (1 + (g || 0));
+      const base = Math.min(C1, C2), infP = g == null ? 0 : Math.min(Math.max(C2 - C1, 0), C1 * g), real = g == null ? Math.max(C2 - C1, 0) : Math.max(C2 - meta, 0);
+      const seg = (de, ate, cor, nome)=> ate - de <= 0 ? '' : `<rect x="${xb(i)}" y="${y0 - alt2(ate)}" width="${bw}" height="${alt2(ate) - alt2(de)}" fill="${cor}" ${estim ? 'fill-opacity=".55" stroke="#00506f" stroke-width="1" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"' : ''}><title>${M3[i]}: ${nome}</title></rect>`;
+      const topoY = y0 - alt2(Math.max(C2, g == null ? 0 : meta)), nom = C1 ? C2 / C1 - 1 : 0, rl = g == null || !C1 ? null : (C2 / C1) / (1 + g) - 1, cor = rl == null ? 'var(--ink, #1a2b34)' : rl >= 0 ? '#2f7d1f' : '#c0392b';
+      return seg(0, base, '#A9C7D2', 'igual ao acumulado de ' + (ano - 1) + ': ' + fmtMoney(base)) + seg(base, base + infP, '#F2C94C', 'reposição da inflação: ' + fmtMoney(infP)) + seg(base + infP, base + infP + real, '#2f7d1f', 'crescimento acima da inflação: ' + fmtMoney(real))
+        + (g == null ? '' : `<line x1="${xb(i) - 3}" x2="${xb(i) + bw + 3}" y1="${y0 - alt2(meta)}" y2="${y0 - alt2(meta)}" stroke="#1a2b34" stroke-width="1.8" vector-effect="non-scaling-stroke"><title>${M3[i]}: ${ano - 1} mais a inflação = ${fmtMoney(meta)}</title></line>`)
+        + `<text x="${i * lw + lw / 2}" y="${topoY - 13}" text-anchor="middle" style="font-size:9px;font-weight:700;fill:${cor}">${p1(nom)}</text>`
+        + (rl == null ? '' : `<text x="${i * lw + lw / 2}" y="${topoY - 4}" text-anchor="middle" style="font-size:7.5px;fill:${cor}">real ${p1(rl)}</text>`)
+        + `<text x="${i * lw + lw / 2}" y="${H2 - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[i]}</text>`; };
+    const gU = ult >= 0 ? infl(ult) : null, nomU = ult >= 0 && c1[ult] ? c2[ult] / c1[ult] - 1 : null, realU = gU != null && nomU != null ? (1 + nomU) / (1 + gU) - 1 : null;
+    const gF = infl(11), nomF = tot1 ? est / tot1 - 1 : 0, realF = gF != null ? (1 + nomF) / (1 + gF) - 1 : null;
+    const ultI = ipca ? Object.keys(ipca).filter(k=> k.startsWith(ano + '-')).sort().pop() : null;
+    const cc = v=> v == null ? '' : v >= 0 ? 'rs-kpi-ok' : 'alerta';
+    const acum = `<svg class="rs-graf" viewBox="0 0 ${W} ${H2}" preserveAspectRatio="none" style="width:100%;height:${H2}px;display:block" role="img" aria-label="Vendas acumuladas no ano em pilhas: o que o ano passado já tinha, a inflação e o crescimento real">${c1.map((_, i)=> pilha(i)).join('')}</svg>
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>igual ao acumulado de ${ano - 1}</span><span><i style="background:#F2C94C"></i>reposição da inflação (IPCA 12 meses)</span><span><i style="background:#2f7d1f"></i>crescimento acima da inflação</span><span><i style="background:#1a2b34;height:3px;align-self:center"></i>${ano - 1} mais a inflação (o mínimo para empatar)</span><span>colunas claras e tracejadas: estimado</span></div>
+      ${ipca ? `<div class="tb-kpis" style="margin-top:10px">
+        ${nomU != null ? `<div class="tb-kpi"><small>Crescimento até ${M3[ult]}</small><b>${p1(nomU)}</b><span>${ano} contra ${ano - 1}, acumulado nos meses fechados</span></div>
+        <div class="tb-kpi"><small>Inflação (IPCA 12 meses)</small><b>${p1(gU)}</b><span>IBGE, divulgado até ${ultI ? M3[Number(ultI.slice(5)) - 1] : ''}</span></div>
+        <div class="tb-kpi ${cc(realU)}"><small>Crescimento acima da inflação</small><b>${p1(realU)}</b><span>${realU >= 0 ? 'a empresa cresce acima da inflação' : 'cresce abaixo da inflação: perde poder de compra'}</span></div>` : ''}
+        <div class="tb-kpi ${cc(realF)}"><small>${ano} estimado para fechar</small><b>${p1(nomF)}</b><span>${realF >= 0 ? '' : 'abaixo da inflação: '}<b>${p1(realF)}</b> ${realF >= 0 ? 'acima' : 'contra'} a inflação (IPCA ${p1(gF).replace('+', '')})</span></div>
+      </div>
+      <div class="tb-rodape">Inflação = IPCA acumulado em 12 meses, do IBGE, buscado do Banco Central. Nos meses sem divulgação vale o último. "Real" = crescimento descontada a inflação. É uma conta de comparação, não uma meta oficial.</div>` : '<div class="tb-rodape">Não consegui buscar o IPCA agora; o gráfico mostra só o que o ano passado já tinha e o crescimento. Atualize a página para tentar de novo.</div>'}`;
     return { pares, acum }; })();
   // ranking dos vendedores no mês (o CEO manda no grupo)
   const RK = outro && tmC && !tmC.error && tmC.data ? tmC.data : A, rkOutro = RK !== A, noCiclo = usaCiclo && rkOutro;
@@ -12841,7 +12868,7 @@ async function renderResumo(){
     <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td>${comPts ? `<td class="n">${r.prazoR ? Math.round(r.prazoR) + ' d' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td>` : ''}<td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="${comPts ? 8 : 6}" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
     ${racional}
     ${grafAno && libLivre('graf-ano') ? `<h3 style="font-size:15px;margin:16px 0 4px">Vendas ano contra ano, mês contra mês</h3>${grafAno.pares}
-    <h3 style="font-size:15px;margin:16px 0 4px">Evolução acumulada no ano</h3>${grafAno.acum}` : ''}
+    <h3 style="font-size:15px;margin:16px 0 4px">Evolução acumulada no ano, contra a inflação</h3>${grafAno.acum}` : ''}
     <h3 style="font-size:15px;margin:16px 0 4px">Vendas mês a mês</h3>
     ${graf}
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
