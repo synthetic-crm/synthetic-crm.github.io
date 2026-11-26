@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-083432">
+<meta name="crm-versao" content="20261126-083818">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12782,6 +12782,27 @@ async function renderResumo(){
   rk.forEach(r=>{ const tm = Number(r.tabela_media), pzv = PZR.get(r.seller_id); r.prazoR = comPts && pzv > 0 ? pzv : null; r.pontos = comPts && tm > 0 && pzv > 0 ? Number(r.valor) / 1000 * tm / pzv : null; });
   if(comPts && RSM.ord === 'pontos') rk.sort((a, b)=> (b.pontos ?? -1) - (a.pontos ?? -1));
   const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : nRk ? mesNome(mesN) : h.toLocaleDateString('pt-BR', { month:'long' })}${nRk ? '' : ' até ' + h.toLocaleDateString('pt-BR')}*\n` + rk.map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(rkOutro ? soma(rk, 'valor') : vMes)}`;
+  // Racional da pontuação (pedido do CEO, 13 e 16/11), com um modelo comparativo (26/11/2026, pedido do Luiz): fica logo abaixo do ranking, aberto, para quem acessa entender o número
+  const racional = comPts ? (()=>{
+    const ex = [['Vendedor A', 100, 1.8, 90], ['Vendedor B', 70, 2.6, 45], ['Vendedor C', 50, 2.3, 30]].map(([n, v, t, p])=> ({ n, v, t, p, pts: v * t / p })), mxP = Math.max(...ex.map(x=> x.pts));
+    const vivo = rk.filter(r=> r.pontos != null).slice().sort((a, b)=> b.pontos - a.pontos).slice(0, 3), mxV = Math.max(1, ...vivo.map(r=> r.pontos));
+    const cab = '<thead><tr><th>Vendedor</th><th class="n">Vendido</th><th class="n">Tabela média</th><th class="n">Prazo médio</th><th class="n">Pontos</th><th style="width:22%"></th></tr></thead>';
+    const barra = (p, m)=> `<div class="tm-regua"><i style="width:${Math.max(3, p / m * 100)}%"></i></div>`;
+    return `<div style="background:var(--surface-2, #f7f8fa);border-radius:12px;padding:14px 16px;margin:12px 0">
+      <h3 style="font-size:15px;margin:0 0 6px">Como é a pontuação</h3>
+      <div style="font-size:14px;margin-bottom:8px"><b>Pontos = vendido (em R$ mil) × tabela média ÷ prazo médio (em dias)</b>, no mesmo período do ranking.</div>
+      <ul style="margin:0 0 10px 18px;padding:0;font-size:13px;line-height:1.5">
+        <li><b>Vender mais</b> sobe os pontos na mesma proporção: o dobro vendido é o dobro de pontos.</li>
+        <li><b>Vender em tabela mais alta</b> (menos desconto) sobe os pontos. A meta da Synthetic é 2,3.</li>
+        <li><b>Receber mais rápido</b> sobe os pontos: o prazo está dividindo. O dobro do prazo corta os pontos pela metade. A meta é 60 dias.</li>
+      </ul>
+      <div style="font-size:13px;font-weight:600;margin:6px 0 4px">Exemplo para comparar (números ilustrativos)</div>
+      <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab">${cab}<tbody>${ex.map(x=> `<tr><td class="prod">${x.n}</td><td class="n">R$ ${x.v} mil</td><td class="n">${fmtTm(x.t)}</td><td class="n">${x.p} dias</td><td class="n"><b>${fmtPts(x.pts)}</b></td><td>${barra(x.pts, mxP)}</td></tr>`).join('')}</tbody></table></div>
+      <div style="font-size:13px;margin:6px 0 10px"><b>O vendedor A vendeu mais (R$ 100 mil), mas fica em último:</b> vendeu em tabela baixa (1,8) e demorou 90 dias para receber. O B vendeu menos (R$ 70 mil) e fica em primeiro: tabela 2,6 e prazo de 45 dias. A pontuação premia a venda boa, não só a grande.</div>
+      ${vivo.length ? `<div style="font-size:13px;font-weight:600;margin:6px 0 4px">No ranking de agora (período escolhido)</div>
+      <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab">${cab}<tbody>${vivo.map(r=> `<tr><td class="prod">${escapeHtml(nomeBonito(r.vendedor))}</td><td class="n">${fmtMoney(r.valor)}</td><td class="n">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</td><td class="n">${r.prazoR ? Math.round(r.prazoR) + ' dias' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td><td>${barra(r.pontos, mxV)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      <div style="font-size:12px;color:var(--ink-faint);margin-top:8px">Sem tabela média, ou sem pedido com boleto identificado (prazo), o vendedor fica sem pontos. O prazo conta só os pedidos com boleto nas empresas do grupo, como na tela Prazo médio.</div>
+    </div>`; })() : '';
   host.innerHTML = `
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
@@ -12794,11 +12815,12 @@ async function renderResumo(){
     <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : nRk ? `Ranking de ${mesNome(mesN)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}${libLivre('ranking-anterior') ? `<select id="rs-n" class="ca-inp${svC('ranking-anterior')}"${svD('ranking-anterior')} aria-label="Período do ranking" style="width:auto;max-width:300px;margin-left:8px;padding:6px 10px;font-size:13px">${optsN}</select>` : ''}${comPts ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.ord === 'vendido' ? 'on' : ''}" data-rso="vendido">Por vendido</button><button class="cm-chip ${RSM.ord === 'pontos' ? 'on' : ''}${svC('pontos')}" data-rso="pontos"${svD('pontos')}>Por pontuação</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
     <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th>${comPts ? '<th class="n" title="Prazo médio dos pedidos com boleto identificado, no mesmo período">Prazo médio</th><th class="n" title="Vendido em R$ mil × tabela média ÷ prazo médio (dias)">Pontos</th>' : ''}<th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td>${comPts ? `<td class="n">${r.prazoR ? Math.round(r.prazoR) + ' d' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td>` : ''}<td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="${comPts ? 8 : 6}" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
+    ${racional}
     <div style="display:flex;align-items:center;gap:8px;margin:16px 0 4px"><h3 style="font-size:15px;margin:0">${grafAno && libLivre('graf-ano') && RSM.graf === 'ano' ? `Vendas ${ano} contra ${ano - 1}` : 'Vendas mês a mês'}</h3>${grafAno && libLivre('graf-ano') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.graf === 'ano' ? '' : 'on'}" data-rsg="mes">Mês a mês</button><button class="cm-chip ${RSM.graf === 'ano' ? 'on' : ''}${svC('graf-ano')}" data-rsg="ano"${svD('graf-ano')}>Ano contra ano</button></span>` : ''}</div>
     ${grafAno && libLivre('graf-ano') && RSM.graf === 'ano' ? grafAno : graf}
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
     <ul class="rs-lista">${att.map(([ic, t, ir])=> `<li><span class="rs-ic">${ic}</span><span class="t">${t}</span><button class="cm-chip" data-ir="${ir}">Abrir ›</button></li>`).join('') || '<li><span class="t">Nada fora do esperado hoje.</span></li>'}</ul>
-    <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.${comPts ? '<details class="tb-como"><summary>ⓘ Como é a pontuação</summary><b>Pontos = vendido no período (em R$ mil) × tabela média ÷ prazo médio (em dias)</b>, no mesmo período do ranking (ciclo 26 a 25 ou mês corrido). Quem vende mais, em tabela mais alta e com prazo menor, ganha mais pontos. Sem tabela média ou sem pedido com boleto identificado (prazo), o vendedor fica sem pontos. O prazo conta só os pedidos com boleto nas empresas do grupo, como na tela Prazo médio.</details>' : ''}</div>`;
+    <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.</div>`;
   host.querySelectorAll('[data-ir]').forEach(b=> b.addEventListener('click', ()=> rsIr(b.dataset.ir)));
   host.querySelector('#rs-rk-copia')?.addEventListener('click', async ()=>{ const t = rkCopia(); try{ await navigator.clipboard.writeText(t); showToast('Ranking copiado: é só colar no grupo.'); }catch(_){ prompt('Copie o ranking:', t); } uso('clique', 'vendas: copiar ranking'); });
   const navRk = { ids:rk.map(r=> r.seller_id), nomes:Object.fromEntries(rk.map(r=> [r.seller_id, r.vendedor])), info:{} };
