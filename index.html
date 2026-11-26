@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-122757">
+<meta name="crm-versao" content="20261126-140451">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13040,18 +13040,18 @@ async function renderAppVendedor(){
   const link = avLink(), gestao = ehGestao();
   host.innerHTML = `<div class="cm-resumo">O aplicativo do vendedor externo, para o celular: a rota do dia, o Waze, o check-in e o check-out com a localização e a foto da fachada, e a observação de como foi a visita. O vendedor entra com o mesmo e-mail e a mesma senha do CRM.</div>
     <div class="card" style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:16px">
-      <div id="av-qr" style="min-width:180px;min-height:180px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:10px;padding:8px"></div>
+      <div id="av-qr" style="min-width:236px;min-height:236px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:10px;padding:8px"></div>
       <div style="flex:1;min-width:240px">
         <h3 style="margin:0 0 6px;font-size:16px">Abrir o app no celular</h3>
         <div style="word-break:break-all;margin-bottom:10px"><a href="${escapeHtml(link)}" target="_blank" rel="noopener">${escapeHtml(link)}</a></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="om-save" href="${escapeHtml(link)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir o app</a><button class="om-cancel" id="av-copia">Copiar o link</button>
           <a class="om-cancel" id="av-wa" target="_blank" rel="noopener" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent('App do vendedor da Synthetic: ' + link + '\nEntre com o mesmo e-mail e senha do CRM.')}">Mandar pelo WhatsApp</a></div>
-        <p class="tb-rodape" style="margin:12px 0 0"><b>Android:</b> abra o link no Chrome, toque nos três pontinhos e em “Instalar app”. <b>iPhone:</b> abra no Safari, toque em Compartilhar e em “Adicionar à Tela de Início”. O app pede a localização e a câmera só na hora do check-in.</p>
+        <p class="tb-rodape" style="margin:12px 0 0"><b>Se o QR não abrir:</b> copie o link acima e cole no navegador do celular. <b>Android:</b> abra o link no Chrome, toque nos três pontinhos e em “Instalar app”. <b>iPhone:</b> abra no Safari, toque em Compartilhar e em “Adicionar à Tela de Início”. O app pede a localização e a câmera só na hora do check-in.</p>
       </div></div>
     ${gestao ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px"><h3 style="font-size:15px;margin:0">Visitas do dia</h3><input type="date" id="av-dia" class="ca-inp" style="width:auto;padding:6px 10px"><button class="om-cancel" id="av-ref">Atualizar</button></div><div id="av-vis"><div class="tb-rodape">Carregando as visitas…</div></div>
       <div class="tb-rodape">Cada vendedor recebe a rota do dia na primeira vez que abre o app: até 3 leads quentes ainda não contatados e até 5 clientes parados que valem recuperar. A localização é gravada só no check-in e no check-out. Para o piloto, o vendedor precisa ter usuário ativo em Acessos › Usuários, com a carteira ligada.</div>` : ''}`;
   host.querySelector('#av-copia').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(link); showToast('Link copiado.'); }catch(_){ prompt('Copie o link:', link); } uso('clique', 'app vendedor: copiar link'); });
-  docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{ const q = host.querySelector('#av-qr'); if(q && window.QRCode){ q.innerHTML = ''; new QRCode(q, { text:link, width:180, height:180 }); } }).catch(()=>{ const q = host.querySelector('#av-qr'); if(q) q.textContent = 'QR indisponível'; });
+  docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{ const q = host.querySelector('#av-qr'); if(q && window.QRCode){ q.innerHTML = ''; new QRCode(q, { text:link, width:220, height:220, correctLevel:QRCode.CorrectLevel.M }); } }).catch(()=>{ const q = host.querySelector('#av-qr'); if(q) q.textContent = 'QR indisponível'; });
   if(gestao){
     const di = host.querySelector('#av-dia'); AV.dia = AV.dia || diaLocal(new Date()); di.value = AV.dia;
     const carrega = ()=> avVisitas(host.querySelector('#av-vis'));
