@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-120019">
+<meta name="app-versao" content="20261126-121601">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -265,7 +265,8 @@ function desenhaLista(){
   $("h-lista").innerHTML = L.map(v => {
     const [cl, tx] = ST[v.status] || ["", v.status], dist = S.perto && S.pos && v.lat != null ? ` · ${distKm(S.pos, v).toFixed(1).replace(".", ",")} km` : "";
     const velha = v.dia && v.dia < new Date().toLocaleDateString("sv-SE") ? `<span class="chip em">Em aberto desde ${esc(v.dia.slice(8, 10) + "/" + v.dia.slice(5, 7))}</span> ` : "";
-    const pq = velha + (v.origem === "lead" ? '<span class="chip lead">Lead do evento</span>' : v.dias_sem_comprar != null ? `<span class="chip">Parado há ${v.dias_sem_comprar} dias</span>` : "");
+    const dem = v.demandada ? '<span class="chip lead">Demandada pela gestão</span> ' : "";
+    const pq = dem + velha + (v.origem === "lead" ? '<span class="chip lead">Lead do evento</span>' : v.dias_sem_comprar != null ? `<span class="chip">Parado há ${v.dias_sem_comprar} dias</span>` : "");
     return `<button class="vis ${peso(v) === 2 ? "feita" : ""}" data-v="${esc(v.visita_id)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(v.nome)}</b><span class="chip ${cl}">${tx}</span></div>
       <div class="sub">${esc([v.endereco, v.cidade].filter(Boolean).join(" · ") || "Sem endereço")}${dist}</div><div style="margin-top:6px">${pq}</div></button>`; }).join("")
     || '<div class="card"><b>Nenhuma visita sugerida para hoje.</b><p class="muted">A rota é montada quando você abre o app de manhã, com os leads novos e os clientes parados da sua carteira. Se acabou de receber leads, toque em Atualizar.</p><button class="btn azul mini" onclick="carregaRota()">Atualizar</button></div>';
