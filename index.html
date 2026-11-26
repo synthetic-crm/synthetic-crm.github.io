@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-083818">
+<meta name="crm-versao" content="20261126-084058">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12748,25 +12748,49 @@ async function renderResumo(){
   const grafAno = (()=>{
     const m = (a, n)=> Number((VM.find(x=> ym(x) === a + '-' + String(n).padStart(2, '0')) || {}).valor || 0), sm = (a, i, j)=> a.slice(i, j).reduce((t, v)=> t + v, 0);
     const mAt = h.getMonth() + 1, A1 = Array.from({ length:12 }, (_, i)=> m(ano - 1, i + 1)), A2 = Array.from({ length:12 }, (_, i)=> m(ano, i + 1));
-    if(sm(A1, 0, 12) <= 0) return '';
+    if(sm(A1, 0, 12) <= 0) return null;
     const f26 = sm(A2, 0, mAt - 1), f25 = sm(A1, 0, mAt - 1), fator = f25 ? f26 / f25 : 1, estMes = proj != null ? proj : A2[mAt - 1];
     const rest = A1.map((v, i)=> i >= mAt ? v * fator : 0), est = f26 + estMes + sm(rest, 0, 12), tot1 = sm(A1, 0, 12);
-    const W = 1000, H = 190, b = 22, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'], lw = W / 12;
-    const mx = Math.max(1, ...A1, ...A2, ...rest), ab = v=> (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
-    const barra = (x, v, fill, extra, tip)=>{ const hh = (H - b - 18) * v / mx; return `<rect x="${x}" y="${H - b - hh}" width="${lw * .38}" height="${hh}" rx="2" fill="${fill}" ${extra || ''}><title>${tip}: ${fmtMoney(v)}</title></rect><text x="${x + lw * .19}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:8.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text>`; };
-    const svg = `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:190px;display:block" role="img" aria-label="Vendas ano contra ano">${A1.map((v, i)=>
+    const M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'], W = 1000, b = 22, lw = W / 12;
+    const ab = v=> (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }), ab2 = v=> Math.abs(v) >= 1e6 ? ab(Math.abs(v)) + ' mi' : Math.round(Math.abs(v) / 1e3) + ' mil', sinal = v=> v >= 0 ? '+' : '−';
+    // ---- gráfico 1: cada mês deste ano ao lado do mesmo mês do ano passado, com a variação em R$ e % ligando o par
+    const H = 230, topo = 46, mx = Math.max(1, ...A1, ...A2, ...rest), alt = v=> (H - b - topo) * v / mx;
+    const barra = (x, v, fill, extra, tip)=>{ const hh = alt(v); return `<rect x="${x}" y="${H - b - hh}" width="${lw * .38}" height="${hh}" rx="2" fill="${fill}" ${extra || ''}><title>${tip}: ${fmtMoney(v)}</title></rect><text x="${x + lw * .19}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:8.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text>`; };
+    const par = i=>{
+      const futuro = i >= mAt, v1 = A1[i], v2 = futuro ? rest[i] : A2[i], x1 = i * lw + lw * .09 + lw * .19, x2 = i * lw + lw * .53 + lw * .19;
+      const t1 = H - b - alt(v1), t2 = H - b - alt(v2), yL = Math.min(t1, t2) - 18, d = v2 - v1, pc = v1 ? d / v1 : 0, cor = futuro ? '#7a8b94' : d >= 0 ? '#2f7d1f' : '#c0392b', xm = (x1 + x2) / 2;
+      return `<path d="M${x1} ${t1 - 14} V${yL} H${x2} V${t2 - 14}" fill="none" stroke="${cor}" stroke-width="1" vector-effect="non-scaling-stroke"/>`
+        + `<text x="${xm}" y="${yL - 12}" text-anchor="middle" style="font-size:9px;font-weight:700;fill:${cor}">${sinal(d)}${Math.abs(Math.round(pc * 100))}%</text>`
+        + `<text x="${xm}" y="${yL - 3}" text-anchor="middle" style="font-size:7.5px;fill:${cor}">${sinal(d)}R$ ${ab2(d)}</text>`; };
+    const pares = `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;display:block" role="img" aria-label="Vendas de cada mês contra o mesmo mês do ano passado">${A1.map((v, i)=>
       barra(i * lw + lw * .09, v, '#A9C7D2', '', M3[i] + '/' + (ano - 1)) +
       (i < mAt - 1 ? barra(i * lw + lw * .53, A2[i], 'var(--brand)', '', M3[i] + '/' + ano)
         : i === mAt - 1 ? barra(i * lw + lw * .53, A2[i], '#E0A458', '', M3[i] + '/' + ano + ' (até hoje)')
-        : barra(i * lw + lw * .53, rest[i], 'none', 'stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="4 3"', M3[i] + '/' + ano + ' (estimado)')) +
+        : barra(i * lw + lw * .53, rest[i], 'none', 'stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="4 3"', M3[i] + '/' + ano + ' (estimado)')) + par(i) +
       `<text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[i]}</text>`).join('')}</svg>
-      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span><i style="border:1.5px dashed var(--brand);background:none"></i>${ano} estimado</span><span>valores em R$ milhões</span></div>
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span><i style="border:1.5px dashed var(--brand);background:none"></i>${ano} estimado</span><span>a linha sobre cada par mostra a variação do mês contra o mesmo mês de ${ano - 1}, em % e em R$</span><span>valores em R$ milhões</span></div>
       <div class="tb-kpis" style="margin-top:10px">
         <div class="tb-kpi"><small>${ano - 1} fechado</small><b>${fmtMoney(tot1)}</b><span>janeiro a dezembro</span></div>
         <div class="tb-kpi"><small>${ano} até hoje</small><b>${fmtMoney(ytd)}</b><span>${f25 ? `<span class="rs-var ${f26 >= f25 ? 'up' : 'down'}">${pct(f26 / f25 - 1)}</span> nos meses fechados contra ${ano - 1}` : 'desde janeiro'}</span></div>
         <div class="tb-kpi ${est >= tot1 ? 'rs-kpi-ok' : 'alerta'}"><small>${ano} estimado para fechar</small><b>${fmtMoney(est)}</b><span><span class="rs-var ${est >= tot1 ? 'up' : 'down'}">${pct(est / tot1 - 1)}</span> contra ${ano - 1} · o vendido, mais a projeção do mês, mais o resto do ano no ritmo dos meses fechados</span></div>
       </div>`;
-    return svg; })();
+    // ---- gráfico 2: evolução acumulada no ano (uma linha por ano), para ver quando um ano passou o outro
+    const H2 = 200, c1 = [], c2 = []; let a1 = 0, a2 = 0;
+    for(let i = 0; i < 12; i++){ a1 += A1[i]; c1.push(a1); a2 += i < mAt - 1 ? A2[i] : i === mAt - 1 ? estMes : rest[i]; c2.push(a2); }
+    const mx2 = Math.max(c1[11], c2[11], 1), px = i=> (i + .5) * lw, py = v=> H2 - b - (H2 - b - 26) * v / mx2;
+    const trilha = (arr, de, ate)=> arr.slice(de, ate + 1).map((v, k)=> (k ? 'L' : 'M') + px(de + k).toFixed(1) + ' ' + py(v).toFixed(1)).join(' ');
+    const ult = mAt - 2;   // último mês fechado de 2026: daí em diante a linha é estimada
+    const grade = [.25, .5, .75, 1].map(f=> `<line x1="0" x2="${W}" y1="${py(mx2 * f)}" y2="${py(mx2 * f)}" stroke="#dfe6ea" stroke-width="1" vector-effect="non-scaling-stroke"/><text x="2" y="${py(mx2 * f) - 3}" style="font-size:8px;fill:var(--ink-faint)">${ab(mx2 * f)}</text>`).join('');
+    const acum = `<svg class="rs-graf" viewBox="0 0 ${W} ${H2}" preserveAspectRatio="none" style="width:100%;height:${H2}px;display:block" role="img" aria-label="Vendas acumuladas no ano, ${ano} contra ${ano - 1}">${grade}
+      <path d="${trilha(c1, 0, 11)}" fill="none" stroke="#A9C7D2" stroke-width="3.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      ${ult >= 0 ? `<path d="${trilha(c2, 0, ult)}" fill="none" stroke="var(--brand)" stroke-width="3.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>` : ''}
+      <path d="${trilha(c2, Math.max(ult, 0), 11)}" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-dasharray="6 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <text x="${px(11)}" y="${py(c2[11]) - 7}" text-anchor="end" style="font-size:10px;font-weight:700;fill:var(--brand)">${ano} estimado: ${ab(c2[11])} mi</text>
+      <text x="${px(11)}" y="${py(c1[11]) + 14}" text-anchor="end" style="font-size:10px;font-weight:700;fill:#6f98a8">${ano - 1}: ${ab(c1[11])} mi</text>
+      ${ult >= 0 ? `<text x="${px(ult)}" y="${py(c2[ult]) - 8}" text-anchor="middle" style="font-size:9px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(c2[ult])}</text><text x="${px(ult)}" y="${py(c1[ult]) + 14}" text-anchor="middle" style="font-size:9px;font-weight:600;fill:#6f98a8">${ab(c1[ult])}</text>` : ''}
+      ${M3.map((t, i)=> `<text x="${px(i)}" y="${H2 - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${t}</text>`).join('')}</svg>
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}, acumulado</span><span><i style="background:var(--brand)"></i>${ano}, acumulado até o último mês fechado</span><span><i style="border:1.5px dashed var(--brand);background:none"></i>${ano} estimado</span><span>valores em R$ milhões</span></div>`;
+    return { pares, acum }; })();
   // ranking dos vendedores no mês (o CEO manda no grupo)
   const RK = outro && tmC && !tmC.error && tmC.data ? tmC.data : A, rkOutro = RK !== A, noCiclo = usaCiclo && rkOutro;
   const mesNome = x=> x.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
@@ -12816,8 +12840,10 @@ async function renderResumo(){
     <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th>${comPts ? '<th class="n" title="Prazo médio dos pedidos com boleto identificado, no mesmo período">Prazo médio</th><th class="n" title="Vendido em R$ mil × tabela média ÷ prazo médio (dias)">Pontos</th>' : ''}<th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td>${comPts ? `<td class="n">${r.prazoR ? Math.round(r.prazoR) + ' d' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td>` : ''}<td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="${comPts ? 8 : 6}" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
     ${racional}
-    <div style="display:flex;align-items:center;gap:8px;margin:16px 0 4px"><h3 style="font-size:15px;margin:0">${grafAno && libLivre('graf-ano') && RSM.graf === 'ano' ? `Vendas ${ano} contra ${ano - 1}` : 'Vendas mês a mês'}</h3>${grafAno && libLivre('graf-ano') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.graf === 'ano' ? '' : 'on'}" data-rsg="mes">Mês a mês</button><button class="cm-chip ${RSM.graf === 'ano' ? 'on' : ''}${svC('graf-ano')}" data-rsg="ano"${svD('graf-ano')}>Ano contra ano</button></span>` : ''}</div>
-    ${grafAno && libLivre('graf-ano') && RSM.graf === 'ano' ? grafAno : graf}
+    ${grafAno && libLivre('graf-ano') ? `<h3 style="font-size:15px;margin:16px 0 4px">Vendas ano contra ano, mês contra mês</h3>${grafAno.pares}
+    <h3 style="font-size:15px;margin:16px 0 4px">Evolução acumulada no ano</h3>${grafAno.acum}` : ''}
+    <h3 style="font-size:15px;margin:16px 0 4px">Vendas mês a mês</h3>
+    ${graf}
     <h3 style="font-size:15px;margin:14px 0 8px">O que pede atenção</h3>
     <ul class="rs-lista">${att.map(([ic, t, ir])=> `<li><span class="rs-ic">${ic}</span><span class="t">${t}</span><button class="cm-chip" data-ir="${ir}">Abrir ›</button></li>`).join('') || '<li><span class="t">Nada fora do esperado hoje.</span></li>'}</ul>
     <div class="tb-rodape">Vendas pela mesma regra da Tab. média (sem orçamentos, canceladas e devoluções). Prazo pelos boletos das empresas do grupo.</div>`;
