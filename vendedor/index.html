@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-140459">
+<meta name="app-versao" content="20261126-140906">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -316,6 +316,8 @@ function amigavel(e){
 const dia = () => { const t = new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"long" }); return t.charAt(0).toUpperCase() + t.slice(1); };
 const hora = d => new Date(d).toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
 const reais = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { style:"currency", currency:"BRL", maximumFractionDigits:0 });
+// nome e sobrenome com a inicial maiúscula e o resto minúsculo (de, da, do, dos, das e ficam minúsculos)
+const nomeBonito = t => String(t || "").trim().replace(/\s+/g, " ").toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/ (De|Da|Do|Dos|Das|E) /g, m => m.toLowerCase());
 const saudacao = () => { const h = new Date().getHours(); return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite"; };
 const skel = n => Array.from({ length:n }, () => '<div class="sk"></div>').join("");
 const vazio = (titulo, texto, botoes) => `<div class="card vazio"><svg width="86" height="86" viewBox="0 0 86 86" fill="none"><circle cx="43" cy="43" r="40" fill="#e8f2f7"/><path d="M43 66s17-12.5 17-27a17 17 0 1 0-34 0c0 14.5 17 27 17 27z" fill="#fff" stroke="#0a6a93" stroke-width="3"/><circle cx="43" cy="39" r="6" fill="#87dc18"/></svg><h3>${titulo}</h3><p>${texto}</p>${botoes || ""}</div>`;
@@ -379,7 +381,7 @@ async function abreHoje(){
   tela("t-hoje"); $("h-hello").textContent = saudacao() + ","; $("h-titulo").textContent = (S.eu.nome || "vendedor").split(" ")[0]; $("h-sub").textContent = dia();
   // gestão sem carteira própria: escolhe o vendedor para ver como ele vê (acompanhamento)
   if (S.eu.gestao && !S.eu.seller_id) {
-    if (!S.sellers.length) { const { data } = await sb.from("sellers").select("id,name").order("name"); S.sellers = data || []; }
+    if (!S.sellers.length) { const { data } = await sb.rpc("app_vendedores_ativos"); S.sellers = (data || []).map(x => ({ id:x.id, name:nomeBonito(x.name) })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
     $("h-gestao").innerHTML = `<div class="vercomo">${ic("users", 18)}<span>Vendo como</span><select id="h-sel"><option value="">escolha o vendedor</option>${S.sellers.map(s => `<option value="${s.id}" ${S.seller == s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></div>`;
     $("h-sel").addEventListener("change", e => { S.seller = e.target.value ? Number(e.target.value) : null; S.cart = null; S.sem = null; carregaRota(); });
     if (!S.seller) { $("h-lista").innerHTML = ""; $("h-prog").innerHTML = ""; $("h-prox").innerHTML = vazio("Escolha um vendedor", "Selecione quem você quer acompanhar na lista acima. Você vê a rota, a semana, os clientes e as vendas dele, só para olhar."); return; }
