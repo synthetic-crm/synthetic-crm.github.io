@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261125-163438">
+<meta name="crm-versao" content="20261126-082952">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4086,7 +4086,7 @@ const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['periodo-junto', 'leadscada','periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['ranking-anterior', 'periodo-junto','leadscada','periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -9452,6 +9452,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'ranking-anterior-3011', lib:'ranking-anterior', dia:'2026-11-30', tela:'resumo', titulo:'Ranking de ciclos e meses anteriores', txt:'Em Vendas, ao lado de "Ciclo 26 a 25" e "Mês corrido", uma lista escolhe o período do ranking: o atual ou qualquer um dos 12 anteriores. Os pontos, a tabela média e o botão de copiar para o grupo acompanham o período escolhido.' },
   { id:'periodo-junto-3011', lib:'periodo-junto', dia:'2026-11-30', tela:'tabmedia', titulo:'Tabela média e Prazo médio no mesmo período', txt:'Ao trocar o período em Vendedores › Tabela média, o Prazo médio abre no mesmo período (e o contrário), para comparar os dois sem ajustar duas vezes.' },
   { id:'leads-cada-2311', lib:'leadscada', dia:'2026-11-23', tela:'leadscada', titulo:'Leads quentes do evento CADA, por vendedor', txt:'Em Clientes › Leads: os contatos que passaram pelo estande no evento CADA (Câmbio Automático das Américas), já distribuídos pela região de cada vendedor, com o que oferecer e a abertura pronta para o WhatsApp. Marque "Já falei" quando contatar. O botão "Um arquivo, uma aba por vendedor" baixa a lista de cada um.' },
   { id:'periodo-2311', lib:'periodo', dia:'2026-11-23', tela:'tabmedia', titulo:'Escolha as datas na Tab. média e no Prazo', txt:'Pedido do Luis: além de Mês atual, Mês passado e Últimos 90 dias, agora dá para escolher "Escolher datas…" e informar o dia inicial e o final. Vale para a Tab. média, o Prazo e o botão Exportar por cliente, que baixa exatamente o período escolhido. A comparação "Antes" usa o período anterior, com a mesma duração.' },
@@ -12673,7 +12674,7 @@ function ctExportar(filtros){
 }
 // ---- RESUMO DA DIRETORIA (29/10/2026): as 4 prioridades do CEO e as vendas do mês num relance + o que pede atenção ----
 // Nasceu do uso real: o CEO percorreu o menu em 3 minutos sem abrir nada; aqui a resposta vem pronta e cada item leva ao detalhe.
-const RSM = { modo:'ciclo', ord:'vendido' };   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
+const RSM = { modo:'ciclo', ord:'vendido', n:0 };   // n = quantos períodos para trás (0 = o atual); só vale depois da liberação 'ranking-anterior'   // ranking de Vendas: 'ciclo' (26 a 25, o que fecha a comissão) ou 'mes' (mês corrido); só vale depois da liberação ('ciclo')
 async function renderResumo(){
   const host = document.getElementById('rs'); if(!host) return;
   host.innerHTML = '<div class="tb-rodape">Montando o resumo…</div>';
@@ -12681,7 +12682,9 @@ async function renderResumo(){
   const iniMes = d(new Date(h.getFullYear(), h.getMonth(), 1)), hoje = d(h);
   const iniAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, 1)), fimAnt = d(new Date(h.getFullYear(), h.getMonth() - 1, Math.min(h.getDate(), new Date(h.getFullYear(), h.getMonth(), 0).getDate())));
   const [ciIni, ciFim, ciRot] = cmCiclo(1), veCom = ehMaster() || VE_COMISSOES;
-  const usaCiclo = libLivre('ciclo') && RSM.modo === 'ciclo', [cIni, cFimBruto] = cmCiclo(0), cFim = cFimBruto > hoje ? hoje : cFimBruto;
+  // período do ranking (26/11/2026, pedido do Luiz: ver ciclos e meses anteriores): o atual (n = 0) ou um dos 12 anteriores, no ciclo 26 a 25 ou no mês corrido
+  const usaCiclo = libLivre('ciclo') && RSM.modo === 'ciclo', nRk = libLivre('ranking-anterior') ? RSM.n : 0, mesN = new Date(h.getFullYear(), h.getMonth() - nRk, 1), outro = usaCiclo || nRk > 0;
+  const [cIni, cFimBruto] = usaCiclo ? cmCiclo(nRk) : [d(mesN), d(new Date(mesN.getFullYear(), mesN.getMonth() + 1, 0))], cFim = cFimBruto > hoje ? hoje : cFimBruto;
   const [tmA, tmB, pz, tb, cat, pr, cm, vm, fin, PDR, efe, tmC, pzR] = await Promise.all([
     sb.rpc('crm_tabela_media', { p_ini:iniMes, p_fim:hoje }), sb.rpc('crm_tabela_media', { p_ini:iniAnt, p_fim:fimAnt }),
     sb.rpc('crm_prazo_medio', { p_ini:d(new Date(h - 90 * 864e5)), p_fim:hoje }), Promise.resolve({ data:[] }),
@@ -12691,9 +12694,9 @@ async function renderResumo(){
     ehGestao() ? sb.rpc('crm_financeiro_inadimplencia', { p_desde:d(new Date(h.getFullYear(), 0, 1)) }) : Promise.resolve({ data:null }),
     opFetchAll('v_crm_mapa', 'pessoa_id,fat_12m', ['pessoa_id'], q=> q.gte('dias_sem_comprar', 91).lte('dias_sem_comprar', 180)).catch(()=> null),
     ehMaster() ? sb.rpc('crm_esp_efeito') : Promise.resolve({ data:null }),
-    usaCiclo ? sb.rpc('crm_tabela_media', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }),
-    libLivre('pontos') ? sb.rpc('crm_prazo_medio', usaCiclo ? { p_ini:cIni, p_fim:cFim } : { p_ini:iniMes, p_fim:hoje }) : Promise.resolve({ data:null }) ]);
-  const erro = [tmA, pz].find(x=> x.error);
+    outro ? sb.rpc('crm_tabela_media', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }),
+    libLivre('pontos') ? sb.rpc('crm_prazo_medio', { p_ini:cIni, p_fim:cFim }) : Promise.resolve({ data:null }) ]);
+  const erro = [tmA, pz, ...(outro ? [tmC] : [])].find(x=> x.error);
   if(erro){ host.innerHTML = `<div class="tb-aviso">Não consegui montar o resumo: ${escapeHtml(errAmigavel(erro.error))}</div>`; return; }
   const soma = (L, k)=> (L || []).reduce((a, r)=> a + Number(r[k] || 0), 0);
   const pond = (L, peso, v)=>{ const w = soma(L, peso); return w ? (L || []).reduce((a, r)=> a + Number(r[peso] || 0) * Number(r[v] || 0), 0) / w : null; };
@@ -12735,11 +12738,14 @@ async function renderResumo(){
   // gráfico: últimos 24 meses, o ano corrente em destaque
   const graf = (()=>{ const L = VM.slice(-24); if(L.length < 2) return '';
     const W = 1000, H = 170, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const ab = v=> v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' mi' : Math.round(v / 1e3) + ' mil';   // valor em cima da barra (26/11/2026, pedido do Luiz)
     return `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:170px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
-      return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg>
-      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span></div>`; })();
+      return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:9.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg>
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span>valores em R$ (mi = milhões)</span></div>`; })();
   // ranking dos vendedores no mês (o CEO manda no grupo)
-  const RK = usaCiclo && tmC && !tmC.error && tmC.data ? tmC.data : A, noCiclo = RK !== A;
+  const RK = outro && tmC && !tmC.error && tmC.data ? tmC.data : A, rkOutro = RK !== A, noCiclo = usaCiclo && rkOutro;
+  const mesNome = x=> x.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
+  const optsN = Array.from({ length:12 }, (_, i)=> `<option value="${i}" ${i === nRk ? 'selected' : ''}>${usaCiclo ? cmCiclo(i)[2] : mesNome(new Date(h.getFullYear(), h.getMonth() - i, 1)) + (i === 0 ? ', em andamento' : '')}</option>`).join('');
   const rk = RK.filter(r=> Number(r.valor) > 0).slice().sort((a, b)=> b.valor - a.valor);
   const dmCiclo = x=> new Date(x + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
   const tmProv = soma(RK, 'valor_tabela_crm') / (soma(RK, 'valor_com_tabela') || 1) < .95;   // tabela média provisória não vai para o grupo
@@ -12750,7 +12756,7 @@ async function renderResumo(){
   const fmtPts = v=> v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 });
   rk.forEach(r=>{ const tm = Number(r.tabela_media), pzv = PZR.get(r.seller_id); r.prazoR = comPts && pzv > 0 ? pzv : null; r.pontos = comPts && tm > 0 && pzv > 0 ? Number(r.valor) / 1000 * tm / pzv : null; });
   if(comPts && RSM.ord === 'pontos') rk.sort((a, b)=> (b.pontos ?? -1) - (a.pontos ?? -1));
-  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : h.toLocaleDateString('pt-BR', { month:'long' })} até ${h.toLocaleDateString('pt-BR')}*\n` + rk.map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(noCiclo ? soma(rk, 'valor') : vMes)}`;
+  const rkCopia = ()=> `*Ranking de vendas · ${noCiclo ? 'ciclo de ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : nRk ? mesNome(mesN) : h.toLocaleDateString('pt-BR', { month:'long' })}${nRk ? '' : ' até ' + h.toLocaleDateString('pt-BR')}*\n` + rk.map((r, i)=> `${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + 'º'} ${nomeBonito(r.vendedor)}: ${fmtMoney(r.valor)}${r.tabela_media != null && !tmProv ? ' · tab. ' + fmtTm(Number(r.tabela_media)) : ''}${comPts && r.pontos != null ? ' · ' + fmtPts(r.pontos) + ' pts' : ''}`).join('\n') + `\nTotal: ${fmtMoney(rkOutro ? soma(rk, 'valor') : vMes)}`;
   host.innerHTML = `
     <div class="cm-resumo">Vendas de ${h.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}, até ${h.toLocaleDateString('pt-BR')}. Clique em qualquer número para abrir o detalhe.</div>
     <div class="tb-kpis rs-kpis">
@@ -12760,7 +12766,7 @@ async function renderResumo(){
       ${(()=>{ const r = efe && !efe.error ? esEfeitoResumo(efe.data) : null; return r && r.cnF >= ES_CONCLUSIVO ? kpi('rank', 'Especialista comercial', fmtMoney(r.fechado), `vendido a mais que o grupo de controle desde ${esDM(r.desde)} (${Math.round(r.taxaP * 100)}% dos clientes do plano voltaram, contra ${Math.round(r.taxaC * 100)}% do controle)`, r.fechado > 0 ? 'rs-kpi-ok' : '') : ''; })()}
       ${F && libLivre('fin-inad') ? kpi('financeiro', 'Clientes em atraso', fmtMoney(F.em_atraso), `${fmtNum(F.clientes_atraso)} clientes · ${fmtMoney(F.baixado_periodo)} baixados no ano`, 'alerta') : ''}
     </div>
-    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}${comPts ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.ord === 'vendido' ? 'on' : ''}" data-rso="vendido">Por vendido</button><button class="cm-chip ${RSM.ord === 'pontos' ? 'on' : ''}${svC('pontos')}" data-rso="pontos"${svD('pontos')}>Por pontuação</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
+    <div id="rs-rank" style="display:flex;align-items:center;gap:8px;margin:14px 0 6px"><h3 style="font-size:15px;margin:0">${noCiclo ? `Ranking do ciclo de comissão · ${dmCiclo(cIni)} a ${dmCiclo(cFimBruto)}` : nRk ? `Ranking de ${mesNome(mesN)}` : 'Ranking dos vendedores no mês'}</h3>${libLivre('ciclo') ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${noCiclo ? 'on' : ''}${svC('ciclo')}" data-rsm="ciclo"${svD('ciclo')}>Ciclo 26 a 25</button><button class="cm-chip ${noCiclo ? '' : 'on'}" data-rsm="mes">Mês corrido</button></span>` : ''}${libLivre('ranking-anterior') ? `<select id="rs-n" class="ca-inp${svC('ranking-anterior')}"${svD('ranking-anterior')} aria-label="Período do ranking" style="width:auto;max-width:300px;margin-left:8px;padding:6px 10px;font-size:13px">${optsN}</select>` : ''}${comPts ? `<span class="cm-chips" style="margin:0 0 0 8px"><button class="cm-chip ${RSM.ord === 'vendido' ? 'on' : ''}" data-rso="vendido">Por vendido</button><button class="cm-chip ${RSM.ord === 'pontos' ? 'on' : ''}${svC('pontos')}" data-rso="pontos"${svD('pontos')}>Por pontuação</button></span>` : ''}<span class="tb-esp" style="flex:1"></span><button class="om-save" id="rs-rk-copia" title="Copiar o ranking para colar no grupo do WhatsApp">Copiar ranking para o grupo</button></div>
     <div class="tb-wrap" style="min-height:0;max-height:none"><table class="tb-tab"><thead><tr><th class="n">#</th><th>Vendedor</th><th class="n">${noCiclo ? 'Vendido no ciclo' : 'Vendido no mês'}</th><th class="n">Tabela média</th>${comPts ? '<th class="n" title="Prazo médio dos pedidos com boleto identificado, no mesmo período">Prazo médio</th><th class="n" title="Vendido em R$ mil × tabela média ÷ prazo médio (dias)">Pontos</th>' : ''}<th class="n">Pedidos</th><th class="n">Clientes</th></tr></thead>
     <tbody>${rk.map((r, i)=> `<tr class="vd-lin" data-rksid="${r.seller_id}" title="Ver o que explica o número de ${escapeHtml(nomeBonito(r.vendedor))}"><td class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td class="prod">${escapeHtml(nomeBonito(r.vendedor))} <span class="vd-seta">›</span></td><td class="n"><b>${fmtMoney(r.valor)}</b></td><td class="n"><span class="tb-pos ${r.tabela_media != null && r.tabela_media < 2.3 ? 'alto' : ''}">${r.tabela_media != null ? fmtTm(Number(r.tabela_media)) : '—'}</span></td>${comPts ? `<td class="n">${r.prazoR ? Math.round(r.prazoR) + ' d' : '—'}</td><td class="n"><b>${fmtPts(r.pontos)}</b></td>` : ''}<td class="n">${r.pedidos}</td><td class="n">${r.clientes}</td></tr>`).join('') || `<tr><td colspan="${comPts ? 8 : 6}" class="vazio">Nenhuma venda ${noCiclo ? 'no ciclo' : 'no mês'} ainda.</td></tr>`}</tbody></table></div>
     <h3 style="font-size:15px;margin:16px 0 4px">Vendas mês a mês</h3>
@@ -12771,7 +12777,8 @@ async function renderResumo(){
   host.querySelectorAll('[data-ir]').forEach(b=> b.addEventListener('click', ()=> rsIr(b.dataset.ir)));
   host.querySelector('#rs-rk-copia')?.addEventListener('click', async ()=>{ const t = rkCopia(); try{ await navigator.clipboard.writeText(t); showToast('Ranking copiado: é só colar no grupo.'); }catch(_){ prompt('Copie o ranking:', t); } uso('clique', 'vendas: copiar ranking'); });
   const navRk = { ids:rk.map(r=> r.seller_id), nomes:Object.fromEntries(rk.map(r=> [r.seller_id, r.vendedor])), info:{} };
-  host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), noCiclo ? cIni : iniMes, noCiclo ? cFim : hoje, noCiclo ? 'ciclo ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : 'mês atual', 'tm', navRk)));
+  host.querySelectorAll('[data-rksid]').forEach(tr=> tr.addEventListener('click', ()=> vdDetalhe(Number(tr.dataset.rksid), cIni, cFim, noCiclo ? 'ciclo ' + dmCiclo(cIni) + ' a ' + dmCiclo(cFimBruto) : nRk ? mesNome(mesN) : 'mês atual', 'tm', navRk)));
+  host.querySelector('#rs-n')?.addEventListener('change', e=>{ RSM.n = Number(e.target.value); renderResumo(); });
   host.querySelectorAll('[data-rso]').forEach(b=> b.addEventListener('click', ()=>{ RSM.ord = b.dataset.rso; uso('clique', 'vendas: ranking por ' + RSM.ord); renderResumo(); }));
   host.querySelectorAll('[data-rsm]').forEach(b=> b.addEventListener('click', ()=>{ RSM.modo = b.dataset.rsm; uso('clique', 'vendas: ranking ' + RSM.modo); renderResumo(); }));
 }
