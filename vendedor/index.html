@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-145607">
+<meta name="app-versao" content="20261126-150019">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -474,7 +474,7 @@ function acoesRapidas(wa, waze){
   return `<div class="card"><div class="acoes-r">${wa ? `<a class="ra" href="tel:${wa}"><i>${ic("phone", 24)}</i>Ligar</a><a class="ra wa" target="_blank" rel="noopener" href="${esc(waLink(wa))}"><i>${ic("chat", 24)}</i>WhatsApp</a>` : ""}<a class="ra nv" target="_blank" rel="noopener" href="${esc(waze)}"><i>${ic("nav", 24)}</i>Navegar</a></div></div>`;
 }
 function abreVisita(id){ S.sel = S.rota.find(v => v.visita_id === id); if (!S.sel) return; S.voltaPara = "t-hoje"; tela("t-visita"); pintaVisita(); }
-$("v-volta").addEventListener("click", () => { if (S.voltaPara === "t-carteira") { tela("t-carteira"); desenhaCarteira(); } else { tela("t-hoje"); desenhaLista(); } });
+$("v-volta").addEventListener("click", () => { if (S.voltaPara === "t-vendas") { tela("t-vendas"); } else if (S.voltaPara === "t-carteira") { tela("t-carteira"); desenhaCarteira(); } else { tela("t-hoje"); desenhaLista(); } });
 function passos(st){
   const feito = st === "concluida" || st === "nao_visitada", visita = st === "em_visita" || feito;
   return `<div class="passos"><div class="passo ${visita ? "feito" : "on"}"><i>${visita ? ic("check", 14, 3) : "1"}</i>Check-in</div><div class="passo ${st === "em_visita" ? "on" : feito ? "feito" : ""}"><i>${feito ? ic("check", 14, 3) : "2"}</i>Visita</div><div class="passo ${feito ? "feito" : ""}"><i>${feito ? ic("check", 14, 3) : "3"}</i>Check-out</div></div>`;
@@ -658,7 +658,10 @@ $("c-busca").addEventListener("input", () => { clearTimeout(S.tb); S.tb = setTim
 $("c-atualiza").addEventListener("click", carregaCarteira);
 
 /* ---------- CLIENTE DA CARTEIRA ---------- */
-function abreCliente(id){ S.cl = (S.cart || []).find(c => c.pessoa_id === id); if (!S.cl) return; S.voltaPara = "t-carteira"; tela("t-visita"); pintaCliente(); }
+async function abreCliente(id, volta){
+  if (!S.cart || S.cartDe !== (S.seller || "eu")) { const { data, error } = await sb.rpc("app_carteira", { p_seller:S.seller }); if (error) return; S.cart = data || []; S.cartDe = S.seller || "eu"; }
+  S.cl = (S.cart || []).find(c => c.pessoa_id === id); if (!S.cl) return; S.voltaPara = volta || "t-carteira"; tela("t-visita"); pintaCliente();
+}
 function pintaCliente(){
   const c = S.cl, el = $("v-corpo"), ver = soVer(), wa = tel(c.telefone), g = GRP[c.grupo] || ["", ""];
   $("v-titulo").textContent = c.nome; $("v-sub").textContent = [c.cidade, c.uf].filter(Boolean).join(" · ");
@@ -748,7 +751,8 @@ async function abreVendas(){
     ${noCiclo ? `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Mês corrido</b>${pill2(difM)}</div><div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(vm)}</div>${barra(vm, antM)}<div class="muted" style="font-size:.88rem;margin-top:8px">${difM == null ? "Sem base no mês passado" : "Mês passado até esta data: " + reais(antM)}</div></div>`
       : `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Contra o período anterior</b>${pill2(difP)}</div><div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(c.vendido)}</div>${barra(Number(c.vendido), Number(ant.vendido))}<div class="muted" style="font-size:.88rem;margin-top:8px">${difP == null ? "Sem vendas no período anterior" : dmx(ant.ini) + " a " + dmx(ant.fim) + ": " + reais(ant.vendido)}</div></div>`}
     <div class="sec-row"><h2>${noCiclo ? "Últimos pedidos" : "Pedidos do período"}</h2></div>
-    <div class="card" style="padding:4px 16px">${(data.ultimos_pedidos || []).map(p => `<div class="ped-l">${av(p.cliente)}<div class="grow"><b>${esc(p.cliente)}</b><div class="muted" style="font-size:.85rem">${esc(dmx(p.data))}${p.numero ? " · pedido " + esc(p.numero) : ""}</div></div><span class="valor">${reais(p.total)}</span></div>`).join("") || '<p class="muted" style="padding:14px 0;margin:0">Nenhum pedido neste período.</p>'}</div>`;
+    <div class="card" style="padding:4px 16px">${(data.ultimos_pedidos || []).map(p => `<${p.pessoa_id ? 'button type="button" data-p="' + esc(p.pessoa_id) + '"' : "div"} class="ped-l"${p.pessoa_id ? ' style="width:100%;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;font:inherit;color:inherit;cursor:pointer"' : ""}>${av(p.cliente)}<div class="grow"><b>${esc(p.cliente)}</b><div class="muted" style="font-size:.85rem">${esc(dmx(p.data))}${p.numero ? " · pedido " + esc(p.numero) : ""}</div></div><span class="valor">${reais(p.total)}</span></${p.pessoa_id ? "button" : "div"}>`).join("") || '<p class="muted" style="padding:14px 0;margin:0">Nenhum pedido neste período.</p>'}</div>`;
+  $("vd-corpo").querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => abreCliente(b.dataset.p, "t-vendas")));
   $("vd-chips").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => {
     S.vd.modo = b.dataset.m; if (S.vd.modo === "livre" && (!S.vd.de || !S.vd.ate)) { S.vd.ate = hojeIso; S.vd.de = isoD(new Date(Date.now() - 6 * 864e5)); } abreVendas(); }));
   const troca = () => { const de = $("vd-de").value, ate = $("vd-ate").value; S.vd.de = de; S.vd.ate = ate; if (de && ate && de <= ate) abreVendas(); else if (de && ate) abreVendas(); };
