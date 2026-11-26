@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-095557">
+<meta name="crm-versao" content="20261126-100107">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12717,10 +12717,10 @@ async function ipcaCarrega(ano){
 // Vendas mês a mês, últimos 24 meses, o ano corrente em destaque (VM = linhas com mes e valor)
 function evoMesAMes(VM, ano, mesAtual){
   const ym = x=> String(x.mes).slice(0, 7), L = VM.slice(-24); if(L.length < 2) return '';
-    const W = 1000, H = 170, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const W = 1000, H = 250, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const ab = v=> v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' mi' : Math.round(v / 1e3) + ' mil';   // valor em cima da barra (26/11/2026, pedido do Luiz)
-    return `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:170px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
-      return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:9.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg>
+    return `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
+      return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:13.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:14px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg></div>
       <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span>valores em R$ (mi = milhões)</span></div>`; }
 // Gráficos ano contra ano (mês contra mês) e acumulado em pilhas contra a inflação. m(ano, mês) = vendido; serve para a empresa toda (Vendas) e para cada vendedor (detalhe)
 function evoGraficos(m, ano, h, proj, ytd, ipca){
@@ -12732,20 +12732,20 @@ function evoGraficos(m, ano, h, proj, ytd, ipca){
     const M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'], W = 1000, b = 22, lw = W / 12;
     const ab = v=> (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }), ab2 = v=> Math.abs(v) >= 1e6 ? ab(Math.abs(v)) + ' mi' : Math.round(Math.abs(v) / 1e3) + ' mil', sinal = v=> v >= 0 ? '+' : '−';
     // ---- gráfico 1: cada mês deste ano ao lado do mesmo mês do ano passado, com a variação em R$ e % ligando o par
-    const H = 230, topo = 46, mx = Math.max(1, ...A1, ...A2, ...rest), alt = v=> (H - b - topo) * v / mx;
-    const barra = (x, v, fill, extra, tip)=>{ const hh = alt(v); return `<rect x="${x}" y="${H - b - hh}" width="${lw * .38}" height="${hh}" rx="2" fill="${fill}" ${extra || ''}><title>${tip}: ${fmtMoney(v)}</title></rect><text x="${x + lw * .19}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:8.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text>`; };
+    const H = 250, topo = 50, mx = Math.max(1, ...A1, ...A2, ...rest), alt = v=> (H - b - topo) * v / mx;
+    const barra = (x, v, fill, extra, tip)=>{ const hh = alt(v); return `<rect x="${x}" y="${H - b - hh}" width="${lw * .38}" height="${hh}" rx="2" fill="${fill}" ${extra || ''}><title>${tip}: ${fmtMoney(v)}</title></rect><text x="${x + lw * .19}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:12px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text>`; };
     const par = i=>{
       const futuro = i >= mAt, v1 = A1[i], v2 = futuro ? rest[i] : A2[i], x1 = i * lw + lw * .09 + lw * .19, x2 = i * lw + lw * .53 + lw * .19;
       const t1 = H - b - alt(v1), t2 = H - b - alt(v2), yL = Math.min(t1, t2) - 18, d = v2 - v1, pc = v1 ? d / v1 : 0, cor = futuro ? '#7a8b94' : d >= 0 ? '#2f7d1f' : '#c0392b', xm = (x1 + x2) / 2;
       return `<path d="M${x1} ${t1 - 14} V${yL} H${x2} V${t2 - 14}" fill="none" stroke="${cor}" stroke-width="1" vector-effect="non-scaling-stroke"/>`
-        + `<text x="${xm}" y="${yL - 12}" text-anchor="middle" style="font-size:9px;font-weight:700;fill:${cor}">${sinal(d)}${Math.abs(Math.round(pc * 100))}%</text>`
-        + `<text x="${xm}" y="${yL - 3}" text-anchor="middle" style="font-size:7.5px;fill:${cor}">${sinal(d)}R$ ${ab2(d)}</text>`; };
-    const pares = `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;display:block" role="img" aria-label="Vendas de cada mês contra o mesmo mês do ano passado">${A1.map((v, i)=>
+        + `<text x="${xm}" y="${yL - 12}" text-anchor="middle" style="font-size:12.5px;font-weight:700;fill:${cor}">${sinal(d)}${Math.abs(Math.round(pc * 100))}%</text>`
+        + `<text x="${xm}" y="${yL - 3}" text-anchor="middle" style="font-size:10.5px;fill:${cor}">${sinal(d)}R$ ${ab2(d)}</text>`; };
+    const pares = `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Vendas de cada mês contra o mesmo mês do ano passado">${A1.map((v, i)=>
       barra(i * lw + lw * .09, v, '#A9C7D2', '', M3[i] + '/' + (ano - 1)) +
       (i < mAt - 1 ? barra(i * lw + lw * .53, A2[i], 'var(--brand)', '', M3[i] + '/' + ano)
         : i === mAt - 1 ? barra(i * lw + lw * .53, A2[i], '#E0A458', '', M3[i] + '/' + ano + ' (até hoje)')
         : barra(i * lw + lw * .53, rest[i], 'none', 'stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="4 3"', M3[i] + '/' + ano + ' (estimado)')) + par(i) +
-      `<text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[i]}</text>`).join('')}</svg>
+      `<text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:14px;fill:var(--ink-faint)">${M3[i]}</text>`).join('')}</svg></div>
       <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span><i style="border:1.5px dashed var(--brand);background:none"></i>${ano} estimado</span><span>a linha sobre cada par mostra a variação do mês contra o mesmo mês de ${ano - 1}, em % e em R$</span><span>valores em R$ milhões</span></div>
       <div class="tb-kpis" style="margin-top:10px">
         <div class="tb-kpi"><small>${ano - 1} fechado</small><b>${fmtMoney(tot1)}</b><span>janeiro a dezembro</span></div>
@@ -12753,7 +12753,7 @@ function evoGraficos(m, ano, h, proj, ytd, ipca){
         <div class="tb-kpi ${est >= tot1 ? 'rs-kpi-ok' : 'alerta'}"><small>${ano} estimado para fechar</small><b>${fmtMoney(est)}</b><span><span class="rs-var ${est >= tot1 ? 'up' : 'down'}">${pct(est / tot1 - 1)}</span> contra ${ano - 1} · o vendido, mais a projeção do mês, mais o resto do ano no ritmo dos meses fechados</span></div>
       </div>`;
     // ---- gráfico 2: evolução acumulada no ano, em pilhas (pedido do Luiz, 26/11/2026): o que o ano passado já tinha + o que a inflação explica + o crescimento acima da inflação
-    const H2 = 260, c1 = [], c2 = []; let a1 = 0, a2 = 0;
+    const H2 = 250, c1 = [], c2 = []; let a1 = 0, a2 = 0;
     for(let i = 0; i < 12; i++){ a1 += A1[i]; c1.push(a1); a2 += i < mAt - 1 ? A2[i] : i === mAt - 1 ? estMes : rest[i]; c2.push(a2); }
     const ult = mAt - 2, p1 = v=> (v >= 0 ? '+' : '−') + Math.abs(v * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
     const infl = i=>{ if(!ipca) return null; let v = null; for(let k = 0; k <= i; k++){ const x = ipca[ano + '-' + String(k + 1).padStart(2, '0')]; if(x != null) v = x; } return v == null ? null : v / 100; };   // IPCA 12 meses no mês (o último divulgado vale para os meses seguintes)
@@ -12765,14 +12765,14 @@ function evoGraficos(m, ano, h, proj, ytd, ipca){
       const topoY = y0 - alt2(Math.max(C2, g == null ? 0 : meta)), nom = C1 ? C2 / C1 - 1 : 0, rl = g == null || !C1 ? null : (C2 / C1) / (1 + g) - 1, cor = rl == null ? 'var(--ink, #1a2b34)' : rl >= 0 ? '#2f7d1f' : '#c0392b';
       return seg(0, base, '#A9C7D2', 'igual ao acumulado de ' + (ano - 1) + ': ' + fmtMoney(base)) + seg(base, base + infP, '#F2C94C', 'reposição da inflação: ' + fmtMoney(infP)) + seg(base + infP, base + infP + real, '#2f7d1f', 'crescimento acima da inflação: ' + fmtMoney(real))
         + (g == null ? '' : `<line x1="${xb(i) - 3}" x2="${xb(i) + bw + 3}" y1="${y0 - alt2(meta)}" y2="${y0 - alt2(meta)}" stroke="#1a2b34" stroke-width="1.8" vector-effect="non-scaling-stroke"><title>${M3[i]}: ${ano - 1} mais a inflação = ${fmtMoney(meta)}</title></line>`)
-        + `<text x="${i * lw + lw / 2}" y="${topoY - 13}" text-anchor="middle" style="font-size:9px;font-weight:700;fill:${cor}">${p1(nom)}</text>`
-        + (rl == null ? '' : `<text x="${i * lw + lw / 2}" y="${topoY - 4}" text-anchor="middle" style="font-size:7.5px;fill:${cor}">real ${p1(rl)}</text>`)
-        + `<text x="${i * lw + lw / 2}" y="${H2 - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${M3[i]}</text>`; };
+        + `<text x="${i * lw + lw / 2}" y="${topoY - 13}" text-anchor="middle" style="font-size:12.5px;font-weight:700;fill:${cor}">${p1(nom)}</text>`
+        + (rl == null ? '' : `<text x="${i * lw + lw / 2}" y="${topoY - 4}" text-anchor="middle" style="font-size:10.5px;fill:${cor}">real ${p1(rl)}</text>`)
+        + `<text x="${i * lw + lw / 2}" y="${H2 - 6}" text-anchor="middle" style="font-size:14px;fill:var(--ink-faint)">${M3[i]}</text>`; };
     const gU = ult >= 0 ? infl(ult) : null, nomU = ult >= 0 && c1[ult] ? c2[ult] / c1[ult] - 1 : null, realU = gU != null && nomU != null ? (1 + nomU) / (1 + gU) - 1 : null;
     const gF = infl(11), nomF = tot1 ? est / tot1 - 1 : 0, realF = gF != null ? (1 + nomF) / (1 + gF) - 1 : null;
     const ultI = ipca ? Object.keys(ipca).filter(k=> k.startsWith(ano + '-')).sort().pop() : null;
     const cc = v=> v == null ? '' : v >= 0 ? 'rs-kpi-ok' : 'alerta';
-    const acum = `<svg class="rs-graf" viewBox="0 0 ${W} ${H2}" preserveAspectRatio="none" style="width:100%;height:${H2}px;display:block" role="img" aria-label="Vendas acumuladas no ano em pilhas: o que o ano passado já tinha, a inflação e o crescimento real">${c1.map((_, i)=> pilha(i)).join('')}</svg>
+    const acum = `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H2}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Vendas acumuladas no ano em pilhas: o que o ano passado já tinha, a inflação e o crescimento real">${c1.map((_, i)=> pilha(i)).join('')}</svg></div>
       <div class="fi-leg"><span><i style="background:#A9C7D2"></i>igual ao acumulado de ${ano - 1}</span><span><i style="background:#F2C94C"></i>reposição da inflação (IPCA 12 meses)</span><span><i style="background:#2f7d1f"></i>crescimento acima da inflação</span><span><i style="background:#1a2b34;height:3px;align-self:center"></i>${ano - 1} mais a inflação (o mínimo para empatar)</span><span>colunas claras e tracejadas: estimado</span></div>
       ${ipca ? `<div class="tb-kpis" style="margin-top:10px">
         ${nomU != null ? `<div class="tb-kpi"><small>Crescimento até ${M3[ult]}</small><b>${p1(nomU)}</b><span>${ano} contra ${ano - 1}, acumulado nos meses fechados</span></div>
@@ -12781,7 +12781,9 @@ function evoGraficos(m, ano, h, proj, ytd, ipca){
         <div class="tb-kpi ${cc(realF)}"><small>${ano} estimado para fechar</small><b>${p1(nomF)}</b><span><b>${p1(realF)}</b> ${realF >= 0 ? 'acima da inflação' : 'abaixo da inflação'} (IPCA ${p1(gF).replace('+', '')})</span></div>
       </div>
       <div class="tb-rodape">Inflação = IPCA acumulado em 12 meses, do IBGE, buscado do Banco Central. Nos meses sem divulgação vale o último. "Real" = crescimento descontada a inflação. É uma conta de comparação, não uma meta oficial.</div>` : '<div class="tb-rodape">Não consegui buscar o IPCA agora; o gráfico mostra só o que o ano passado já tinha e o crescimento. Atualize a página para tentar de novo.</div>'}`;
-    return { pares, acum }; }
+    const cut = (t, k)=> { const i = t.indexOf(k); return i < 0 ? [t, ''] : [t.slice(0, i), t.slice(i)]; };
+    const [paresG, paresK] = cut(pares, '<div class="tb-kpis"'), [acumG, acumK] = cut(acum, '<div class="tb-kpis"');
+    return { pares, acum, paresG, paresK, acumG, acumK }; }
 // projeção do mês pelo ritmo dos dias úteis (hoje conta como meio dia útil), a mesma conta da tela Vendas
 function projMes(vAtual, h){
   const uteis = (a, b)=>{ let n = 0; for(let x = new Date(a); x <= b; x.setDate(x.getDate() + 1)) if(!opIsNonBusinessDay(x)) n++; return n; };
@@ -12791,12 +12793,12 @@ function projMes(vAtual, h){
 }
 // tabela média do vendedor nos últimos 12 meses (meta 2,3: abaixo dela a barra fica vermelha)
 function evoTabMedia(mp, h){
-  const M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'], W = 1000, H = 190, b = 22, topo = 24, META = 2.3;
+  const M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'], W = 1000, H = 250, b = 22, topo = 24, META = 2.3;
   const L = Array.from({ length:12 }, (_, k)=>{ const d = new Date(h.getFullYear(), h.getMonth() - 11 + k, 1), r = mp[d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')]; return { rot:M3[d.getMonth()] + (d.getMonth() === 0 || k === 0 ? '/' + String(d.getFullYear()).slice(2) : ''), v:r && r.tabela_media != null ? Number(r.tabela_media) : null, tot:r ? Number(r.valor) : 0 }; });
   const mx = Math.max(3, ...L.map(x=> x.v || 0)), lw = W / 12, alt = v=> (H - b - topo) * v / mx, y0 = H - b;
-  return `<svg class="rs-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;display:block" role="img" aria-label="Tabela média do vendedor mês a mês">
-    ${L.map((x, i)=> (x.v == null ? '' : `<rect x="${i * lw + lw * .18}" y="${y0 - alt(x.v)}" width="${lw * .64}" height="${alt(x.v)}" rx="2" fill="${x.v < META ? '#c0392b' : 'var(--brand)'}"><title>${x.rot}: tabela média ${x.v.toLocaleString('pt-BR')} em ${fmtMoney(x.tot)}</title></rect><text x="${i * lw + lw / 2}" y="${y0 - alt(x.v) - 4}" text-anchor="middle" style="font-size:9px;font-weight:600;fill:var(--ink, #1a2b34)">${x.v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}</text>`) + `<text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:10px;fill:var(--ink-faint)">${x.rot}</text>`).join('')}
-    <line x1="0" x2="${W}" y1="${y0 - alt(META)}" y2="${y0 - alt(META)}" stroke="#1a2b34" stroke-width="1.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/><text x="${W - 2}" y="${y0 - alt(META) - 4}" text-anchor="end" style="font-size:9px;font-weight:700;fill:#1a2b34">meta ${META.toLocaleString('pt-BR')}</text></svg>
+  return `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Tabela média do vendedor mês a mês">
+    ${L.map((x, i)=> (x.v == null ? '' : `<rect x="${i * lw + lw * .18}" y="${y0 - alt(x.v)}" width="${lw * .64}" height="${alt(x.v)}" rx="2" fill="${x.v < META ? '#c0392b' : 'var(--brand)'}"><title>${x.rot}: tabela média ${x.v.toLocaleString('pt-BR')} em ${fmtMoney(x.tot)}</title></rect><text x="${i * lw + lw / 2}" y="${y0 - alt(x.v) - 4}" text-anchor="middle" style="font-size:12.5px;font-weight:600;fill:var(--ink, #1a2b34)">${x.v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}</text>`) + `<text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:14px;fill:var(--ink-faint)">${x.rot}</text>`).join('')}
+    <line x1="0" x2="${W}" y1="${y0 - alt(META)}" y2="${y0 - alt(META)}" stroke="#1a2b34" stroke-width="1.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/><text x="${W - 2}" y="${y0 - alt(META) - 4}" text-anchor="end" style="font-size:12.5px;font-weight:700;fill:#1a2b34">meta ${META.toLocaleString('pt-BR')}</text></svg></div>
     <div class="fi-leg"><span><i style="background:var(--brand)"></i>na meta ou acima</span><span><i style="background:#c0392b"></i>abaixo da meta de 2,3</span><span>média ponderada pelo valor de cada mês</span></div>`;
 }
 async function renderResumo(){
@@ -12979,13 +12981,17 @@ async function anDesenha(){
   rows.forEach(r=> { mp[String(r.mes).slice(0, 7)] = r; });
   const ipca = await ipcaP, m = (a, n)=> Number((mp[a + '-' + String(n).padStart(2, '0')] || {}).valor || 0);
   const ytd = Array.from({ length:12 }, (_, i)=> m(ano, i + 1)).reduce((t, v)=> t + v, 0), g = evoGraficos(m, ano, h, projMes(m(ano, h.getMonth() + 1), h), ytd, ipca);
-  const sec = (t, c)=> `<section style="min-width:0"><h3 style="font-size:15px;margin:0 0 6px">${t}</h3>${c}</section>`;
+  const sec = (t, c)=> `<section style="min-width:0"><h3 style="font-size:15px;margin:0 0 8px">${t}</h3>${c}</section>`;
   const nome = sid ? ((ANL.vend.find(v=> String(v.id) === String(sid)) || {}).nome || 'vendedor') : 'Empresa toda';
-  box.innerHTML = `<style>.an-grade{ display:grid; gap:22px 28px; grid-template-columns:repeat(auto-fit, minmax(min(560px, 100%), 1fr)); align-items:start; }</style>
+  const mm = evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>';
+  box.innerHTML = `<style>.an-grade{ display:grid; gap:24px 32px; grid-template-columns:repeat(2, minmax(0, 1fr)); align-items:start; } @media (max-width:1100px){ .an-grade{ grid-template-columns:minmax(0, 1fr); } } @media (min-width:2400px){ .an-grade{ grid-template-columns:repeat(var(--cols, 3), minmax(0, 1fr)); } } 
+      .an-grade .fi-leg{ margin-top:8px; } .an-faixa{ display:grid; gap:16px 32px; grid-template-columns:repeat(auto-fit, minmax(min(520px, 100%), 1fr)); align-items:start; margin-top:20px; padding-top:16px; border-top:1px solid var(--line, #d9dde3); }
+      .an-faixa .tb-kpis, .an-grade .tb-kpis{ margin:6px 0 12px !important; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); } .an-faixa .tb-kpi, .an-grade .tb-kpi{ padding:10px 12px; } .an-faixa .tb-kpi b, .an-grade .tb-kpi b{ font-size:20px; } .an-faixa .tb-kpi span, .an-grade .tb-kpi span{ font-size:12px; }</style>
     <div class="cm-resumo">Evolução de <b>${escapeHtml(nome)}</b>: cada mês contra o mesmo mês do ano passado, o acumulado do ano contra a inflação e os últimos 24 meses.</div>
-    <div class="an-grade">${g ? sec(`Ano contra ano, mês contra mês`, g.pares) + sec('Acumulado no ano, contra a inflação', g.acum) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
-    ${sec('Mês a mês, últimos 24 meses', evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>')}
-    ${sid ? sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h) + '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>') : ''}</div>`;
+    <div class="an-grade" style="--cols:4">${g ? sec('Ano contra ano, mês contra mês', g.paresG) + sec('Acumulado no ano, contra a inflação', g.acumG) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
+      ${sec('Mês a mês, últimos 24 meses', mm)}${sid ? sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)) : (g ? sec('O ano em números', g.paresK + '<h3 style="font-size:15px;margin:4px 0 0">Contra a inflação</h3>' + g.acumK) : '')}</div>
+    ${sid && g ? `<div class="an-faixa"><div><h3 style="font-size:14px;margin:0">O ano em números</h3>${g.paresK}</div><div><h3 style="font-size:14px;margin:0">Contra a inflação</h3>${g.acumK}</div></div>` : ''}
+    ${sid ? '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>' : ''}`;
 }
 
 // ---------- APP DO VENDEDOR (26/11/2026, pedido do CEO): link, QR code e acompanhamento das visitas do dia ----------
