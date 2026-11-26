@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-140917">
+<meta name="crm-versao" content="20261126-150657">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11481,6 +11481,8 @@ async function esPlano(box, host, nome){
     ESP.plano.enviado_em = new Date().toISOString(); uso('clique', 'especialista: plano enviado', { seller_id:ESP.vend.id, clientes:escolhidos.length }); esVendedor(host); });
   box.querySelector('#es-app').addEventListener('click', async ()=>{
     if(!escolhidos.length){ showToast('Marque ao menos um cliente.'); return; }
+    const curtos = diasR.map((d, i)=> ({ n:RO_DIAS[i], q:d.ord.length })).filter(d=> d.q < 3);
+    if(curtos.length && !confirm(`Atenção: o mínimo esperado é 3 visitas por dia. Dias abaixo disso: ${curtos.map(d=> d.n + ' (' + d.q + ')').join(', ')}. Publicar mesmo assim?`)) return;
     if(!confirm(`Publicar a semana de ${nome} no app? Ele passa a ver os ${escolhidos.length} clientes, a mensagem e as visitas dos dias, e não consegue apagá-las.`)) return;
     const id = await salvar(); if(!id) return;
     const { data, error } = await sb.rpc('app_esp_publicar', { p_seller:ESP.vend.id, p_semana:ESP.semana }); if(error){ showToast(errAmigavel(error)); return; }
