@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-100528">
+<meta name="crm-versao" content="20261126-100808">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12715,13 +12715,13 @@ async function ipcaCarrega(ano){
   }catch(_){ return IPCA.dados || null; }
 }
 // Vendas mês a mês, últimos 24 meses, o ano corrente em destaque (VM = linhas com mes e valor)
-function evoMesAMes(VM, ano, mesAtual){
+function evoMesAMes(VM, ano, mesAtual, larga){
   const ym = x=> String(x.mes).slice(0, 7), L = VM.slice(-24); if(L.length < 2) return '';
-    const W = 1000, H = 250, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const W = 1000, H = larga ? 170 : 250, b = 22, mx = Math.max(1, ...L.map(x=> Number(x.valor))), lw = W / L.length, M3 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const ab = v=> v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' mi' : Math.round(v / 1e3) + ' mil';   // valor em cima da barra (26/11/2026, pedido do Luiz)
-    return `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
+    const html = `<div style="overflow-x:auto"><svg class="rs-graf" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px;display:block" role="img" aria-label="Vendas mês a mês">${L.map((x, i)=>{ const v = Number(x.valor), hh = (H - b - 16) * v / mx, cur = ym(x).startsWith(ano + '-');
       return `<rect x="${i * lw + lw * .15}" y="${H - b - hh}" width="${lw * .7}" height="${hh}" rx="2" fill="${ym(x) === mesAtual ? '#E0A458' : cur ? 'var(--brand)' : '#A9C7D2'}"><title>${M3[Number(ym(x).slice(5)) - 1]}/${ym(x).slice(2, 4)}: ${fmtMoney(v)}</title></rect><text x="${i * lw + lw / 2}" y="${H - b - hh - 4}" text-anchor="middle" style="font-size:13.5px;font-weight:600;fill:var(--ink, #1a2b34)">${ab(v)}</text><text x="${i * lw + lw / 2}" y="${H - 6}" text-anchor="middle" style="font-size:14px;fill:var(--ink-faint)">${M3[Number(ym(x).slice(5)) - 1]}</text>`; }).join('')}</svg></div>
-      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span>valores em R$ (mi = milhões)</span></div>`; }
+      <div class="fi-leg"><span><i style="background:#A9C7D2"></i>${ano - 1}</span><span><i style="background:var(--brand)"></i>${ano}</span><span><i style="background:#E0A458"></i>mês atual (até hoje)</span><span>valores em R$ (mi = milhões)</span></div>`;   return larga ? html.replace(/font-size:([\d.]+)px/g, (m, n)=> 'font-size:' + (Math.round(Number(n) * .72 * 2) / 2) + 'px') : html; }
 // Gráficos ano contra ano (mês contra mês) e acumulado em pilhas contra a inflação. m(ano, mês) = vendido; serve para a empresa toda (Vendas) e para cada vendedor (detalhe)
 function evoGraficos(m, ano, h, proj, ytd, ipca){
     const sm = (a, i, j)=> a.slice(i, j).reduce((t, v)=> t + v, 0), pct = v=> (v >= 0 ? '+' : '') + Math.round(v * 100) + '%';
@@ -12983,13 +12983,13 @@ async function anDesenha(){
   const ytd = Array.from({ length:12 }, (_, i)=> m(ano, i + 1)).reduce((t, v)=> t + v, 0), g = evoGraficos(m, ano, h, projMes(m(ano, h.getMonth() + 1), h), ytd, ipca);
   const sec = (t, c)=> `<section style="min-width:0"><h3 style="font-size:15px;margin:0 0 8px">${t}</h3>${c}</section>`;
   const nome = sid ? ((ANL.vend.find(v=> String(v.id) === String(sid)) || {}).nome || 'vendedor') : 'Empresa toda';
-  const mm = evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>';
+  const mm = evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual, true) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>';
   const lin = (a, b)=> `<div class="an-lin"><div style="min-width:0">${a}</div><div style="min-width:0">${b || ''}</div></div>`;
   box.innerHTML = `<style>.an-lin{ display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); gap:20px 36px; align-items:start; margin-bottom:30px; } @media (max-width:1100px){ .an-lin{ grid-template-columns:minmax(0, 1fr); } }
       .an-lin .fi-leg{ margin-top:8px; } .an-lin .tb-kpis{ margin:6px 0 0 !important; grid-template-columns:minmax(0, 1fr); gap:10px; } .an-lin .tb-kpi{ padding:12px 14px; } .an-lin .tb-kpi b{ font-size:22px; } .an-lin .tb-kpi span{ font-size:13px; }</style>
     <div class="cm-resumo">Evolução de <b>${escapeHtml(nome)}</b>: cada mês contra o mesmo mês do ano passado, o acumulado do ano contra a inflação e os últimos 24 meses.</div>
     ${g ? lin(sec('Ano contra ano, mês contra mês', g.paresG), sec('O ano em números', g.paresK)) + lin(sec('Acumulado no ano, contra a inflação', g.acumG), sec('Contra a inflação', g.acumK)) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
-    ${lin(sec('Mês a mês, últimos 24 meses', mm), '')}
+    <div style="margin-bottom:30px">${sec('Mês a mês, últimos 24 meses', mm)}</div>
     ${sid ? lin(sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)), '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>') : ''}`;
 }
 
