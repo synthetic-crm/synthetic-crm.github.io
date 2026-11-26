@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-084944">
+<meta name="crm-versao" content="20261126-093230">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -521,6 +521,7 @@
     <button class="nav-grp" data-grp="produtos" title="Produtos: tabelas de preço 1 a 5, catálogo e promoções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Produtos</span></button>
     <button data-perfis="vendedor,supervisor,gerente,master" class="nav-btn nav-membro" data-view="rota" data-grupo="clientes" title="Roteirização: o roteiro da semana de cada vendedor, por cidade e bairro, e a área que cada um atende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg><span>Rotas</span></button>
     <button data-perfis="gerente,master" class="nav-btn nav-membro" data-view="leadscada" data-grupo="clientes" title="Leads quentes do evento CADA: quem atender esta semana, o que oferecer e a abertura pronta para o WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg><span>Leads</span></button>
+    <button data-perfis="gerente,master,vendedor,supervisor" class="nav-btn nav-membro" data-view="appvendedor" data-grupo="clientes" title="App do vendedor para o celular: rota do dia, check-in e check-out com foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg><span>App do vendedor</span></button>
     <button data-perfis="gerente,master" class="nav-btn" data-view="financeiro" title="Financeiro: quanto os clientes devem em atraso, quanto foi dando baixa mês a mês e o rating de pagamento de cada cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg><span>Financeiro</span></button>
     <button data-perfis="master" class="nav-btn nav-membro" data-view="especialista" data-grupo="especialista" title="Especialista comercial: a estratégia da semana de cada vendedor (segunda), a revisão (quarta) e o fechamento (sexta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path><path d="M18 3l1.5 1.5L22 2"></path></svg><span>Especialista</span></button>
     <button data-perfis="master" class="nav-btn" data-view="entregas" title="Entregas: o calendário das melhorias (o que já saiu para o time e o que sai em cada segunda)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="9 16 11 18 15 14"></polyline></svg><span>Entregas</span></button>
@@ -553,6 +554,7 @@
     <div id="view-caixalucro" class="view"><div class="tb" id="cl"></div></div>
     <div id="view-rota" class="view"><div class="tb" id="ro"></div></div>
     <div id="view-leadscada" class="view"><div class="tb" id="lc"></div></div>
+    <div id="view-appvendedor" class="view"><div class="tb" id="av"></div></div>
     <div id="view-plano27" class="view"><div class="tb" id="p27"></div></div>
     <div id="view-entregas" class="view"><div class="tb" id="en"></div></div>
     <div id="view-anprod" class="view"><div class="tb" id="ap"></div></div>
@@ -4006,6 +4008,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(v === 'caixalucro') renderCaixaLucro();
     if(v === 'rota') renderRota();
     if(v === 'leadscada') renderLeadsCada();
+    if(v === 'appvendedor') renderAppVendedor();
     if(v === 'entregas') renderEntregas();
     if(v === 'anprod') renderAnaliseProdutos();
     if(v === 'plano27'){ const h = document.getElementById('p27'); if(h) fiPlanejamento(h); }
@@ -4082,11 +4085,11 @@ const ehGestao = ()=> ['admin','master','gerente','analista'].includes(perfilEfe
 // Sistema zerado (27/10/2026): o menu mostra só o que já foi reconstruído. As telas antigas continuam no código;
 // para trazer uma de volta, inclua a view aqui. MENU_ZERADO = false devolve o menu inteiro.
 const MENU_ZERADO = true;
-const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', leadscada:'admin,master,gerente,analista', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
+const MENU_ATIVO = { sobre:'*', resumo:'admin,master,gerente,analista', tabelas:'*', catalogo:'*', tabmedia:'*', prazo:'*', parados:'*', comissoes:'admin,master', financeiro:'admin,master,gerente,analista', plano27:'admin', especialista:'admin', caixalucro:'admin', entregas:'admin', anprod:'admin', rota:'admin,master,gerente,vendedor,supervisor', leadscada:'admin,master,gerente,analista', appvendedor:'*', operacao:'*', sugestoes:'*', equipe:'admin' };   // Carteira (o CRM) volta em 05/11/2026   // Sugestões nunca sai do menu (skill balao-e-sugestoes)
 // ---- Calendário de entregas (05/11/2026, regra do negócio: uma entrega por semana, na sexta) ----
 // Cada melhoria pronta tem uma chave em crm_liberacoes com a data de liberação. Até a data, só o Administrador vê (com borda roxa e 🔒);
 // no dia, aparece sozinha para o time e a faixa de versão nova avisa quem estiver com a aba aberta. Correção de erro nunca espera.
-const LIB_CHAVES = ['evolucao-vendedor', 'graf-ano', 'ranking-anterior','periodo-junto','leadscada','periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
+const LIB_CHAVES = ['app-vendedor', 'evolucao-vendedor', 'graf-ano', 'ranking-anterior','periodo-junto','leadscada','periodo', 'pontos', 'ciclo', 'pacote', 'ajuda', 'fin-inad', 'export-cliente', 'fin-desc', 'fin-rel', 'nota', 'plano27', 'promo-bonif', 'carteira', 'rota', 'internos'];
 const LIB = { pend:new Set(LIB_CHAVES), datas:{}, lista:null };   // até carregar (ou se falhar), tudo o que está no calendário fica guardado
 const libAdmin = ()=> !!(window._perfil && window._perfil.role === 'admin') && perfilEfetivo() === 'admin';
 const libLivre = k=> libAdmin() || !LIB.pend.has(k);
@@ -4094,7 +4097,7 @@ const libSoVoce = k=> libAdmin() && LIB.pend.has(k);
 const libRot = k=> { const d = LIB.datas[k]; return d ? 'sai ' + d.slice(8, 10) + '/' + d.slice(5, 7) : 'sem data'; };
 const svC = k=> libSoVoce(k) ? ' so-voce' : '';
 const svD = k=> libSoVoce(k) ? ` data-sv="${libRot(k)}" title="Só você vê: ${libRot(k)} para o time (tela Entregas)"` : '';
-const LIB_VIEW = { leadscada:['leadscada'], operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
+const LIB_VIEW = { appvendedor:['app-vendedor'], leadscada:['leadscada'], operacao:['carteira'], plano27:['plano27'], rota:['rota'], financeiro:['fin-inad', 'nota', 'fin-desc', 'fin-rel'] };
 const SO_ADMIN_VIEW = { caixalucro:1, especialista:1, entregas:1, anprod:1, plano27:1 };
 const libPend = data=> new Set((data || []).map(x=> typeof x === 'string' ? x : Object.values(x)[0]));
 async function libCarrega(){
@@ -4140,7 +4143,7 @@ function menuLiberado(view, p){
 const NAV_GRUPOS = {
   vendas:{ t:'Vendas', m:[['resumo', 'Vendas do mês']] },
   especialista:{ t:'Especialista comercial', m:[['especialista', 'Plano da semana'], ['caixalucro', 'Caixa e lucro'], ['plano27', 'Planejamento 2027'], ['anprod', 'Análise de produtos']] },
-  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA']] },
+  clientes:{ t:'Clientes', m:[['operacao', 'Carteira (linha do tempo)'], ['parados', 'Parados há mais de 90 dias'], ['rota', 'Rotas da semana'], ['leadscada', 'Leads do evento CADA'], ['appvendedor', 'App do vendedor']] },
   vendedores:{ t:'Vendedores', m:[['tabmedia', 'Tabela média'], ['prazo', 'Prazo médio'], ['comissoes', 'Comissões']] },
   produtos:{ t:'Produtos', m:[['tabelas', 'Tabelas de preço'], ['catalogo', 'Catálogo e promoções']] } };
 const RAIL_ORDEM = {
@@ -9452,6 +9455,7 @@ setInterval(libConfere, 10*60000);
 // Novidades (03/11/2026): depois de atualizar, a pessoa vê o que mudou. Cada item aponta a tela; só aparece o que a pessoa enxerga no menu.
 // Quem entra pela primeira vez não vê o histórico (a Apresentação já explica tudo). Mais novo primeiro; acrescente no topo a cada publicação.
 const NOVIDADES = [
+  { id:'app-vendedor-3011', lib:'app-vendedor', dia:'2026-11-30', tela:'appvendedor', titulo:'App do vendedor para o celular', txt:'Em Clientes › App do vendedor: o link e o QR code do aplicativo para o celular. O vendedor vê a rota do dia (leads quentes e clientes parados), abre o endereço no Waze, faz check-in e check-out com localização e foto da fachada e escreve como foi a visita. A gestão acompanha as visitas do dia na mesma tela.' },
   { id:'evolucao-vendedor-2611', lib:'evolucao-vendedor', dia:'2026-11-26', tela:'resumo', titulo:'Evolução de cada vendedor', txt:'Pedido do CEO: ao abrir um vendedor (clicando na linha dele no ranking de Vendas ou na Tab. média), a primeira aba mostra a evolução dele: vendido mês contra o mesmo mês do ano passado, acumulado do ano contra a inflação e tabela média mês a mês.' },
   { id:'graf-ano-2611', lib:'graf-ano', dia:'2026-11-26', tela:'resumo', titulo:'Vendas ano contra ano e estimativa para fechar o ano', txt:'Em Vendas, o gráfico ganhou a opção "Ano contra ano": os 12 meses de cada ano lado a lado, com o total do ano passado, o vendido até hoje e uma estimativa para fechar o ano. A estimativa é uma conta simples (o vendido, mais a projeção do mês, mais o resto do ano no ritmo dos meses fechados), não uma previsão.' },
   { id:'ranking-anterior-2611', lib:'ranking-anterior', dia:'2026-11-26', tela:'resumo', titulo:'Ranking de ciclos e meses anteriores', txt:'Em Vendas, ao lado de "Ciclo 26 a 25" e "Mês corrido", uma lista escolhe o período do ranking: o atual ou qualquer um dos 12 anteriores. Os pontos, a tabela média e o botão de copiar para o grupo acompanham o período escolhido.' },
@@ -9603,7 +9607,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState 
 // ---------- PEÇA 2 · REGISTRO DE USO (onde o usuário tem dúvida) ----------
 // Grava só: tela aberta, rótulo do que foi clicado, 1ª célula da linha clicada, filtro escolhido, mensagens do sistema e erros.
 // NUNCA o que é digitado nos campos. O app só insere em uso_eventos; ninguém lê pelo app.
-const TELAS_NOME = { entregas:'Entregas', anprod:'Análise de produtos', caixalucro:'Caixa e lucro', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
+const TELAS_NOME = { appvendedor:'App do vendedor', entregas:'Entregas', anprod:'Análise de produtos', caixalucro:'Caixa e lucro', hoje:'Hoje', atender:'Atender', operacao:'Carteira', pessoas:'Ficha do cliente', produtos:'Produtos', agenda:'Agenda',
   indicadores:'Painel', comercial:'Painel · metas', vendedores:'Painel · vendedores', regioes:'Painel · regiões', margens:'Painel · margens',
   concorrentes:'Painel · concorrentes', estoque:'Painel · estoque', mapa:'Estratégia', equipe:'Acessos', ajustes:'Ajustes',
   conhecimento:'Base de conhecimento', sugestoes:'Sugestões', parados:'Clientes parados', ata:'Ata do projeto', reunioes:'Conversas registradas' };
@@ -12938,6 +12942,56 @@ async function cmDetalhe(ini, fim){
       <td class="n">${cmR(r.valor_cadastro)}</td><td class="n">${cmR(r.valor_venda)}</td><td class="n">${cmPctFmt(r.desconto)}</td>
       <td class="${r.faixa ? '' : 'vazio'}" title="${r.promocao ? escapeHtml('Venda dentro da promoção ' + r.promocao) : ''}">${r.faixa ? fx[r.faixa] : 'sem regra'}${r.promocao && r.faixa !== 6 ? ' <span class="ct-promo">promo</span>' : ''}</td><td class="n">${cmPctFmt(r.pct)}</td><td class="n">${cmR(r.comissao)}</td></tr>`).join('') || '<tr><td colspan="10" class="vazio">Nenhum item.</td></tr>'}
   </tbody></table></div>`;
+}
+
+
+// ---------- APP DO VENDEDOR (26/11/2026, pedido do CEO): link, QR code e acompanhamento das visitas do dia ----------
+// O app em si é a página /vendedor/ (mesmo site, mesma sessão). Aqui: como instalar e, para a gestão, o que cada vendedor fez no dia.
+const AV = { dia:'', rows:null };
+function avLink(){ return (/^http:\/\/(localhost|127\.)/.test(location.origin) ? 'https://synthetic-crm.github.io' : location.origin) + '/vendedor/'; }
+async function renderAppVendedor(){
+  const host = document.getElementById('av'); if(!host) return;
+  const link = avLink(), gestao = ehGestao();
+  host.innerHTML = `<div class="cm-resumo">O aplicativo do vendedor externo, para o celular: a rota do dia, o Waze, o check-in e o check-out com a localização e a foto da fachada, e a observação de como foi a visita. O vendedor entra com o mesmo e-mail e a mesma senha do CRM.</div>
+    <div class="card" style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:16px">
+      <div id="av-qr" style="min-width:180px;min-height:180px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:10px;padding:8px"></div>
+      <div style="flex:1;min-width:240px">
+        <h3 style="margin:0 0 6px;font-size:16px">Abrir o app no celular</h3>
+        <div style="word-break:break-all;margin-bottom:10px"><a href="${escapeHtml(link)}" target="_blank" rel="noopener">${escapeHtml(link)}</a></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="om-save" href="${escapeHtml(link)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir o app</a><button class="om-cancel" id="av-copia">Copiar o link</button>
+          <a class="om-cancel" id="av-wa" target="_blank" rel="noopener" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent('App do vendedor da Synthetic: ' + link + '\nEntre com o mesmo e-mail e senha do CRM.')}">Mandar pelo WhatsApp</a></div>
+        <p class="tb-rodape" style="margin:12px 0 0"><b>Android:</b> abra o link no Chrome, toque nos três pontinhos e em “Instalar app”. <b>iPhone:</b> abra no Safari, toque em Compartilhar e em “Adicionar à Tela de Início”. O app pede a localização e a câmera só na hora do check-in.</p>
+      </div></div>
+    ${gestao ? `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px"><h3 style="font-size:15px;margin:0">Visitas do dia</h3><input type="date" id="av-dia" class="ca-inp" style="width:auto;padding:6px 10px"><button class="om-cancel" id="av-ref">Atualizar</button></div><div id="av-vis"><div class="tb-rodape">Carregando as visitas…</div></div>
+      <div class="tb-rodape">Cada vendedor recebe a rota do dia na primeira vez que abre o app: até 3 leads quentes ainda não contatados e até 5 clientes parados que valem recuperar. A localização é gravada só no check-in e no check-out. Para o piloto, o vendedor precisa ter usuário ativo em Acessos › Usuários, com a carteira ligada.</div>` : ''}`;
+  host.querySelector('#av-copia').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(link); showToast('Link copiado.'); }catch(_){ prompt('Copie o link:', link); } uso('clique', 'app vendedor: copiar link'); });
+  docsLoadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{ const q = host.querySelector('#av-qr'); if(q && window.QRCode){ q.innerHTML = ''; new QRCode(q, { text:link, width:180, height:180 }); } }).catch(()=>{ const q = host.querySelector('#av-qr'); if(q) q.textContent = 'QR indisponível'; });
+  if(gestao){
+    const di = host.querySelector('#av-dia'); AV.dia = AV.dia || diaLocal(new Date()); di.value = AV.dia;
+    const carrega = ()=> avVisitas(host.querySelector('#av-vis'));
+    di.addEventListener('change', ()=>{ AV.dia = di.value || diaLocal(new Date()); carrega(); }); host.querySelector('#av-ref').addEventListener('click', carrega); carrega();
+  }
+}
+async function avVisitas(box){
+  if(!box) return; box.innerHTML = '<div class="tb-rodape">Carregando as visitas…</div>';
+  const { data, error } = await sb.rpc('app_visitas_gestao', { p_dia:AV.dia });
+  if(error){ box.innerHTML = `<div class="tb-aviso">${escapeHtml(errAmigavel(error))}</div>`; return; }
+  const L = data || [], n = s=> L.filter(r=> r.status === s).length, feitas = L.filter(r=> r.minutos != null), med = feitas.length ? Math.round(feitas.reduce((t, r)=> t + Number(r.minutos), 0) / feitas.length) : null;
+  const hh = d=> d ? new Date(d).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }) : '—';
+  const RES = { pedido:'Fez pedido', cotacao:'Pediu cotação', retorno:'Voltar depois', sem_interesse:'Sem interesse', nao_atendeu:'Não atendeu' }, ST = { planejada:'a visitar', em_visita:'em visita', concluida:'feita', nao_visitada:'não visitada' };
+  box.innerHTML = `<div class="tb-kpis"><div class="tb-kpi"><small>Visitas sugeridas</small><b>${L.length}</b><span>${new Set(L.map(r=> r.vendedor)).size} vendedores</span></div>
+    <div class="tb-kpi rs-kpi-ok"><small>Feitas</small><b>${n('concluida')}</b><span>${med != null ? 'tempo médio de ' + med + ' min' : 'ainda sem check-out'}</span></div>
+    <div class="tb-kpi"><small>Em visita agora</small><b>${n('em_visita')}</b><span>com check-in e sem check-out</span></div>
+    <div class="tb-kpi ${n('nao_visitada') ? 'alerta' : ''}"><small>Não visitadas</small><b>${n('nao_visitada')}</b><span>com o motivo dito pelo vendedor</span></div></div>
+    <div class="tb-wrap" style="min-height:0"><table class="tb-tab"><thead><tr><th>Vendedor</th><th>Cliente</th><th>Situação</th><th>Check-in</th><th>Check-out</th><th class="n">Min.</th><th>Como foi</th><th>Foto</th><th>Distância do endereço</th></tr></thead><tbody>
+    ${L.map(r=> `<tr><td class="prod">${escapeHtml(nomeBonito(r.vendedor))}</td><td class="prod">${escapeHtml(r.cliente)}<div class="tb-rodape" style="margin:0">${escapeHtml(r.cidade || '')}${r.origem === 'lead' ? ' · lead do evento' : ''}</div></td>
+      <td>${ST[r.status] || r.status}${r.motivo_nao_visita ? `<div class="tb-rodape" style="margin:0">${escapeHtml(r.motivo_nao_visita)}</div>` : ''}</td><td>${hh(r.checkin_em)}</td><td>${hh(r.checkout_em)}</td><td class="n">${r.minutos != null ? r.minutos : '—'}</td>
+      <td>${escapeHtml(RES[r.resultado] || '')}${r.observacao ? `<div class="tb-rodape" style="margin:0;white-space:normal;max-width:360px">${escapeHtml(r.observacao)}</div>` : ''}</td>
+      <td>${r.foto ? `<button class="om-cancel av-foto" data-f="${escapeHtml(r.foto)}">Ver foto</button>` : (r.sem_foto ? `<span class="tb-rodape" style="margin:0">sem foto: ${escapeHtml(r.sem_foto)}</span>` : '—')}</td>
+      <td>${r.dist_m == null ? '<span class="tb-rodape" style="margin:0">sem coordenada do cliente</span>' : r.dist_m < 1000 ? r.dist_m + ' m' : (r.dist_m / 1000).toFixed(1).replace('.', ',') + ' km'}${r.precisao ? `<div class="tb-rodape" style="margin:0">GPS ±${Math.round(r.precisao)} m</div>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhuma visita neste dia. A rota é montada quando o vendedor abre o app pela primeira vez no dia.</td></tr>'}</tbody></table></div>`;
+  box.querySelectorAll('.av-foto').forEach(b=> b.addEventListener('click', async ()=>{
+    const { data: u, error: e } = await sb.storage.from('visitas-fotos').createSignedUrl(b.dataset.f, 120);
+    if(e || !u){ showToast('Não consegui abrir a foto.'); return; } window.open(u.signedUrl, '_blank', 'noopener'); uso('clique', 'app vendedor: ver foto'); }));
 }
 
 // ---------- APRESENTAÇÃO: o que é a Torre de Controle Synthetic (1ª tela de quem entra) ----------
