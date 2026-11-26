@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-100808">
+<meta name="crm-versao" content="20261126-101054">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12984,12 +12984,18 @@ async function anDesenha(){
   const sec = (t, c)=> `<section style="min-width:0"><h3 style="font-size:15px;margin:0 0 8px">${t}</h3>${c}</section>`;
   const nome = sid ? ((ANL.vend.find(v=> String(v.id) === String(sid)) || {}).nome || 'vendedor') : 'Empresa toda';
   const mm = evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual, true) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>';
-  const lin = (a, b)=> `<div class="an-lin"><div style="min-width:0">${a}</div><div style="min-width:0">${b || ''}</div></div>`;
-  box.innerHTML = `<style>.an-lin{ display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); gap:20px 36px; align-items:start; margin-bottom:30px; } @media (max-width:1100px){ .an-lin{ grid-template-columns:minmax(0, 1fr); } }
-      .an-lin .fi-leg{ margin-top:8px; } .an-lin .tb-kpis{ margin:6px 0 0 !important; grid-template-columns:minmax(0, 1fr); gap:10px; } .an-lin .tb-kpi{ padding:12px 14px; } .an-lin .tb-kpi b{ font-size:22px; } .an-lin .tb-kpi span{ font-size:13px; }</style>
+  const lin = (a, b)=> `<div class="an-lin${b ? '' : ' cheio'}"><div style="min-width:0">${a}</div>${b ? `<div style="min-width:0">${b}</div>` : ''}</div>`;
+  box.innerHTML = `<style>.an-lin{ display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); gap:18px 30px; align-items:stretch; margin-bottom:20px; background:var(--surface, #fff); border:1px solid var(--line, #e1e6ea); border-radius:16px; padding:18px 22px; }
+      .an-lin.cheio{ grid-template-columns:minmax(0, 1fr); } @media (max-width:1100px){ .an-lin{ grid-template-columns:minmax(0, 1fr); } }
+      .an-lin > div:last-child{ display:flex; flex-direction:column; } .an-lin > div:last-child > section{ display:flex; flex-direction:column; flex:1; }
+      .an-lin .fi-leg{ margin-top:8px; }
+      .an-lin .tb-kpis{ flex:1; margin:6px 0 0 !important; display:grid !important; grid-template-columns:minmax(0, 1fr); grid-auto-rows:1fr; gap:10px; }
+      .an-lin .tb-kpis:has(> :nth-child(4)){ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .an-lin .tb-kpi{ padding:12px 16px; background:#f4f7f9; border:0; box-shadow:none; display:flex; flex-direction:column; justify-content:center; min-width:0; }
+      .an-lin .tb-kpi b{ font-size:22px; } .an-lin .tb-kpi span{ font-size:13px; } .an-lin .tb-rodape{ margin-top:10px; }</style>
     <div class="cm-resumo">Evolução de <b>${escapeHtml(nome)}</b>: cada mês contra o mesmo mês do ano passado, o acumulado do ano contra a inflação e os últimos 24 meses.</div>
     ${g ? lin(sec('Ano contra ano, mês contra mês', g.paresG), sec('O ano em números', g.paresK)) + lin(sec('Acumulado no ano, contra a inflação', g.acumG), sec('Contra a inflação', g.acumK)) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
-    <div style="margin-bottom:30px">${sec('Mês a mês, últimos 24 meses', mm)}</div>
+    <div class="an-lin cheio"><div style="min-width:0">${sec('Mês a mês, últimos 24 meses', mm)}</div></div>
     ${sid ? lin(sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)), '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>') : ''}`;
 }
 
