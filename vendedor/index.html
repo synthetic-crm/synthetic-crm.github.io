@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-093800">
+<meta name="app-versao" content="20261126-120019">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -23,6 +23,7 @@
   button,input,select,textarea{ font:inherit; color:inherit; }
   button{ cursor:pointer; }
   h1,h2,h3{ margin:0; line-height:1.15; }
+  [hidden]{ display:none !important; }
   .tela{ display:none; min-height:100dvh; }
   .tela.on{ display:block; }
   .topo{ position:sticky; top:0; z-index:5; background:var(--brand); color:#fff; padding:calc(10px + env(safe-area-inset-top)) 16px 12px; display:flex; align-items:center; gap:10px; }
@@ -61,6 +62,14 @@
   details.obs{ margin:14px 0 4px; } details.obs summary{ min-height:48px; display:flex; align-items:center; font-weight:700; color:var(--brand); cursor:pointer; }
   .opt.on{ border-color:var(--brand); background:var(--brand); color:#fff; }
   .foto{ width:100%; border-radius:12px; margin-top:10px; display:block; max-height:260px; object-fit:cover; }
+  #tabbar{ display:none; position:fixed; left:0; right:0; bottom:0; z-index:15; background:#fff; border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
+  #tabbar button{ flex:1; border:0; background:none; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:1.3rem; color:#3d4d58; }
+  #tabbar button span{ font-size:.85rem; font-weight:700; } #tabbar button.on{ color:var(--brand); box-shadow:inset 0 3px 0 var(--brand); }
+  body.com-abas #faixa-versao{ bottom:calc(76px + env(safe-area-inset-bottom)); } body.com-abas .toast{ bottom:calc(88px + env(safe-area-inset-bottom)); }
+  .of-op{ border-left:4px solid var(--brand); padding:4px 0 4px 10px; margin:10px 0; } .of-op .muted{ margin-top:2px; }
+  .of-sub{ font-size:1rem; font-weight:800; margin:16px 0 4px; color:var(--brand); }
+  .ped{ width:100%; border-collapse:collapse; font-size:.98rem; } .ped td{ padding:7px 0; border-bottom:1px solid var(--line); vertical-align:top; } .ped td:last-child{ text-align:right; white-space:nowrap; padding-left:8px; }
+  details.of summary{ min-height:44px; display:flex; align-items:center; font-weight:700; color:var(--brand); cursor:pointer; }
   #faixa-versao{ display:none; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:20; background:var(--brand); color:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 6px 20px rgba(0,0,0,.3); }
   #faixa-versao.on{ display:flex; gap:10px; align-items:center; } #faixa-versao span{ flex:1; font-size:.95rem; } #faixa-versao button{ background:var(--green); border:0; border-radius:10px; min-height:44px; padding:0 14px; font-weight:800; }
   .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(24px + env(safe-area-inset-bottom)); background:#10202b; color:#fff; border-radius:12px; padding:12px 18px; z-index:30; display:none; max-width:90vw; }
@@ -139,6 +148,19 @@
   <div class="corpo" id="v-corpo"></div>
 </section>
 
+<!-- carteira de clientes do vendedor -->
+<section class="tela" id="t-carteira">
+  <header class="topo"><div style="flex:1;min-width:0"><h1>Carteira</h1><small id="c-sub"></small></div><button id="c-atualiza">Atualizar</button></header>
+  <div class="corpo">
+    <input type="text" id="c-busca" placeholder="Buscar cliente, cidade ou telefone" autocomplete="off" style="margin-bottom:10px">
+    <div class="opts" id="c-chips" style="margin:0 0 12px"></div>
+    <div class="erro" id="c-erro"></div>
+    <div id="c-lista"></div>
+  </div>
+</section>
+
+<nav id="tabbar" aria-label="Abas do app"><button data-tab="t-hoje" class="on"><b>🗺️</b><span>Hoje</span></button><button data-tab="t-carteira"><b>👥</b><span>Carteira</span></button></nav>
+
 <div id="faixa-versao"><span>Saiu uma versão nova do app.</span><button id="faixa-ok">Atualizar</button></div>
 <div class="toast" id="toast"></div>
 
@@ -154,7 +176,11 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const S = { eu:null, rota:[], pos:null, perto:false, sel:null, seller:null, sellers:[] };
 
-function tela(id){ document.querySelectorAll(".tela").forEach(t => t.classList.toggle("on", t.id === id)); window.scrollTo(0, 0); }
+function tela(id){
+  document.querySelectorAll(".tela").forEach(t => t.classList.toggle("on", t.id === id)); window.scrollTo(0, 0);
+  const abas = id === "t-hoje" || id === "t-carteira"; $("tabbar").style.display = abas ? "flex" : "none"; document.body.classList.toggle("com-abas", abas);
+  document.querySelectorAll("#tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === id));
+}
 function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 3200); }
 function mostraErro(id, msg){ const e = $(id); e.textContent = msg || ""; e.classList.toggle("on", !!msg); }
 function amigavel(e){
@@ -275,8 +301,8 @@ function reduzFoto(file){   // JPEG de até 1280 px: foto leve para subir no 4G
 const RES = [["pedido", "Fez pedido"], ["cotacao", "Pediu cotação"], ["retorno", "Voltar depois"], ["sem_interesse", "Sem interesse"], ["nao_atendeu", "Não atendeu"]];
 const MOT = ["Fechado", "Cliente ausente", "Fora do caminho", "Sem tempo hoje", "Outro motivo"];
 const tel = t => String(t || "").replace(/\D/g, "");
-function abreVisita(id){ S.sel = S.rota.find(v => v.visita_id === id); if (!S.sel) return; tela("t-visita"); pintaVisita(); }
-$("v-volta").addEventListener("click", () => { tela("t-hoje"); desenhaLista(); });
+function abreVisita(id){ S.sel = S.rota.find(v => v.visita_id === id); if (!S.sel) return; S.voltaPara = "t-hoje"; tela("t-visita"); pintaVisita(); }
+$("v-volta").addEventListener("click", () => { if (S.voltaPara === "t-carteira") { tela("t-carteira"); desenhaCarteira(); } else { tela("t-hoje"); desenhaLista(); } });
 function pintaVisita(){
   const v = S.sel, c = $("v-corpo"), soVer = !!(S.seller && S.seller !== S.eu.seller_id); $("v-titulo").textContent = v.nome; $("v-sub").textContent = [v.cidade, v.uf].filter(Boolean).join(" · ");
   const wa = tel(v.telefone), end = [v.endereco, v.cidade, v.uf].filter(Boolean).join(", ");
@@ -302,7 +328,8 @@ function pintaVisita(){
       <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi para liberar.</p></div>`;
   else acao = `<div class="card"><span class="chip ${ST[v.status][0]}">${ST[v.status][1]}</span>${v.checkin_em ? `<p>Check-in às ${esc(hora(v.checkin_em))}${v.checkout_em ? `, check-out às ${esc(hora(v.checkout_em))}` : ""}.</p>` : ""}
     ${v.resultado ? `<p><b>${esc((RES.find(r => r[0] === v.resultado) || [0, v.resultado])[1])}</b></p>` : ""}${v.observacao ? `<p style="white-space:pre-wrap">${esc(v.observacao)}</p>` : ""}</div>`;
-  c.innerHTML = acao + dados + oferta;
+  c.innerHTML = acao + ofertaHtml() + dados + oferta;
+  ligaOferta(v.pessoa_id, v.dias_sem_comprar != null || v.fat_12m != null ? "revisao" : "pesquisa", wa, v.nome);
   if (v.status === "planejada") ligaCheckin(); if (v.status === "em_visita") ligaCheckout();
 }
 function ligaCheckin(){
@@ -358,6 +385,115 @@ function ligaCheckout(){
     toast("Visita encerrada. Boa!"); tela("t-hoje"); desenhaLista();
   });
 }
+
+
+/* ---------- O QUE OFERECER (botão inteligente): usa a análise do CRM (inteligencia-pessoa), na carteira do próprio vendedor ---------- */
+const TIPO_OP = { reativacao:"Reposição", "cross-sell":"Cross-sell", upsell:"Upsell" };
+const dh = d => { try { return new Date(d).toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }); } catch (e) { return ""; } };
+const real2 = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+function copia(txt, ok) { (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast(ok), () => { prompt("Copie o texto:", txt); }); }
+function ofertaHtml(){ return `<div class="card" id="of-box"><button class="btn azul" id="of-btn">💡 O que oferecer</button><p class="dica">Produtos para repor, cross-sell e upsell, com o pedido sugerido.</p><div id="of-out"></div></div>`; }
+function ligaOferta(pid, modo, tel, nome){
+  const btn = $("of-btn"), out = $("of-out"); if (!btn) return;
+  btn.addEventListener("click", async () => {
+    btn.disabled = true; out.innerHTML = '<p class="muted">Buscando as sugestões…</p>';
+    let u = null;
+    try { const { data, error } = await sb.rpc("app_inteligencia_ultima", { p_pessoa:pid }); if (error) throw error; u = data && data[0]; }
+    catch (e) { out.innerHTML = `<div class="erro on">${esc(amigavel(e))}</div>`; btn.disabled = false; return; }
+    if (u && u.relatorio) { btn.hidden = true; mostraOferta(out, u.relatorio, u.gerado_em, pid, modo, tel, nome); } else gerarOferta(out, pid, modo, tel, nome, btn);
+  });
+}
+async function gerarOferta(out, pid, modo, tel, nome, btn){
+  out.innerHTML = '<div class="aviso">Montando as sugestões com o histórico do cliente. Leva cerca de 1 minuto; você pode continuar usando o app.</div>';
+  try {
+    const { data, error } = await sb.functions.invoke("inteligencia-pessoa", { body:modo === "revisao" ? { pessoa_id:pid, modo:"revisao" } : { pessoa_id:pid } });
+    if (error) throw error;
+    if (!data || data.error || !data.relatorio) throw new Error((data && data.error) || "Não consegui montar as sugestões agora.");
+    if (btn) btn.hidden = true; mostraOferta(out, data.relatorio, data.gerado_em || new Date().toISOString(), pid, modo, tel, nome);
+  } catch (e) {
+    out.innerHTML = `<div class="erro on">${esc(amigavel(e))}</div><button class="btn claro mini" id="of-tenta">Tentar de novo</button>`;
+    $("of-tenta").addEventListener("click", () => gerarOferta(out, pid, modo, tel, nome, btn)); if (btn) btn.disabled = false;
+  }
+}
+function mostraOferta(out, rel, quando, pid, modo, tel, nome){
+  const ped = rel.pedido_sugerido, ops = rel.oportunidades || [], resumo = rel.diagnostico || rel.perfil_profissional || "";
+  const txtPedido = ped && ped.itens ? "Pedido sugerido" + (nome ? " para " + nome : "") + ":\n" + ped.itens.map(i => "- " + i.quantidade + " " + (i.unidade || "") + " " + i.produto + (i.preco_unitario != null ? " (" + real2(i.preco_unitario) + " a unidade)" : "")).join("\n") + (ped.total ? "\nTotal estimado: " + real2(ped.total) : "") : "";
+  const w = tel && ped && ped.mensagem_whatsapp ? `https://wa.me/${tel.length <= 11 ? "55" + tel : tel}?text=${encodeURIComponent(ped.mensagem_whatsapp)}` : "";
+  out.innerHTML = `<p class="muted" style="margin:10px 0 4px">Análise de ${esc(dh(quando))}</p>${resumo ? `<p style="margin:4px 0">${esc(resumo)}</p>` : ""}
+    ${ops.length ? `<div class="of-sub">Oportunidades</div>${ops.map(o => `<div class="of-op"><span class="chip ${o.tipo === "reativacao" ? "" : "lead"}">${esc(TIPO_OP[o.tipo] || o.tipo)}</span> <b>${esc(o.produto || o.codigo)}</b><div class="muted">${esc(o.motivo)}</div></div>`).join("")}` : ""}
+    ${ped && ped.itens && ped.itens.length ? `<div class="of-sub">Pedido sugerido</div><table class="ped">${ped.itens.map(i => `<tr><td><b>${esc(i.produto)}</b><div class="muted">${esc(i.motivo || "")}</div></td><td>${esc(i.quantidade)} ${esc(i.unidade || "")}<div class="muted">${i.total != null ? real2(i.total) : ""}</div></td></tr>`).join("")}</table>
+      ${ped.total ? `<p style="text-align:right;margin:6px 0"><b>Total estimado ${real2(ped.total)}</b></p>` : ""}
+      <p class="muted" style="margin:0">O pedido é lançado no Fácil123: copie e lance lá. Preço = último pago pelo cliente.</p>
+      <div class="linha" style="margin-top:10px"><button class="btn claro mini" id="of-cp">Copiar pedido</button>${w ? `<a class="btn mini" target="_blank" rel="noopener" href="${esc(w)}" id="of-wa">WhatsApp</a>` : ""}</div>` : ""}
+    ${rel.abertura_sugerida ? `<div class="of-sub">Como começar a conversa</div><p style="margin:4px 0;white-space:pre-wrap">${esc(rel.abertura_sugerida)}</p>` : ""}
+    ${(rel.perguntas || []).length ? `<details class="of"><summary>Perguntas para fazer (${rel.perguntas.length})</summary>${rel.perguntas.map(q => `<p style="margin:6px 0"><b>${esc(q.pergunta)}</b><br><span class="muted">${esc(q.por_que || "")}</span></p>`).join("")}</details>` : ""}
+    ${(rel.cuidados || []).length ? `<details class="of"><summary>Cuidados</summary><ul class="ac">${rel.cuidados.map(c => `<li>${esc(c)}</li>`).join("")}</ul></details>` : ""}
+    <button class="btn claro mini" id="of-atual" style="margin-top:10px">Atualizar sugestões</button>`;
+  const cp = $("of-cp"); if (cp) cp.addEventListener("click", () => copia(txtPedido, "Pedido copiado."));
+  $("of-atual").addEventListener("click", () => gerarOferta(out, pid, modo, tel, nome, null));
+}
+
+/* ---------- CARTEIRA ---------- */
+const GRP = { agora:["Comprar agora", "lead"], encolhendo:["Encolhendo", "em"], parado:["Parado", "nao"], ativo:["Ativo", "ok"], inativo:["Inativo", ""] };
+function abreCarteira(){
+  tela("t-carteira");
+  if (S.eu.gestao && !S.eu.seller_id && !S.seller) { $("c-lista").innerHTML = '<div class="aviso">Escolha um vendedor na aba Hoje para ver a carteira dele.</div>'; $("c-chips").innerHTML = ""; return; }
+  if (!S.cart || S.cartDe !== (S.seller || "eu")) carregaCarteira(); else desenhaCarteira();
+}
+async function carregaCarteira(){
+  mostraErro("c-erro", ""); $("c-lista").innerHTML = '<p class="muted">Carregando a carteira…</p>';
+  const { data, error } = await sb.rpc("app_carteira", { p_seller:S.seller });
+  if (error) { $("c-lista").innerHTML = ""; mostraErro("c-erro", amigavel(error)); return; }
+  S.cart = data || []; S.cartDe = S.seller || "eu"; S.filtro = S.cart.some(c => c.grupo === "agora") ? "agora" : "todos"; desenhaCarteira();
+}
+function desenhaCarteira(){
+  const L = S.cart || [], n = g => L.filter(c => c.grupo === g).length, q = $("c-busca").value.trim().toLowerCase();
+  $("c-sub").textContent = L.length + " clientes";
+  const chips = [["agora", "Comprar agora"], ["encolhendo", "Encolhendo"], ["parado", "Parados"], ["todos", "Todos"]];
+  $("c-chips").innerHTML = chips.map(([k, t]) => `<button class="opt ${S.filtro === k ? "on" : ""}" data-f="${k}" style="min-height:48px;padding:6px 14px">${t} (${k === "todos" ? L.length : n(k)})</button>`).join("");
+  $("c-chips").querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { S.filtro = b.dataset.f; $("c-busca").value = ""; desenhaCarteira(); }));
+  const digitos = q.replace(/\D/g, "");
+  const V = q ? L.filter(c => (c.nome || "").toLowerCase().includes(q) || (c.cidade || "").toLowerCase().includes(q) || (c.contato || "").toLowerCase().includes(q) || (digitos.length >= 3 && String(c.telefone || "").replace(/\D/g, "").includes(digitos)))
+                : S.filtro === "todos" ? L : L.filter(c => c.grupo === S.filtro);
+  $("c-lista").innerHTML = V.map(c => {
+    const g = GRP[c.grupo] || ["", ""];
+    return `<button class="vis" data-c="${esc(c.pessoa_id)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.nome)}</b><span class="chip ${g[1]}">${g[0]}</span></div>
+      <div class="sub">${esc([c.cidade, c.uf].filter(Boolean).join(" · ") || "Sem cidade")}</div>
+      <div class="sub">${c.dias_sem_comprar != null ? `Última compra há ${c.dias_sem_comprar} dias` : "Sem compra"}${c.valor_mensal ? ` · ${real2(c.valor_mensal)} por mês` : ""}${c.ciclo_medio_dias ? ` · compra a cada ${c.ciclo_medio_dias} dias` : ""}</div></button>`; }).join("")
+    || '<div class="card">Nenhum cliente nesta seleção.</div>';
+  $("c-lista").querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => abreCliente(b.dataset.c)));
+}
+$("c-busca").addEventListener("input", () => { clearTimeout(S.tb); S.tb = setTimeout(desenhaCarteira, 200); });
+$("c-atualiza").addEventListener("click", carregaCarteira);
+
+/* ---------- CLIENTE DA CARTEIRA (mesma tela de visita, sem check-in) ---------- */
+function abreCliente(id){ S.cl = (S.cart || []).find(c => c.pessoa_id === id); if (!S.cl) return; S.voltaPara = "t-carteira"; tela("t-visita"); pintaCliente(); }
+function pintaCliente(){
+  const c = S.cl, el = $("v-corpo"), soVer = !!(S.seller && S.seller !== S.eu.seller_id), wa = tel(c.telefone), g = GRP[c.grupo] || ["", ""];
+  $("v-titulo").textContent = c.nome; $("v-sub").textContent = [c.cidade, c.uf].filter(Boolean).join(" · ");
+  const end = [c.endereco, c.cidade, c.uf].filter(Boolean).join(", "), waze = `https://waze.com/ul?q=${encodeURIComponent(end || c.nome)}&navigate=yes`;
+  el.innerHTML = `<div class="card"><span class="chip ${g[1]}">${g[0]}</span>
+      <div class="dado"><span>Contato</span><span>${esc(c.contato || "—")}</span></div>
+      <div class="dado"><span>Endereço</span><span>${esc(end || "Sem endereço no cadastro")}</span></div>
+      <div class="dado"><span>Última compra</span><span>${c.ultima_compra ? esc(new Date(c.ultima_compra + "T12:00").toLocaleDateString("pt-BR")) + " · há " + c.dias_sem_comprar + " dias" : "—"}</span></div>
+      <div class="dado"><span>Compra por mês</span><span>${real2(c.valor_mensal)}</span></div>
+      <div class="dado"><span>Comprou em 12 meses</span><span>${reais(c.fat_12m)}</span></div>
+      ${c.ciclo_medio_dias ? `<div class="dado"><span>Costuma comprar a cada</span><span>${c.ciclo_medio_dias} dias</span></div>` : ""}
+      ${c.valor_mix_perdido > 0 ? `<div class="dado"><span>Produtos que parou de levar</span><span>${reais(c.valor_mix_perdido)} em 12 meses</span></div>` : ""}
+      <div class="linha" style="margin-top:10px">${wa ? `<a class="btn claro mini" href="tel:${wa}">📞 Ligar</a><a class="btn claro mini" target="_blank" rel="noopener" href="https://wa.me/${wa.length <= 11 ? "55" + wa : wa}">WhatsApp</a>` : ""}</div></div>`;
+  el.insertAdjacentHTML("afterbegin", ofertaHtml());
+  el.insertAdjacentHTML("beforeend", `<a class="btn azul" target="_blank" rel="noopener" href="${esc(waze)}" style="margin-bottom:12px">🧭 Abrir no Waze</a>${soVer ? "" : '<button class="btn claro" id="cl-rota">➕ Adicionar à rota de hoje</button>'}`);
+  ligaOferta(c.pessoa_id, c.dias_sem_comprar != null ? "revisao" : "pesquisa", wa, c.nome);
+  const add = $("cl-rota"); if (add) add.addEventListener("click", async () => {
+    add.disabled = true; const { error } = await sb.rpc("app_adicionar_visita", { p_pessoa:c.pessoa_id });
+    if (error) { add.disabled = false; toast(amigavel(error)); return; } S.rota = []; toast("Cliente adicionado à rota de hoje."); add.textContent = "✔ Na rota de hoje"; });
+}
+
+/* ---------- abas de baixo ---------- */
+document.querySelectorAll("#tabbar button").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.tab === "t-carteira") abreCarteira();
+  else { tela("t-hoje"); if (S.rota && S.rota.length) desenhaLista(); else carregaRota(); }
+}));
 
 /* ---------- instalar e versão nova ---------- */
 let adiado = null;
