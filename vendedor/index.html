@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-141510">
+<meta name="app-versao" content="20261126-141651">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -108,6 +108,7 @@
   /* campos */
   label{ display:block; font-weight:600; margin:14px 0 6px; font-size:.92rem; color:#35485a; }
   input[type=email],input[type=password],input[type=text],textarea,select.ca{ width:100%; min-height:52px; padding:10px 14px; border:1.5px solid #d6e0e8; border-radius:14px; background:#fff; font-size:max(16px,1rem); }
+  input[type=date]{ width:100%; min-height:50px; border:1.5px solid #d6e0e8; border-radius:14px; padding:8px 12px; background:#fff; font-size:max(16px,1rem); }
   textarea{ min-height:110px; resize:vertical; } :focus-visible{ outline:3px solid rgba(10,106,147,.45); outline-offset:2px; }
   .busca{ position:relative; } .busca .ic{ position:absolute; left:14px; top:15px; color:#8a9aa8; } .busca input{ padding-left:44px; border-radius:16px; box-shadow:var(--sh); border:0; }
   .chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; scrollbar-width:none; } .chips::-webkit-scrollbar{ display:none; }
@@ -694,24 +695,43 @@ function desenhaSemana(){
 $("sm-atualiza").addEventListener("click", abreSemana);
 
 /* ---------- VENDAS ---------- */
+S.vd = { modo:"ciclo", de:"", ate:"" };
+const isoD = d => d.toLocaleDateString("sv-SE");
+function periodoArgs(){
+  const h = new Date(), m = S.vd.modo;
+  if (m === "mes") return { p_ini:isoD(new Date(h.getFullYear(), h.getMonth(), 1)), p_fim:isoD(h) };
+  if (m === "7d") return { p_ini:isoD(new Date(h - 6 * 864e5)), p_fim:isoD(h) };
+  if (m === "30d") return { p_ini:isoD(new Date(h - 29 * 864e5)), p_fim:isoD(h) };
+  if (m === "livre" && S.vd.de && S.vd.ate && S.vd.de <= S.vd.ate) return { p_ini:S.vd.de, p_fim:S.vd.ate };
+  return {};
+}
 async function abreVendas(){
   tela("t-vendas"); if (semGestao("vd-corpo")) return;
   mostraErro("vd-erro", ""); $("vd-corpo").innerHTML = '<div class="sobe">' + skel(3) + '</div>';
-  const { data, error } = await sb.rpc("app_minhas_vendas", { p_seller:S.seller });
+  const { data, error } = await sb.rpc("app_minhas_vendas", Object.assign({ p_seller:S.seller }, periodoArgs()));
   if (error) { $("vd-corpo").innerHTML = ""; mostraErro("vd-erro", amigavel(error)); return; }
-  const c = data.ciclo || {}, m = data.mes || {}, pc = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { maximumFractionDigits:2 });
-  $("vd-sub").textContent = "Ciclo de comissão " + dmx(c.ini) + " a " + dmx(c.fim);
-  const ant = Number(m.mes_passado_ate_hoje) || 0, vm = Number(m.vendido) || 0, dif = ant ? vm / ant - 1 : null, pb = ant ? Math.min(100, Math.round(vm / ant * 100)) : 0;
-  $("vd-corpo").innerHTML = `<div class="card sobe" style="background:linear-gradient(160deg,#fff 0%,#eef6fa 100%)"><div class="muted" style="font-weight:600">Vendido no ciclo</div><div class="grande" style="color:var(--brand);margin-top:6px">${reais(c.vendido)}</div>
-      <div class="muted" style="margin-top:6px">${c.pedidos || 0} pedidos · ${c.clientes || 0} clientes desde ${dmx(c.ini)}</div></div>
+  const c = data.periodo || {}, ant = data.anterior || {}, m = data.mes || {}, cic = data.ciclo || {}, pc = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { maximumFractionDigits:2 });
+  const noCiclo = !data.custom, hojeIso = isoD(new Date());
+  $("vd-sub").textContent = noCiclo ? "Ciclo de comissão " + dmx(cic.ini) + " a " + dmx(cic.fim) : "Período " + dmx(c.ini) + " a " + dmx(c.fim);
+  const MODOS = [["ciclo", "Ciclo atual"], ["mes", "Este mês"], ["7d", "7 dias"], ["30d", "30 dias"], ["livre", "Escolher datas"]];
+  const difP = Number(ant.vendido) ? Number(c.vendido) / Number(ant.vendido) - 1 : null, vm = Number(m.vendido) || 0, antM = Number(m.mes_passado_ate_hoje) || 0, difM = antM ? vm / antM - 1 : null;
+  const pill2 = d => d == null ? "" : pill((d >= 0 ? "+" : "") + Math.round(d * 100) + "%", d >= 0 ? "ok" : "nao");
+  const barra = (v, a) => `<div class="barra"><i style="width:${a ? Math.min(100, Math.round(v / a * 100)) : 0}%"></i></div>`;
+  $("vd-corpo").innerHTML = `<div class="sobe"><div class="chips" id="vd-chips">${MODOS.map(([k, t]) => `<button class="chp ${S.vd.modo === k ? "on" : ""}" data-m="${k}">${t}</button>`).join("")}</div></div>
+    ${S.vd.modo === "livre" ? `<div class="card" style="padding:12px 14px"><div class="linha"><div><label style="margin-top:0">De</label><input type="date" id="vd-de" value="${esc(S.vd.de)}" max="${hojeIso}"></div><div><label style="margin-top:0">Até</label><input type="date" id="vd-ate" value="${esc(S.vd.ate)}" max="${hojeIso}"></div></div>${S.vd.de && S.vd.ate && S.vd.de > S.vd.ate ? '<div class="erro on">A data de início precisa ser antes da data de fim.</div>' : ""}</div>` : ""}
+    <div class="card" style="background:linear-gradient(160deg,#fff 0%,#eef6fa 100%)"><div class="muted" style="font-weight:600">${noCiclo ? "Vendido no ciclo" : "Vendido no período"}</div><div class="grande" style="color:var(--brand);margin-top:6px">${reais(c.vendido)}</div>
+      <div class="muted" style="margin-top:6px">${c.pedidos || 0} pedidos · ${c.clientes || 0} clientes · ${dmx(c.ini)} a ${dmx(c.fim)}</div></div>
     <div class="tiles" style="margin-bottom:14px"><div class="tile" style="background:#fff;box-shadow:var(--sh)"><small>Pontos</small><b style="color:var(--brand)">${c.pontos != null ? pc(c.pontos) : "—"}</b></div><div class="tile" style="background:#fff;box-shadow:var(--sh)"><small>Tabela média</small><b>${pc(c.tabela_media)}</b></div>
       <div class="tile" style="background:#fff;box-shadow:var(--sh);grid-column:span 2"><small>Prazo médio de pagamento</small><b>${c.prazo_medio != null ? Math.round(c.prazo_medio) + " dias" : "—"}</b></div></div>
     <p class="dica" style="text-align:left;margin:-4px 2px 14px">Pontos = vendido (em R$ mil) × tabela média ÷ prazo médio (em dias).</p>
-    <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Mês corrido</b>${dif == null ? "" : pill((dif >= 0 ? "+" : "") + Math.round(dif * 100) + "%", dif >= 0 ? "ok" : "nao")}</div>
-      <div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(vm)}</div><div class="barra"><i style="width:${pb}%"></i></div>
-      <div class="muted" style="font-size:.88rem;margin-top:8px">${dif == null ? "Sem base no mês passado" : "Mês passado até esta data: " + reais(ant)}</div></div>
-    <div class="sec-row"><h2>Últimos pedidos</h2></div>
-    <div class="card" style="padding:4px 16px">${(data.ultimos_pedidos || []).map(p => `<div class="ped-l">${av(p.cliente)}<div class="grow"><b>${esc(p.cliente)}</b><div class="muted" style="font-size:.85rem">${esc(dmx(p.data))} · pedido ${esc(p.numero)}</div></div><span class="valor">${reais(p.total)}</span></div>`).join("") || '<p class="muted" style="padding:14px 0;margin:0">Nenhum pedido ainda.</p>'}</div>`;
+    ${noCiclo ? `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Mês corrido</b>${pill2(difM)}</div><div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(vm)}</div>${barra(vm, antM)}<div class="muted" style="font-size:.88rem;margin-top:8px">${difM == null ? "Sem base no mês passado" : "Mês passado até esta data: " + reais(antM)}</div></div>`
+      : `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Contra o período anterior</b>${pill2(difP)}</div><div class="num" style="font-size:1.9rem;font-weight:800;margin-top:6px">${reais(c.vendido)}</div>${barra(Number(c.vendido), Number(ant.vendido))}<div class="muted" style="font-size:.88rem;margin-top:8px">${difP == null ? "Sem vendas no período anterior" : dmx(ant.ini) + " a " + dmx(ant.fim) + ": " + reais(ant.vendido)}</div></div>`}
+    <div class="sec-row"><h2>${noCiclo ? "Últimos pedidos" : "Pedidos do período"}</h2></div>
+    <div class="card" style="padding:4px 16px">${(data.ultimos_pedidos || []).map(p => `<div class="ped-l">${av(p.cliente)}<div class="grow"><b>${esc(p.cliente)}</b><div class="muted" style="font-size:.85rem">${esc(dmx(p.data))}${p.numero ? " · pedido " + esc(p.numero) : ""}</div></div><span class="valor">${reais(p.total)}</span></div>`).join("") || '<p class="muted" style="padding:14px 0;margin:0">Nenhum pedido neste período.</p>'}</div>`;
+  $("vd-chips").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => {
+    S.vd.modo = b.dataset.m; if (S.vd.modo === "livre" && (!S.vd.de || !S.vd.ate)) { S.vd.ate = hojeIso; S.vd.de = isoD(new Date(Date.now() - 6 * 864e5)); } abreVendas(); }));
+  const troca = () => { const de = $("vd-de").value, ate = $("vd-ate").value; S.vd.de = de; S.vd.ate = ate; if (de && ate && de <= ate) abreVendas(); else if (de && ate) abreVendas(); };
+  if ($("vd-de")) { $("vd-de").addEventListener("change", troca); $("vd-ate").addEventListener("change", troca); }
 }
 $("vd-atualiza").addEventListener("click", abreVendas);
 
