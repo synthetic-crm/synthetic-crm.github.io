@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-140538">
+<meta name="crm-versao" content="20261126-140917">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9228,7 +9228,7 @@ function eqOpcoesPerfil(sel){ return PERFIS_OFERECIDOS.filter(eqPodeAtribuir).ma
 function eqOpcoesCarteira(sel){
   const usadas = new Set(EQ.usuarios.filter(u=>u.ativo && u.seller_id).map(u=>u.seller_id));
   return '<option value="">— sem carteira —</option>' + SELLER_LIST.filter(s=>!s.archived || s.id===sel).map(s=>
-    `<option value="${s.id}" ${s.id===sel?'selected':''} ${usadas.has(s.id) && s.id!==sel ? 'disabled' : ''}>${escapeHtml(s.name||('#'+s.id))}${usadas.has(s.id) && s.id!==sel ? ' (já tem usuário)' : ''}</option>`).join('');
+    `<option value="${s.id}" ${s.id===sel?'selected':''} ${usadas.has(s.id) && s.id!==sel ? 'disabled' : ''}>${escapeHtml(nomeBonito(s.name)||('#'+s.id))}${usadas.has(s.id) && s.id!==sel ? ' (já tem usuário)' : ''}</option>`).join('');
 }
 function eqEditarUsuario(u){
   if(!u) return;
@@ -9404,7 +9404,7 @@ function eqEditarEquipe(e){
       <div class="field"><label for="eqe-nome">Nome da equipe</label><input id="eqe-nome" class="ca-inp" maxlength="60" value="${escapeHtml(e ? e.nome : '')}"></div>
       <div class="field"><label for="eqe-sup">Supervisor</label><select id="eqe-sup" class="ca-inp"><option value="">— nenhum —</option>${sups.map(u=>`<option value="${escapeHtml(u.email)}" ${e && e.supervisor_email===u.email?'selected':''}>${escapeHtml(u.nome||u.email)}</option>`).join('')}</select></div>
       <div class="field"><label>Vendedores (carteiras do Fácil123)</label><div class="eq-lista">${SELLER_LIST.filter(s=>!s.archived || membros.has(s.id)).map(s=>
-        `<label class="eq-check"><input type="checkbox" value="${s.id}" ${membros.has(s.id)?'checked':''}> ${escapeHtml(s.name||('#'+s.id))}${outra.has(s.id)?` <span class="eq-mini">(hoje em ${escapeHtml(outra.get(s.id)||'outra equipe')}; muda para esta)</span>`:''}</label>`).join('')}</div></div>
+        `<label class="eq-check"><input type="checkbox" value="${s.id}" ${membros.has(s.id)?'checked':''}> ${escapeHtml(nomeBonito(s.name)||('#'+s.id))}${outra.has(s.id)?` <span class="eq-mini">(hoje em ${escapeHtml(outra.get(s.id)||'outra equipe')}; muda para esta)</span>`:''}</label>`).join('')}</div></div>
       <label class="eq-check"><input type="checkbox" id="eqe-ativa" ${!e || e.ativa ? 'checked' : ''}> Equipe ativa</label>
       <div class="om-err" id="eqe-err"></div>
     </div>
