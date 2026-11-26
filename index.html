@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261126-100107">
+<meta name="crm-versao" content="20261126-100432">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12984,14 +12984,13 @@ async function anDesenha(){
   const sec = (t, c)=> `<section style="min-width:0"><h3 style="font-size:15px;margin:0 0 8px">${t}</h3>${c}</section>`;
   const nome = sid ? ((ANL.vend.find(v=> String(v.id) === String(sid)) || {}).nome || 'vendedor') : 'Empresa toda';
   const mm = evoMesAMes(rows.map(r=> ({ mes:r.mes, valor:r.valor })), ano, mesAtual) || '<div class="tb-rodape">Poucos meses de vendas para desenhar.</div>';
-  box.innerHTML = `<style>.an-grade{ display:grid; gap:24px 32px; grid-template-columns:repeat(2, minmax(0, 1fr)); align-items:start; } @media (max-width:1100px){ .an-grade{ grid-template-columns:minmax(0, 1fr); } } @media (min-width:2400px){ .an-grade{ grid-template-columns:repeat(var(--cols, 3), minmax(0, 1fr)); } } 
-      .an-grade .fi-leg{ margin-top:8px; } .an-faixa{ display:grid; gap:16px 32px; grid-template-columns:repeat(auto-fit, minmax(min(520px, 100%), 1fr)); align-items:start; margin-top:20px; padding-top:16px; border-top:1px solid var(--line, #d9dde3); }
-      .an-faixa .tb-kpis, .an-grade .tb-kpis{ margin:6px 0 12px !important; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); } .an-faixa .tb-kpi, .an-grade .tb-kpi{ padding:10px 12px; } .an-faixa .tb-kpi b, .an-grade .tb-kpi b{ font-size:20px; } .an-faixa .tb-kpi span, .an-grade .tb-kpi span{ font-size:12px; }</style>
+  const lin = (a, b)=> `<div class="an-lin"><div style="min-width:0">${a}</div><div style="min-width:0">${b || ''}</div></div>`;
+  box.innerHTML = `<style>.an-lin{ display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); gap:20px 36px; align-items:start; margin-bottom:30px; } @media (max-width:1100px){ .an-lin{ grid-template-columns:minmax(0, 1fr); } }
+      .an-lin .fi-leg{ margin-top:8px; } .an-lin .tb-kpis{ margin:6px 0 0 !important; grid-template-columns:minmax(0, 1fr); gap:10px; } .an-lin .tb-kpi{ padding:12px 14px; } .an-lin .tb-kpi b{ font-size:22px; } .an-lin .tb-kpi span{ font-size:13px; }</style>
     <div class="cm-resumo">Evolução de <b>${escapeHtml(nome)}</b>: cada mês contra o mesmo mês do ano passado, o acumulado do ano contra a inflação e os últimos 24 meses.</div>
-    <div class="an-grade" style="--cols:4">${g ? sec('Ano contra ano, mês contra mês', g.paresG) + sec('Acumulado no ano, contra a inflação', g.acumG) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
-      ${sec('Mês a mês, últimos 24 meses', mm)}${sid ? sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)) : (g ? sec('O ano em números', g.paresK + '<h3 style="font-size:15px;margin:4px 0 0">Contra a inflação</h3>' + g.acumK) : '')}</div>
-    ${sid && g ? `<div class="an-faixa"><div><h3 style="font-size:14px;margin:0">O ano em números</h3>${g.paresK}</div><div><h3 style="font-size:14px;margin:0">Contra a inflação</h3>${g.acumK}</div></div>` : ''}
-    ${sid ? '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>' : ''}`;
+    ${g ? lin(sec('Ano contra ano, mês contra mês', g.paresG), sec('O ano em números', g.paresK)) + lin(sec('Acumulado no ano, contra a inflação', g.acumG), sec('Contra a inflação', g.acumK)) : `<div class="tb-aviso">Sem vendas em ${ano - 1} para comparar com ${ano}.</div>`}
+    ${lin(sec('Mês a mês, últimos 24 meses', mm), '')}
+    ${sid ? lin(sec('Tabela média mês a mês, últimos 12 meses', evoTabMedia(mp, h)), '<div class="tb-rodape">A tabela média de meses antigos usa as tabelas de preço de hoje; onde a tabela mudou ou faltava, o número do mês pode não ser comparável.</div>') : ''}`;
 }
 
 // ---------- APP DO VENDEDOR (26/11/2026, pedido do CEO): link, QR code e acompanhamento das visitas do dia ----------
