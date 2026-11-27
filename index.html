@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="crm-versao" content="20261127-095344">
+<meta name="crm-versao" content="20261127-101738">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#005071">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13076,7 +13076,11 @@ async function avVisitas(box){
       <td>${ST[r.status] || r.status}${r.motivo_nao_visita ? `<div class="tb-rodape" style="margin:0">${escapeHtml(r.motivo_nao_visita)}</div>` : ''}</td><td>${hh(r.checkin_em)}</td><td>${hh(r.checkout_em)}</td><td class="n">${r.minutos != null ? r.minutos : '—'}</td>
       <td>${escapeHtml(RES[r.resultado] || '')}${r.observacao ? `<div class="tb-rodape" style="margin:0;white-space:normal;max-width:360px">${escapeHtml(r.observacao)}</div>` : ''}</td>
       <td>${r.foto ? `<button class="om-cancel av-foto" data-f="${escapeHtml(r.foto)}">Ver foto</button>` : (r.sem_foto ? `<span class="tb-rodape" style="margin:0">sem foto: ${escapeHtml(r.sem_foto)}</span>` : '—')}</td>
-      <td>${r.dist_m == null ? '<span class="tb-rodape" style="margin:0">sem coordenada do cliente</span>' : r.dist_m < 1000 ? r.dist_m + ' m' : (r.dist_m / 1000).toFixed(1).replace('.', ',') + ' km'}${r.motivo_longe ? `<div style="color:#b36b00;font-weight:700;font-size:.8rem">⚠ longe: ${escapeHtml(r.motivo_longe)}</div>` : ''}${r.precisao ? `<div class="tb-rodape" style="margin:0">GPS ±${Math.round(r.precisao)} m</div>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhuma visita neste dia. A rota é montada quando o vendedor abre o app pela primeira vez no dia.</td></tr>'}</tbody></table></div>`;
+      <td>${r.dist_m == null ? '<span class="tb-rodape" style="margin:0">sem coordenada do cliente</span>' : r.dist_m < 1000 ? r.dist_m + ' m' : (r.dist_m / 1000).toFixed(1).replace('.', ',') + ' km'}${r.motivo_longe ? `<div style="color:#b36b00;font-weight:700;font-size:.8rem">⚠ longe: ${escapeHtml(r.motivo_longe)}</div>` : ''}${r.dist_m != null && r.checkin_em ? `<div><button class="om-cancel av-refaz" data-v="${escapeHtml(r.visita_id)}" title="Apaga o ponto confirmado deste cliente; o próximo check-in com foto e GPS preciso confirma de novo">Refazer localização</button></div>` : ''}${r.precisao ? `<div class="tb-rodape" style="margin:0">GPS ±${Math.round(r.precisao)} m</div>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhuma visita neste dia. A rota é montada quando o vendedor abre o app pela primeira vez no dia.</td></tr>'}</tbody></table></div>`;
+  box.querySelectorAll('.av-refaz').forEach(b=> b.addEventListener('click', async ()=>{
+    if(!confirm('Refazer a localização deste cliente? O ponto confirmado é apagado e o próximo check-in com foto e GPS preciso confirma de novo.')) return;
+    const { error } = await sb.rpc('app_loc_refazer_visita', { p_visita:b.dataset.v }); if(error){ showToast(errAmigavel(error)); return; }
+    showToast('Localização do cliente apagada. O próximo check-in bom confirma de novo.'); uso('clique', 'app vendedor: refazer localização'); }));
   box.querySelectorAll('.av-foto').forEach(b=> b.addEventListener('click', async ()=>{
     const { data: u, error: e } = await sb.storage.from('visitas-fotos').createSignedUrl(b.dataset.f, 120);
     if(e || !u){ showToast('Não consegui abrir a foto.'); return; } window.open(u.signedUrl, '_blank', 'noopener'); uso('clique', 'app vendedor: ver foto'); }));
