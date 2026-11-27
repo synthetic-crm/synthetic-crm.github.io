@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#005071">
-<meta name="app-versao" content="20261126-150647">
+<meta name="app-versao" content="20261127-095330">
 <title>Synthetic Comercial</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icone-192.png">
@@ -498,15 +498,15 @@ function pintaVisita(){
       <input type="file" id="f-foto" accept="image/*" capture="environment" hidden>
       <button class="btn suave" id="f-btn" style="margin-top:12px">${ic("cam", 22)} Tirar foto da fachada</button><img id="f-prev" class="foto" alt="" hidden>
       <button class="lk" id="f-sem" style="margin-top:4px">Não consegui tirar a foto</button><div id="f-motivos" hidden><div class="opts" id="f-mot"></div></div>
-      <div class="erro" id="c-erro"></div><div style="height:10px"></div><button class="btn ok" id="c-ok" disabled>Fazer check-in</button><p class="dica" id="c-dica">Tire a foto (ou escolha o motivo) para liberar.</p></div>
+      <div class="erro" id="c-erro"></div><div id="lg-box" hidden class="card" style="border:2px solid #e0a100;margin-top:10px"><b id="lg-t">Você está longe do endereço do cliente.</b><p class="muted" style="margin:4px 0 8px">Diga o motivo para fazer o check-in aqui.</p><div class="opts" id="lg-mot"></div></div><div style="height:10px"></div><button class="btn ok" id="c-ok" disabled>Fazer check-in</button><p class="dica" id="c-dica">Tire a foto (ou escolha o motivo) para liberar.</p></div>
       <div style="text-align:center"><button class="lk" id="nv-btn">Não consegui visitar</button></div><div id="nv-box" hidden class="card"><b>Por quê?</b><div class="opts" id="nv-mot"></div><div class="erro" id="nv-erro"></div></div>`;
   else if (v.status === "em_visita") acao = passos(v.status) + `<div class="aviso" style="margin-top:0">${ic("clock", 16)} <b>Em visita desde ${esc(hora(v.checkin_em))}</b></div>
     <div class="card"><h3 style="font-size:1.15rem;margin-bottom:6px">Como foi?</h3><div class="opts col" id="r-res">${RES.map(([k, t, e]) => `<button class="opt" data-r="${k}"><span>${e}</span>${t}</button>`).join("")}</div>
-      <div class="relato"><h3 style="font-size:1.05rem;margin:14px 0 6px">Relatório da visita</h3>
+      <div class="relato"><h3 style="font-size:1.05rem;margin:14px 0 6px">Relatório da visita (obrigatório)</h3>
         <button class="btn suave" id="r-voz" type="button">${ic("spark", 20)} 🎙 Falar o que aconteceu</button>
         <textarea id="r-obs" maxlength="2000" rows="4" placeholder="Fale ou escreva: o que ofereci, o que o cliente disse, se achou caro, se não quis receber…" style="margin-top:10px"></textarea>
         <p class="dica" id="r-voz-d">Toque no microfone e fale. O texto aparece aqui para você conferir; depois é só fazer o check-out.</p></div>
-      <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn ok" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi para liberar.</p></div>`;
+      <div class="erro" id="o-erro"></div><div style="height:8px"></div><button class="btn ok" id="o-ok" disabled>Fazer check-out</button><p class="dica" id="o-dica">Escolha como foi e conte o que rolou (falando ou escrevendo) para liberar.</p></div>`;
   else acao = passos(v.status) + `<div class="card">${pill(ST[v.status][0], ST[v.status][1])}${v.checkin_em ? `<p style="margin:10px 0 0">Check-in às ${esc(hora(v.checkin_em))}${v.checkout_em ? `, check-out às ${esc(hora(v.checkout_em))}` : ""}.</p>` : ""}
     ${v.resultado ? `<p style="margin:8px 0 0"><b>${esc((RES.find(r => r[0] === v.resultado) || [0, v.resultado])[1])}</b></p>` : ""}${v.observacao ? `<p style="white-space:pre-wrap;margin:8px 0 0">${esc(v.observacao)}</p>` : ""}</div>`;
   const comHist = v.dias_sem_comprar != null || v.fat_12m != null;
@@ -516,7 +516,7 @@ function pintaVisita(){
   if (!ver && v.status === "planejada") ligaCheckin(); if (!ver && v.status === "em_visita") ligaCheckout();
 }
 function ligaCheckin(){
-  const v = S.sel; let foto = null, semFoto = null;
+  const v = S.sel; let foto = null, semFoto = null, longe = null;
   const pronto = () => { $("c-ok").disabled = !(foto || semFoto); $("c-dica").hidden = !!(foto || semFoto); };
   $("f-btn").addEventListener("click", () => $("f-foto").click());
   $("f-foto").addEventListener("change", async e => {
@@ -536,14 +536,18 @@ function ligaCheckin(){
         const { error: ue } = await sb.storage.from("visitas-fotos").upload(caminho, foto, { contentType:"image/jpeg", upsert:false });
         if (ue && !/exists|Duplicate/i.test(ue.message)) throw ue; }
       b.textContent = "Registrando…";
-      const { error } = await sb.rpc("app_checkin", { p_visita:v.visita_id, p_lat:p.lat, p_lon:p.lon, p_precisao:p.prec, p_foto:caminho, p_sem_foto:semFoto });
+      const { error } = await sb.rpc("app_checkin", { p_visita:v.visita_id, p_lat:p.lat, p_lon:p.lon, p_precisao:p.prec, p_foto:caminho, p_sem_foto:semFoto, p_motivo_longe:longe });
       if (error) throw error;
       Object.assign(v, { status:"em_visita", checkin_em:new Date().toISOString() });
       toast(p.prec > 150 ? "Check-in feito (localização aproximada, ±" + Math.round(p.prec) + " m)." : "Check-in feito."); pintaVisita();
     } catch (e) {
       if (/já foi iniciada/.test(String(e.message))) { toast("Este check-in já estava registrado."); tela("t-hoje"); carregaRota(); return; }   // a resposta se perdeu na rede, mas gravou
+      const lg = /LONGE\|(\d+)/.exec(String(e.message || ""));
+      if (lg) { const m = Number(lg[1]); $("lg-t").textContent = "Você está a " + (m >= 1000 ? (m / 1000).toFixed(1).replace(".", ",") + " km" : m + " m") + " do endereço do cliente."; $("lg-box").hidden = false; b.disabled = false; b.textContent = "Fazer check-in"; return; }
       mostraErro("c-erro", amigavel(e)); b.disabled = false; b.textContent = "Fazer check-in"; }
   });
+  $("lg-mot").innerHTML = ["O endereço do cadastro está errado", "O cliente mudou de endereço", "Encontrei o cliente em outro local", "Estou no local, o GPS está impreciso"].map(t => `<button class="opt" data-m="${esc(t)}">${t}</button>`).join("");
+  $("lg-mot").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => { longe = b.dataset.m; $("lg-box").hidden = true; $("c-ok").click(); }));
   $("nv-btn").addEventListener("click", () => { $("nv-box").hidden = false; });
   $("nv-mot").innerHTML = MOT.map(t => `<button class="opt" data-m="${esc(t)}">${t}</button>`).join("");
   $("nv-mot").querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", async () => {
@@ -564,7 +568,7 @@ function ligaVoz(btn, area, dica, chave){
     if (on) { try { rec.stop(); } catch (e) {} para(); return; }
     rec = new SR(); rec.lang = "pt-BR"; rec.continuous = true; rec.interimResults = true;
     base = area.value ? area.value.replace(/\s+$/, "") + " " : "";
-    rec.onresult = ev => { let t = ""; for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript; area.value = (base + t).slice(0, 2000); salva(); };
+    rec.onresult = ev => { let t = ""; for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript; area.value = (base + t).slice(0, 2000); salva(); area.dispatchEvent(new Event("input")); };
     rec.onerror = ev => { para(); dica.textContent = ev.error === "not-allowed" ? "Libere o microfone no navegador para ditar, ou escreva." : "Não consegui ouvir. Tente de novo ou escreva."; };
     rec.onend = () => { if (on) para(); };
     try { rec.start(); on = true; btn.classList.add("on"); btn.textContent = "⏹ Parar de gravar"; dica.textContent = "Ouvindo… fale o que aconteceu na visita."; } catch (e) { para(); }
@@ -573,9 +577,10 @@ function ligaVoz(btn, area, dica, chave){
 function ligaCheckout(){
   const v = S.sel, chave = "obs:" + v.visita_id; let res = null;
   try { const g = localStorage.getItem(chave) || ""; $("r-obs").value = g; if (g) $("r-obs").parentElement.open = true; } catch (e) {}
-  $("r-obs").addEventListener("input", e => { try { localStorage.setItem(chave, e.target.value); } catch (er) {} });
+  const libera = () => { const ok = !!res && $("r-obs").value.trim().length >= 10; $("o-ok").disabled = !ok; $("o-dica").hidden = ok; $("o-dica").textContent = !res ? "Escolha como foi e conte o que rolou (falando ou escrevendo) para liberar." : "Conte o que rolou na visita (falando ou escrevendo) para liberar."; };
+  $("r-obs").addEventListener("input", e => { try { localStorage.setItem(chave, e.target.value); } catch (er) {} libera(); });
   ligaVoz($("r-voz"), $("r-obs"), $("r-voz-d"), chave);
-  $("r-res").querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { res = b.dataset.r; $("r-res").querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === b)); $("o-ok").disabled = false; $("o-dica").hidden = true; }));
+  $("r-res").querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { res = b.dataset.r; $("r-res").querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === b)); libera(); }));
   $("o-ok").addEventListener("click", async () => {
     const b = $("o-ok"); b.disabled = true; mostraErro("o-erro", ""); b.textContent = "Registrando…";
     let p = null; try { p = await posicao(); } catch (e) {}   // se não der a localização no check-out, o check-out vale mesmo assim
